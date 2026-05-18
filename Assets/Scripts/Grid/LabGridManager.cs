@@ -1,0 +1,392 @@
+using UnityEngine;
+
+/// <summary>
+/// 연구실 바닥 타일 전체를 관리하는 스크립트.
+/// 
+/// 현재 게임 규칙:
+/// - Tile.png 하나 = 1평
+/// - 게임 시작 시 기본 연구실 = 9평
+/// - 9평 = 3 x 3 타일
+/// 
+/// 이 스크립트의 역할:
+/// 1. 게임이 시작되면 Tile.png를 9개 생성해서 연구실 바닥을 만든다.
+/// 2. 각 타일마다 LabTile.cs를 붙여서 좌표와 점유 상태를 관리한다.
+/// 3. 배치 모드일 때만 Tile_Grid.png를 타일 위에 표시한다.
+/// 4. 나중에 장비를 배치할 때 가장 가까운 타일 중심 좌표를 제공한다.
+/// </summary>
+public class LabGridManager : MonoBehaviour
+{
+    public static LabGridManager Instance;
+
+    [Header("연구실 크기 설정")]
+    [Tooltip("연구실 가로 칸 수입니다. 3이면 가로 3칸입니다.")]
+    public int width = 3;
+
+    [Tooltip("연구실 세로 칸 수입니다. 3이면 세로 3칸입니다.")]
+    public int height = 3;
+
+    [Header("타일 PNG 설정")]
+    [Tooltip("평소에 보이는 1평 바닥 타일 PNG입니다. Tile.png를 넣습니다.")]
+    public Sprite tileSprite;
+
+    [Tooltip("배치 모드에서만 보이는 흰색 테두리 타일 PNG입니다. Tile_Grid.png를 넣습니다.")]
+    public Sprite gridOverlaySprite;
+
+    [Header("타일 크기 설정")]
+    [Tooltip("타일 이미지 크기 비율입니다. 1이면 원래 크기, 0.5면 절반 크기입니다.")]
+    public float tileScale = 1f;
+
+    [Header("아이소메트릭 타일 간격")]
+    [Tooltip("자동 계산을 사용할지 여부입니다. 일단 false 추천. 직접 눈으로 맞추는 게 더 확실합니다.")]
+    public bool autoCalculateTileSpacing = false;
+
+    [Tooltip("타일 중심 간 X 간격입니다. 타일이 좌우로 벌어지거나 겹치면 이 값을 조절합니다.")]
+    public float manualTileHalfWidth = 1f;
+
+    [Tooltip("타일 중심 간 Y 간격입니다. 타일이 위아래로 벌어지거나 겹치면 이 값을 조절합니다.")]
+    public float manualTileHalfHeight = 0.5f;
+
+    [Header("연구실 위치")]
+    [Tooltip("연구실 전체의 기준 위치입니다. 보통 0,0,0으로 둡니다.")]
+    public Vector3 originPosition = Vector3.zero;
+
+    [Header("이미지 앞뒤 순서")]
+    [Tooltip("기본 바닥 타일의 표시 순서입니다. 낮을수록 뒤에 보입니다.")]
+    public int baseTileOrder = -10;
+
+    [Tooltip("배치 모드용 흰색 테두리 타일의 표시 순서입니다. 기본 타일보다 앞에 보여야 합니다.")]
+    public int gridOverlayOrder = -5;
+
+    [Header("생성된 타일 부모")]
+    [Tooltip("자동 생성된 타일들을 담아둘 부모 오브젝트입니다. 비워두면 자동 생성합니다.")]
+    public Transform tileParent;
+
+    // 생성된 타일들을 좌표로 관리하기 위한 2차원 배열.
+    private LabTile[,] tiles;
+
+    // 실제 계산에 사용할 타일 중심 간격.
+    private float tileHalfWidth;
+    private float tileHalfHeight;
+
+    private void Awake()
+    {
+        // 싱글톤 설정.
+        // 다른 스크립트에서 LabGridManager.Instance로 접근할 수 있게 한다.
+        if (Instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+    }
+
+    private void Start()
+    {
+        // 타일 사이 간격을 먼저 계산한다.
+        CalculateTileSpacing();
+
+        // 게임 시작 시 기본 연구실 9평을 생성한다.
+        GenerateInitialLab();
+
+        // 게임 시작 상태는 배치 모드가 아니므로 격자 테두리는 숨긴다.
+        HidePlacementGrid();
+    }
+
+    /// <summary>
+    /// 타일 사이 간격을 계산한다.
+    /// 
+    /// autoCalculateTileSpacing이 true면 Sprite 크기를 기준으로 자동 계산한다.
+    /// 그런데 PNG 여백이나 아이소메트릭 형태에 따라 자동 계산이 어긋날 수 있어서,
+    /// 지금 프로젝트에서는 수동값을 추천한다.
+    /// </summary>
+    private void CalculateTileSpacing()
+    {
+        if (autoCalculateTileSpacing && tileSprite != null)
+        {
+            // Sprite의 Unity 월드 기준 크기를 가져온다.
+            Vector2 spriteSize = tileSprite.bounds.size;
+
+            // 아이소메트릭 타일은 보통 중심 간격이 이미지 크기의 절반 정도다.
+            tileHalfWidth = spriteSize.x * tileScale * 0.5f;
+            tileHalfHeight = spriteSize.y * tileScale * 0.5f;
+        }
+        else
+        {
+            // 수동으로 입력한 값을 사용한다.
+            tileHalfWidth = manualTileHalfWidth;
+            tileHalfHeight = manualTileHalfHeight;
+        }
+    }
+
+    /// <summary>
+    /// 게임 시작 시 기본 연구실을 생성한다.
+    /// 
+    /// 현재 기본값:
+    /// width = 3
+    /// height = 3
+    /// 따라서 Tile.png 9개가 생성된다.
+    /// </summary>
+    public void GenerateInitialLab()
+    {
+        if (tileSprite == null)
+        {
+            Debug.LogError("LabGridManager: Tile Sprite가 비어 있습니다. Tile.png를 연결하세요.");
+            return;
+        }
+
+        if (gridOverlaySprite == null)
+        {
+            Debug.LogError("LabGridManager: Grid Overlay Sprite가 비어 있습니다. Tile_Grid.png를 연결하세요.");
+            return;
+        }
+
+        // 이미 생성된 타일이 있으면 중복 생성하지 않는다.
+        if (tiles != null)
+        {
+            Debug.LogWarning("LabGridManager: 이미 타일이 생성되어 있습니다.");
+            return;
+        }
+
+        // 생성된 타일을 정리해서 담아둘 부모 오브젝트를 만든다.
+        if (tileParent == null)
+        {
+            GameObject parentObject = new GameObject("GeneratedLabTiles");
+            parentObject.transform.SetParent(transform);
+            parentObject.transform.localPosition = Vector3.zero;
+            tileParent = parentObject.transform;
+        }
+
+        tiles = new LabTile[width, height];
+
+        // 3 x 3 타일 생성.
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                CreateTile(x, y);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 1평짜리 타일 하나를 생성한다.
+    /// 
+    /// 생성되는 구조:
+    /// Tile_0_0
+    /// ├── BaseTile     : Tile.png 표시
+    /// └── GridOverlay  : Tile_Grid.png 표시, 평소에는 숨김
+    /// </summary>
+    private void CreateTile(int x, int y)
+    {
+        // 격자 좌표를 실제 Unity 월드 좌표로 변환한다.
+        Vector3 tileWorldPosition = GridToWorldPosition(x, y);
+
+        // 타일 루트 오브젝트 생성.
+        GameObject tileObject = new GameObject("Tile_" + x + "_" + y);
+        tileObject.transform.SetParent(tileParent);
+        tileObject.transform.position = tileWorldPosition;
+
+        // 타일 상태를 관리하는 LabTile.cs 추가.
+        LabTile labTile = tileObject.AddComponent<LabTile>();
+
+        // 기본 바닥 이미지 오브젝트 생성.
+        GameObject baseTileObject = new GameObject("BaseTile");
+        baseTileObject.transform.SetParent(tileObject.transform);
+        baseTileObject.transform.localPosition = Vector3.zero;
+        baseTileObject.transform.localScale = Vector3.one * tileScale;
+
+        SpriteRenderer baseRenderer = baseTileObject.AddComponent<SpriteRenderer>();
+        baseRenderer.sprite = tileSprite;
+        baseRenderer.sortingOrder = baseTileOrder;
+
+        // 배치 모드용 흰색 테두리 오버레이 생성.
+        GameObject gridOverlayObject = new GameObject("GridOverlay");
+        gridOverlayObject.transform.SetParent(tileObject.transform);
+        gridOverlayObject.transform.localPosition = Vector3.zero;
+        gridOverlayObject.transform.localScale = Vector3.one * tileScale;
+
+        SpriteRenderer gridOverlayRenderer = gridOverlayObject.AddComponent<SpriteRenderer>();
+        gridOverlayRenderer.sprite = gridOverlaySprite;
+        gridOverlayRenderer.sortingOrder = gridOverlayOrder;
+
+        // LabTile.cs에 렌더러 연결.
+        labTile.baseRenderer = baseRenderer;
+        labTile.gridOverlayRenderer = gridOverlayRenderer;
+
+        // 좌표 초기화.
+        labTile.Initialize(x, y);
+
+        // 처음에는 반드시 GridOverlay를 숨긴다.
+        // 즉 게임 시작 시 Tile.png만 보이고 Tile_Grid.png는 보이지 않아야 한다.
+        labTile.SetGridOverlayVisible(false);
+
+        // 배열에 저장.
+        tiles[x, y] = labTile;
+    }
+
+    /// <summary>
+    /// 격자 좌표를 Unity 월드 좌표로 바꾼다.
+    /// 
+    /// 아이소메트릭 타일 배치 공식:
+    /// worldX = (x - y) 곱하기 tileHalfWidth
+    /// worldY = -(x + y) 곱하기 tileHalfHeight
+    /// 
+    /// x가 증가하면 오른쪽 아래로,
+    /// y가 증가하면 왼쪽 아래로 타일이 이어진다.
+    /// </summary>
+    public Vector3 GridToWorldPosition(int x, int y)
+    {
+        float worldX = (x - y) * tileHalfWidth;
+        float worldY = -(x + y) * tileHalfHeight;
+
+        return originPosition + new Vector3(worldX, worldY, 0f);
+    }
+
+    /// <summary>
+    /// 배치 모드용 격자 테두리를 보여준다.
+    /// 
+    /// 장비 구매 후 배치 모드에 들어갈 때 호출할 함수다.
+    /// </summary>
+    public void ShowPlacementGrid()
+    {
+        SetPlacementGridVisible(true);
+    }
+
+    /// <summary>
+    /// 배치 모드용 격자 테두리를 숨긴다.
+    /// 
+    /// 게임 시작 상태, 배치 완료, 배치 취소 시 호출한다.
+    /// </summary>
+    public void HidePlacementGrid()
+    {
+        SetPlacementGridVisible(false);
+    }
+
+    /// <summary>
+    /// 모든 타일의 GridOverlay 표시 여부를 바꾼다.
+    /// 
+    /// true  = Tile_Grid.png 보임
+    /// false = Tile_Grid.png 숨김
+    /// </summary>
+    private void SetPlacementGridVisible(bool visible)
+    {
+        if (tiles == null)
+        {
+            return;
+        }
+
+        foreach (LabTile tile in tiles)
+        {
+            if (tile != null)
+            {
+                tile.SetGridOverlayVisible(visible);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 월드 좌표에서 가장 가까운 타일을 찾는다.
+    /// 
+    /// 나중에 장비 미리보기를 마우스 위치에 따라 움직일 때 사용한다.
+    /// </summary>
+    public LabTile GetNearestTile(Vector3 worldPosition)
+    {
+        if (tiles == null)
+        {
+            return null;
+        }
+
+        LabTile nearestTile = null;
+        float nearestDistance = float.MaxValue;
+
+        foreach (LabTile tile in tiles)
+        {
+            if (tile == null)
+            {
+                continue;
+            }
+
+            float distance = Vector3.Distance(worldPosition, tile.GetCenterPosition());
+
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestTile = tile;
+            }
+        }
+
+        return nearestTile;
+    }
+
+    /// <summary>
+    /// 특정 위치에서 가장 가까운 타일 중심 좌표를 반환한다.
+    /// 
+    /// 장비를 이 위치에 놓으면 타일 중심에 딱 맞게 배치된다.
+    /// </summary>
+    public Vector3 GetNearestTileCenterPosition(Vector3 worldPosition)
+    {
+        LabTile nearestTile = GetNearestTile(worldPosition);
+
+        if (nearestTile == null)
+        {
+            return worldPosition;
+        }
+
+        return nearestTile.GetCenterPosition();
+    }
+
+    /// <summary>
+    /// 특정 타일에 장비를 놓을 수 있는지 검사한다.
+    /// 현재는 이미 점유된 타일인지 아닌지만 확인한다.
+    /// </summary>
+    public bool CanPlaceOnTile(LabTile tile)
+    {
+        if (tile == null)
+        {
+            return false;
+        }
+
+        return tile.CanPlaceObject();
+    }
+
+    /// <summary>
+    /// 장비 배치가 확정된 타일을 사용 중으로 표시한다.
+    /// </summary>
+    public void MarkTileOccupied(LabTile tile)
+    {
+        if (tile == null)
+        {
+            return;
+        }
+
+        tile.SetOccupied(true);
+    }
+
+    /// <summary>
+    /// 격자 좌표로 특정 타일을 가져온다.
+    /// 
+    /// 예:
+    /// GetTile(1, 1)
+    /// → 3x3 연구실의 가운데 타일을 가져온다.
+    /// 
+    /// 이 함수는 게임 시작 시 낡은 노트북을 특정 위치에 배치하거나,
+    /// 나중에 저장 데이터를 불러와 장비를 복원할 때 사용한다.
+    /// </summary>
+    public LabTile GetTile(int x, int y)
+    {
+        // 아직 타일 배열이 생성되지 않았다면 null 반환
+        if (tiles == null)
+        {
+            return null;
+        }
+
+        // 범위 밖 좌표면 null 반환
+        if (x < 0 || y < 0 || x >= width || y >= height)
+        {
+            return null;
+        }
+
+        return tiles[x, y];
+    }
+}

@@ -1,65 +1,73 @@
 using UnityEngine;
 
+/// <summary>
+/// 장비 상점 역할을 하는 스크립트.
+/// 
+/// 기존 방식:
+/// - 버튼 클릭
+/// - 돈 차감
+/// - SpawnPoint에 자동 생성
+/// 
+/// 새 방식:
+/// - 버튼 클릭
+/// - 돈이 충분한지만 확인
+/// - PlacementManager에게 배치 모드 시작 요청
+/// - 실제 돈 차감은 배치 확정 시점에 진행
+/// </summary>
 public class EquipmentShop : MonoBehaviour
 {
     [Header("장비 목록")]
+    [Tooltip("상점에서 구매 가능한 장비 목록입니다.")]
     public EquipmentData[] equipmentList;
 
-    [Header("장비 생성 위치")]
-    public Transform[] spawnPoints;
-
-    private int currentSpawnIndex = 0;
-
+    /// <summary>
+    /// 장비 구매 버튼에서 호출할 함수.
+    /// 
+    /// index는 equipmentList의 몇 번째 장비인지 의미한다.
+    /// 예:
+    /// 0 = 책상
+    /// 1 = 커피머신
+    /// 2 = 컴퓨터
+    /// </summary>
     public void BuyEquipment(int index)
     {
         if (index < 0 || index >= equipmentList.Length)
         {
-            Debug.LogError("잘못된 장비 인덱스입니다.");
+            Debug.LogError("EquipmentShop: 잘못된 장비 인덱스입니다.");
             return;
         }
 
         EquipmentData equipment = equipmentList[index];
 
-        if (ResourceManager.Instance.SpendMoney(equipment.price) == false)
-        {
-            return;
-        }
-
-        ResourceManager.Instance.AddMoneyProduction(equipment.addMoneyPerTick);
-        ResourceManager.Instance.AddResearchProduction(equipment.addResearchPerTick);
-        ResourceManager.Instance.AddStressProduction(equipment.addStressPerTick);
-
-        SpawnEquipment(equipment);
-
-        Debug.Log(equipment.equipmentName + " 구매 완료");
-    }
-
-    private void SpawnEquipment(EquipmentData equipment)
-    {
         if (equipment.equipmentPrefab == null)
         {
-            Debug.LogWarning(equipment.equipmentName + " 프리팹이 없습니다.");
+            Debug.LogError(equipment.equipmentName + " 프리팹이 연결되지 않았습니다.");
             return;
         }
 
-        if (spawnPoints == null || spawnPoints.Length == 0)
+        if (PlacementManager.Instance == null)
         {
-            Debug.LogWarning("장비 생성 위치가 없습니다.");
+            Debug.LogError("PlacementManager.Instance가 없습니다. Managers 오브젝트에 PlacementManager.cs를 붙였는지 확인하세요.");
             return;
         }
 
-        if (currentSpawnIndex >= spawnPoints.Length)
+        if (ResourceManager.Instance == null)
         {
-            Debug.LogWarning("더 이상 장비를 배치할 위치가 없습니다.");
+            Debug.LogError("ResourceManager.Instance가 없습니다.");
             return;
         }
 
-        Instantiate(
-            equipment.equipmentPrefab,
-            spawnPoints[currentSpawnIndex].position,
-            Quaternion.identity
-        );
+        // 돈이 부족하면 배치 모드에 들어가지 않는다.
+        // 실제 차감은 PlacementManager에서 배치 확정 시점에 한다.
+        if (ResourceManager.Instance.money < equipment.price)
+        {
+            Debug.Log("돈이 부족합니다.");
+            return;
+        }
 
-        currentSpawnIndex++;
+        // 장비 자동 생성이 아니라 배치 모드로 진입한다.
+        PlacementManager.Instance.StartPlacement(equipment.equipmentPrefab, equipment.price);
+
+        Debug.Log(equipment.equipmentName + " 배치 모드 시작");
     }
 }
