@@ -18,6 +18,28 @@ public class LabGridManager : MonoBehaviour
 {
     public static LabGridManager Instance;
 
+    [Header("벽지 PNG 설정")]
+    [Tooltip("왼쪽 상단 벽에 사용할 PNG입니다. Wall_Left.png를 넣습니다.")]
+    public Sprite wallLeftSprite;
+
+    [Tooltip("오른쪽 상단 벽에 사용할 PNG입니다. Wall_Right.png를 넣습니다.")]
+    public Sprite wallRightSprite;
+
+    [Header("벽지 위치 보정")]
+    [Tooltip("Wall_Left.png가 타일 중심에서 얼마나 이동할지 정합니다. 타일과 안 맞으면 이 값을 조절합니다.")]
+    public Vector3 wallLeftOffset = new Vector3(-0.52f, 0.28f, 0f);
+
+    [Tooltip("Wall_Right.png가 타일 중심에서 얼마나 이동할지 정합니다. 타일과 안 맞으면 이 값을 조절합니다.")]
+    public Vector3 wallRightOffset = new Vector3(0.52f, 0.28f, 0f);
+
+    [Header("벽지 정렬 순서")]
+    [Tooltip("벽지의 Order in Layer입니다. 타일보다 앞, 장비보다 뒤에 두는 것이 기본입니다.")]
+    public int wallOrder = -6;
+
+    [Header("생성된 벽지 부모")]
+    [Tooltip("자동 생성된 벽지들을 담아둘 부모 오브젝트입니다. 비워두면 자동 생성합니다.")]
+    public Transform wallParent;
+
     [Header("연구실 크기 설정")]
     [Tooltip("연구실 가로 칸 수입니다. 3이면 가로 3칸입니다.")]
     public int width = 3;
@@ -83,11 +105,14 @@ public class LabGridManager : MonoBehaviour
 
     private void Start()
     {
-        // 타일 사이 간격을 먼저 계산한다.
+        // 타일 간격을 계산한다.
         CalculateTileSpacing();
 
-        // 게임 시작 시 기본 연구실 9평을 생성한다.
+        // 게임 시작 시 기본 9평 연구실 바닥을 생성한다.
         GenerateInitialLab();
+
+        // 바닥 타일이 생성된 뒤, 그 타일 좌표를 기준으로 벽지를 생성한다.
+        GenerateInitialWalls();
 
         // 게임 시작 상태는 배치 모드가 아니므로 격자 테두리는 숨긴다.
         HidePlacementGrid();
@@ -388,5 +413,101 @@ public class LabGridManager : MonoBehaviour
         }
 
         return tiles[x, y];
+    }
+
+    /// <summary>
+    /// 게임 시작 시 연구실 벽지를 생성한다.
+    /// 
+    /// 현재 규칙:
+    /// - 초기 연구실은 3x3 = 9평
+    /// - 왼쪽 상단 방향에 Wall_Left.png 3개
+    /// - 오른쪽 상단 방향에 Wall_Right.png 3개
+    /// - 총 벽지 6개 생성
+    /// 
+    /// 벽지는 타일 위에 직접 배치되는 장비가 아니므로
+    /// 타일 occupied 상태에는 영향을 주지 않는다.
+    /// </summary>
+    public void GenerateInitialWalls()
+    {
+        if (tiles == null)
+        {
+            Debug.LogError("LabGridManager: 타일이 아직 생성되지 않아서 벽지를 만들 수 없습니다.");
+            return;
+        }
+
+        if (wallLeftSprite == null)
+        {
+            Debug.LogError("LabGridManager: Wall_Left Sprite가 비어 있습니다.");
+            return;
+        }
+
+        if (wallRightSprite == null)
+        {
+            Debug.LogError("LabGridManager: Wall_Right Sprite가 비어 있습니다.");
+            return;
+        }
+
+        // 벽지들을 정리해서 담아둘 부모 오브젝트를 만든다.
+        // Hierarchy가 지저분해지는 것을 막기 위한 용도다.
+        if (wallParent == null)
+        {
+            GameObject parentObject = new GameObject("GeneratedLabWalls");
+            parentObject.transform.SetParent(transform);
+            parentObject.transform.localPosition = Vector3.zero;
+            wallParent = parentObject.transform;
+        }
+
+        // 왼쪽 상단 벽 생성.
+        // x = 0 라인에 Wall_Left.png를 붙인다.
+        for (int y = 0; y < height; y++)
+        {
+            LabTile tile = GetTile(0, y);
+
+            if (tile != null)
+            {
+                CreateWall(
+                    "Wall_Left_" + y,
+                    wallLeftSprite,
+                    tile.GetCenterPosition() + wallLeftOffset
+                );
+            }
+        }
+
+        // 오른쪽 상단 벽 생성.
+        // y = height - 1 라인에 Wall_Right.png를 붙인다.
+        for (int x = 0; x < width; x++)
+        {
+            LabTile tile = GetTile(x, height - 1);
+
+            if (tile != null)
+            {
+                CreateWall(
+                    "Wall_Right_" + x,
+                    wallRightSprite,
+                    tile.GetCenterPosition() + wallRightOffset
+                );
+            }
+        }
+    }
+
+    /// <summary>
+    /// 벽지 오브젝트 하나를 생성한다.
+    /// 
+    /// 이 함수는 Wall_Left.png나 Wall_Right.png를
+    /// SpriteRenderer로 화면에 표시하는 역할을 한다.
+    /// </summary>
+    private void CreateWall(string wallName, Sprite wallSprite, Vector3 worldPosition)
+    {
+        GameObject wallObject = new GameObject(wallName);
+        wallObject.transform.SetParent(wallParent);
+        wallObject.transform.position = worldPosition;
+
+        SpriteRenderer spriteRenderer = wallObject.AddComponent<SpriteRenderer>();
+
+        // 실제로 표시할 벽지 PNG를 연결한다.
+        spriteRenderer.sprite = wallSprite;
+
+        // 벽지가 타일보다 앞에 보이도록 정렬 순서를 준다.
+        spriteRenderer.sortingOrder = wallOrder;
     }
 }
