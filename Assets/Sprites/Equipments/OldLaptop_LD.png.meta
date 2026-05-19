@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: 4cb7bfc34e6eb4247a9a58a2f4a1ff79
+guid: 7de78847945f24d95a95872451d0d76e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7308439743281930749
-    second: Wall_Left_0
+      213: 228065012036090829
+    second: OldLaptop_LD_0
+  - first:
+      213: 1903180181698946179
+    second: OldLaptop_LD_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +40,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 2
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -49,8 +52,8 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 0
-  alignment: 9
-  spritePivot: {x: 0.5, y: 0}
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 256
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -126,13 +129,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wall_Left_0
+      name: OldLaptop_LD_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 22
-        width: 1408
-        height: 1750
+        x: 279
+        y: 222
+        width: 327
+        height: 453
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +144,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: df1aaa8893bcc6560800000000000000
-      internalID: 7308439743281930749
+      spriteID: dcb3b1c8bef3a2300800000000000000
+      internalID: 228065012036090829
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: OldLaptop_LD_1
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 404
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 384aab1ba44796a10800000000000000
+      internalID: 1903180181698946179
       vertices: []
       indices: 
       edges: []
@@ -161,7 +186,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Wall_Left_0: 7308439743281930749
+      OldLaptop_LD_0: 228065012036090829
+      OldLaptop_LD_1: 1903180181698946179
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

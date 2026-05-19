@@ -25,6 +25,10 @@ public class LabGridManager : MonoBehaviour
     [Tooltip("오른쪽 상단 벽에 사용할 PNG입니다. Wall_Right.png를 넣습니다.")]
     public Sprite wallRightSprite;
 
+    [Header("벽지 크기 설정")]
+    [Tooltip("벽지 PNG의 크기 비율입니다. 1이면 원래 크기, 0.5면 절반 크기입니다.")]
+    public float wallScale = 1f;
+
     [Header("벽지 위치 보정")]
     [Tooltip("Wall_Left.png가 타일 중심에서 얼마나 이동할지 정합니다. 타일과 안 맞으면 이 값을 조절합니다.")]
     public Vector3 wallLeftOffset = new Vector3(-0.52f, 0.28f, 0f);
@@ -414,18 +418,18 @@ public class LabGridManager : MonoBehaviour
 
         return tiles[x, y];
     }
-
     /// <summary>
     /// 게임 시작 시 연구실 벽지를 생성한다.
     /// 
     /// 현재 규칙:
-    /// - 초기 연구실은 3x3 = 9평
-    /// - 왼쪽 상단 방향에 Wall_Left.png 3개
-    /// - 오른쪽 상단 방향에 Wall_Right.png 3개
-    /// - 총 벽지 6개 생성
+    /// - 왼쪽 벽지는 x = 0 라인의 타일 윗왼쪽 변에 붙인다.
+    /// - 오른쪽 벽지는 y = 0 라인의 타일 윗오른쪽 변에 붙인다.
+    /// - 벽지 PNG는 타일보다 커도 된다.
+    /// - 중요한 것은 벽지의 밑면이 타일의 윗변과 맞는 것이다.
     /// 
-    /// 벽지는 타일 위에 직접 배치되는 장비가 아니므로
-    /// 타일 occupied 상태에는 영향을 주지 않는다.
+    /// 벽지 위치는:
+    /// 타일 윗변 기준점 + wallLeftOffset / wallRightOffset
+    /// 으로 조정한다.
     /// </summary>
     public void GenerateInitialWalls()
     {
@@ -447,8 +451,6 @@ public class LabGridManager : MonoBehaviour
             return;
         }
 
-        // 벽지들을 정리해서 담아둘 부모 오브젝트를 만든다.
-        // Hierarchy가 지저분해지는 것을 막기 위한 용도다.
         if (wallParent == null)
         {
             GameObject parentObject = new GameObject("GeneratedLabWalls");
@@ -457,34 +459,40 @@ public class LabGridManager : MonoBehaviour
             wallParent = parentObject.transform;
         }
 
-        // 왼쪽 상단 벽 생성.
-        // x = 0 라인에 Wall_Left.png를 붙인다.
+        // 왼쪽 상단 벽 생성
+        // x = 0 라인: (0,0), (0,1), (0,2)
         for (int y = 0; y < height; y++)
         {
             LabTile tile = GetTile(0, y);
 
             if (tile != null)
             {
+                // 타일의 왼쪽 윗변 기준점에 Wall_Left 전용 위치 보정을 더한다.
+                Vector3 wallPosition = GetTileTopLeftEdgeCenter(tile) + wallLeftOffset;
+
                 CreateWall(
                     "Wall_Left_" + y,
                     wallLeftSprite,
-                    tile.GetCenterPosition() + wallLeftOffset
+                    wallPosition
                 );
             }
         }
 
-        // 오른쪽 상단 벽 생성.
-        // y = height - 1 라인에 Wall_Right.png를 붙인다.
+        // 오른쪽 상단 벽 생성
+        // y = 0 라인: (0,0), (1,0), (2,0)
         for (int x = 0; x < width; x++)
         {
-            LabTile tile = GetTile(x, height - 1);
+            LabTile tile = GetTile(x, 0);
 
             if (tile != null)
             {
+                // 타일의 오른쪽 윗변 기준점에 Wall_Right 전용 위치 보정을 더한다.
+                Vector3 wallPosition = GetTileTopRightEdgeCenter(tile) + wallRightOffset;
+
                 CreateWall(
                     "Wall_Right_" + x,
                     wallRightSprite,
-                    tile.GetCenterPosition() + wallRightOffset
+                    wallPosition
                 );
             }
         }
@@ -493,8 +501,8 @@ public class LabGridManager : MonoBehaviour
     /// <summary>
     /// 벽지 오브젝트 하나를 생성한다.
     /// 
-    /// 이 함수는 Wall_Left.png나 Wall_Right.png를
-    /// SpriteRenderer로 화면에 표시하는 역할을 한다.
+    /// wallSprite는 Wall_Left.png 또는 Wall_Right.png이고,
+    /// worldPosition은 타일 끝선을 기준으로 계산된 위치다.
     /// </summary>
     private void CreateWall(string wallName, Sprite wallSprite, Vector3 worldPosition)
     {
@@ -502,12 +510,59 @@ public class LabGridManager : MonoBehaviour
         wallObject.transform.SetParent(wallParent);
         wallObject.transform.position = worldPosition;
 
+        // 벽지 크기.
+        // 벽지 PNG 밑면이 타일 길이와 맞게 제작되어 있다면 1로 둔다.
+        wallObject.transform.localScale = Vector3.one * wallScale;
+
         SpriteRenderer spriteRenderer = wallObject.AddComponent<SpriteRenderer>();
-
-        // 실제로 표시할 벽지 PNG를 연결한다.
         spriteRenderer.sprite = wallSprite;
-
-        // 벽지가 타일보다 앞에 보이도록 정렬 순서를 준다.
         spriteRenderer.sortingOrder = wallOrder;
+    }
+    /// <summary>
+    /// 특정 타일의 왼쪽 윗변 중앙 위치를 반환한다.
+    /// 
+    /// Wall_Left.png를 붙일 기준점이다.
+    /// 여기서 반환되는 위치는 "타일 중심"이 아니라
+    /// 타일 왼쪽 위 모서리 방향의 변 중앙이다.
+    /// </summary>
+    public Vector3 GetTileTopLeftEdgeCenter(LabTile tile)
+    {
+        if (tile == null)
+        {
+            return Vector3.zero;
+        }
+
+        Vector3 tileCenter = tile.GetCenterPosition();
+
+        Vector3 edgeOffset = new Vector3(
+            -manualTileHalfWidth * 0.5f,
+            manualTileHalfHeight * 0.5f,
+            0f
+        );
+
+        return tileCenter + edgeOffset;
+    }
+
+    /// <summary>
+    /// 특정 타일의 오른쪽 윗변 중앙 위치를 반환한다.
+    /// 
+    /// Wall_Right.png를 붙일 기준점이다.
+    /// </summary>
+    public Vector3 GetTileTopRightEdgeCenter(LabTile tile)
+    {
+        if (tile == null)
+        {
+            return Vector3.zero;
+        }
+
+        Vector3 tileCenter = tile.GetCenterPosition();
+
+        Vector3 edgeOffset = new Vector3(
+            manualTileHalfWidth * 0.5f,
+            manualTileHalfHeight * 0.5f,
+            0f
+        );
+
+        return tileCenter + edgeOffset;
     }
 }

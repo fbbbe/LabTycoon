@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 32554d2a1b1cd479fa933272f34688c6
+guid: 5db1f82f1405046be8a6ac9a848e20ea
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7872722273471896646
-    second: Desk_0
+      213: -9126031175594039688
+    second: ChairSet_Undergraduate_RU_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 2
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -48,10 +48,10 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 256
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Desk_0
+      name: ChairSet_Undergraduate_RU_0
       rect:
         serializedVersion: 2
-        x: 57
-        y: 72
-        width: 774
-        height: 635
+        x: 195
+        y: 86
+        width: 440
+        height: 650
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 64c199d3237814d60800000000000000
-      internalID: 7872722273471896646
+      spriteID: 876a3916ff2d95180800000000000000
+      internalID: -9126031175594039688
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Desk_0: 7872722273471896646
+      ChairSet_Undergraduate_RU_0: -9126031175594039688
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

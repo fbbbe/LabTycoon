@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 4cb7bfc34e6eb4247a9a58a2f4a1ff79
+guid: 8a81c33d8612d460ea9b7cd1fc5c3362
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7308439743281930749
-    second: Wall_Left_0
+      213: 4156875487258378326
+    second: Chair_LU_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 2
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -49,8 +49,8 @@ TextureImporter:
   spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 0
-  alignment: 9
-  spritePivot: {x: 0.5, y: 0}
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 256
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wall_Left_0
+      name: Chair_LU_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 22
-        width: 1408
-        height: 1750
+        x: 428
+        y: 46
+        width: 504
+        height: 580
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: df1aaa8893bcc6560800000000000000
-      internalID: 7308439743281930749
+      spriteID: 65080994b3030b930800000000000000
+      internalID: 4156875487258378326
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Wall_Left_0: 7308439743281930749
+      Chair_LU_0: 4156875487258378326
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

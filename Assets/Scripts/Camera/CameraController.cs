@@ -47,6 +47,13 @@ public class CameraController : MonoBehaviour
 
     private void HandleDragMove()
     {
+        // 배치 모드 중에는 우클릭이 "회전" 기능으로 쓰인다.
+        // 따라서 배치 모드 중에는 우클릭 카메라 이동을 막는다.
+        if (PlacementManager.Instance != null && PlacementManager.Instance.isPlacementMode)
+        {
+            return;
+        }
+
         if (Input.GetMouseButtonDown(1))
         {
             lastMousePosition = Input.mousePosition;
