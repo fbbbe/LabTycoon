@@ -25,6 +25,13 @@ public class StaffWorker : MonoBehaviour
     [Tooltip("인력 종류입니다. 학사생/석사생/박사생을 구분합니다.")]
     public StaffType staffType = StaffType.Undergraduate;
 
+    [Header("인력 능력치")]
+    [Tooltip("이 인력의 레벨입니다.")]
+    public int level = 1;
+
+    [Tooltip("이 인력의 연구력입니다. 과제 수행 가능 여부에 사용됩니다.")]
+    public int researchPower = 10;
+
     [Header("스트레스")]
     [Tooltip("현재 스트레스 수치입니다. 0~100 범위로 사용합니다.")]
     public int stress = 0;
