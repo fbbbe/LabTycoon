@@ -10,5 +10,9 @@ public enum DeskEquipmentType
     UsedComputer,    // 중고 컴퓨터
     BasicComputer,   // 기본 컴퓨터
     OfficeComputer,  // 사무용 컴퓨터
-    HighEndComputer  // 고사양 컴퓨터
+    HighEndComputer,  // 고사양 컴퓨터
+
+    WorkStation,
+    GPUServer,
+    AIServer
 }

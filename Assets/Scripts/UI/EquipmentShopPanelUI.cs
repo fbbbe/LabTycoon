@@ -5,61 +5,35 @@ using UnityEngine.UI;
 /// <summary>
 /// 상점 패널 전체를 관리하는 스크립트.
 /// 
-/// 담당 기능:
-/// 1. 상단 카테고리 버튼 클릭 시 왼쪽 장비 목록 그룹 변경
-/// 2. 왼쪽 장비 버튼 클릭 시 오른쪽 상세 정보 갱신
-/// 3. 구매 버튼 가격 텍스트 갱신
-/// 4. 구매 버튼 클릭 시 현재 선택된 장비 구매 처리
+/// 기능:
+/// 1. 상단 카테고리 버튼을 누르면 왼쪽 장비 목록 그룹을 바꾼다.
+/// 2. 왼쪽 장비 패널 버튼을 누르면 오른쪽 상세 정보가 바뀐다.
+/// 3. 구매 버튼에는 현재 선택된 장비의 가격이 표시된다.
+/// 4. 구매 버튼을 누르면 현재 선택된 장비의 구매 로직을 실행한다.
 /// </summary>
 public class EquipmentShopPanelUI : MonoBehaviour
 {
     [Header("카테고리별 왼쪽 목록 그룹")]
-    [Tooltip("컴퓨터 장비 목록 버튼들이 들어있는 부모 오브젝트입니다.")]
     public GameObject computerItemGroup;
-
-    [Tooltip("연구 장비 목록 버튼들이 들어있는 부모 오브젝트입니다.")]
     public GameObject researchItemGroup;
-
-    [Tooltip("환경 장비 목록 버튼들이 들어있는 부모 오브젝트입니다.")]
     public GameObject environmentItemGroup;
-
-    [Tooltip("커피 장비 목록 버튼들이 들어있는 부모 오브젝트입니다.")]
     public GameObject coffeeItemGroup;
-
-    [Tooltip("청소 장비 목록 버튼들이 들어있는 부모 오브젝트입니다.")]
     public GameObject cleaningItemGroup;
 
     [Header("오른쪽 상세 정보 UI")]
-    [Tooltip("선택한 장비 이미지를 표시하는 Image입니다.")]
     public Image detailItemImage;
-
-    [Tooltip("선택한 장비 이름 텍스트입니다.")]
     public TextMeshProUGUI detailNameText;
-
-    [Tooltip("선택한 장비 설명 텍스트입니다.")]
     public TextMeshProUGUI detailDescriptionText;
-
-    [Tooltip("돈 보상 텍스트입니다.")]
     public TextMeshProUGUI moneyBonusText;
-
-    [Tooltip("해금 레벨 텍스트입니다.")]
     public TextMeshProUGUI unlockLevelText;
-
-    [Tooltip("가격 텍스트입니다.")]
     public TextMeshProUGUI priceText;
-
-    [Tooltip("차지 평수 텍스트입니다.")]
     public TextMeshProUGUI spaceCostText;
 
     [Header("구매 버튼")]
-    [Tooltip("초록색 구매 버튼입니다.")]
     public Button buyButton;
-
-    [Tooltip("구매 버튼 안에 표시되는 가격 텍스트입니다.")]
     public TextMeshProUGUI buyButtonPriceText;
 
-    [Header("패널 닫기")]
-    [Tooltip("상점 패널 전체 오브젝트입니다.")]
+    [Header("패널 루트")]
     public GameObject panelRoot;
 
     [Header("현재 선택된 아이템")]
@@ -75,52 +49,36 @@ public class EquipmentShopPanelUI : MonoBehaviour
 
     private void OnEnable()
     {
-        // 상점창이 열릴 때 기본으로 컴퓨터 장비 탭을 보여준다.
         ShowCategory(ShopCategory.Computer);
     }
 
-    /// <summary>
-    /// 컴퓨터 장비 탭 버튼에 연결할 함수.
-    /// </summary>
     public void ShowComputerCategory()
     {
         ShowCategory(ShopCategory.Computer);
     }
 
-    /// <summary>
-    /// 연구 장비 탭 버튼에 연결할 함수.
-    /// </summary>
     public void ShowResearchCategory()
     {
         ShowCategory(ShopCategory.Research);
     }
 
-    /// <summary>
-    /// 환경 장비 탭 버튼에 연결할 함수.
-    /// </summary>
     public void ShowEnvironmentCategory()
     {
         ShowCategory(ShopCategory.Environment);
     }
 
-    /// <summary>
-    /// 커피 장비 탭 버튼에 연결할 함수.
-    /// </summary>
     public void ShowCoffeeCategory()
     {
         ShowCategory(ShopCategory.Coffee);
     }
 
-    /// <summary>
-    /// 청소 장비 탭 버튼에 연결할 함수.
-    /// </summary>
     public void ShowCleaningCategory()
     {
         ShowCategory(ShopCategory.Cleaning);
     }
 
     /// <summary>
-    /// 선택된 카테고리에 맞는 왼쪽 목록 그룹만 켜고 나머지는 끈다.
+    /// 선택한 카테고리의 장비 목록 그룹만 켜고 나머지는 끈다.
     /// </summary>
     public void ShowCategory(ShopCategory category)
     {
@@ -129,11 +87,12 @@ public class EquipmentShopPanelUI : MonoBehaviour
         SetActiveSafe(environmentItemGroup, category == ShopCategory.Environment);
         SetActiveSafe(coffeeItemGroup, category == ShopCategory.Coffee);
         SetActiveSafe(cleaningItemGroup, category == ShopCategory.Cleaning);
+        ClearDetailInfo();
     }
 
     /// <summary>
-    /// 왼쪽 장비 목록 버튼을 클릭했을 때 호출된다.
-    /// 오른쪽 상세 정보 UI를 선택한 아이템 데이터로 갱신한다.
+    /// 왼쪽 장비 목록 버튼을 눌렀을 때 호출된다.
+    /// 이 함수가 오른쪽 상세 정보 Text와 Image를 실제로 바꾼다.
     /// </summary>
     public void SelectItem(ShopItemData itemData)
     {
@@ -142,10 +101,13 @@ public class EquipmentShopPanelUI : MonoBehaviour
             return;
         }
 
+        // 현재 선택된 장비를 저장한다.
+        // 구매 버튼을 눌렀을 때 이 selectedItem을 기준으로 구매 처리한다.
         selectedItem = itemData;
 
         if (detailItemImage != null)
         {
+            detailItemImage.enabled = true;
             detailItemImage.sprite = itemData.detailImage;
         }
 
@@ -187,7 +149,7 @@ public class EquipmentShopPanelUI : MonoBehaviour
 
     /// <summary>
     /// 구매 버튼을 눌렀을 때 실행된다.
-    /// 현재 선택된 아이템의 구매 타입에 따라 처리 방식을 나눈다.
+    /// 현재 선택된 장비의 purchaseType에 따라 다르게 처리한다.
     /// </summary>
     public void BuySelectedItem()
     {
@@ -199,7 +161,7 @@ public class EquipmentShopPanelUI : MonoBehaviour
 
         if (ResourceManager.Instance == null)
         {
-            Debug.LogError("EquipmentShopPanelUI: ResourceManager.Instance가 없습니다.");
+            Debug.LogError("ResourceManager.Instance가 없습니다.");
             return;
         }
 
@@ -222,7 +184,7 @@ public class EquipmentShopPanelUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 타일 위에 직접 배치되는 아이템 구매 처리.
+    /// 타일 위에 직접 배치하는 장비 구매.
     /// 예: 책상+의자 세트, 커피머신
     /// </summary>
     private void BuyTilePlaceableItem()
@@ -239,7 +201,6 @@ public class EquipmentShopPanelUI : MonoBehaviour
             return;
         }
 
-        // 상점 패널을 닫고 배치 모드로 들어간다.
         ClosePanel();
 
         PlacementManager.Instance.StartPlacement(
@@ -249,11 +210,10 @@ public class EquipmentShopPanelUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 책상 위에 설치하는 장비 구매 처리.
+    /// 책상 위에 설치하는 장비 구매.
     /// 예: 낡은 노트북, 중고 컴퓨터
     /// 
-    /// 아직 Workstation 선택 모드는 다음 단계에서 구현한다.
-    /// 지금은 로그만 출력한다.
+    /// 실제 Workstation 선택 모드는 다음 단계에서 구현한다.
     /// </summary>
     private void BuyDeskEquipmentItem()
     {
@@ -263,12 +223,9 @@ public class EquipmentShopPanelUI : MonoBehaviour
             return;
         }
 
-        Debug.Log("책상 위 장비 구매는 다음 단계에서 Workstation 선택 모드로 연결합니다: " + selectedItem.itemName);
+        Debug.Log("책상 위 장비 구매 선택됨: " + selectedItem.itemName);
     }
 
-    /// <summary>
-    /// 상점 패널 닫기.
-    /// </summary>
     public void ClosePanel()
     {
         if (panelRoot != null)
@@ -286,6 +243,60 @@ public class EquipmentShopPanelUI : MonoBehaviour
         if (target != null)
         {
             target.SetActive(active);
+        }
+    }
+
+    /// <summary>
+    /// 오른쪽 상세 정보 영역을 비운다.
+    /// 
+    /// 카테고리를 바꾸거나 상점창을 처음 열 때,
+    /// 이전에 선택했던 장비 정보가 남아 있지 않게 초기화한다.
+    /// </summary>
+    private void ClearDetailInfo()
+    {
+        // 현재 선택된 아이템이 없다는 뜻.
+        selectedItem = null;
+
+        if (detailItemImage != null)
+        {
+            // 아무 장비도 선택하지 않았을 때 흰 사각형이 보이지 않게 한다.
+            detailItemImage.sprite = null;
+            detailItemImage.enabled = false;
+        }
+
+        if (detailNameText != null)
+        {
+            detailNameText.text = "";
+        }
+
+        if (detailDescriptionText != null)
+        {
+            detailDescriptionText.text = "";
+        }
+
+        if (moneyBonusText != null)
+        {
+            moneyBonusText.text = "";
+        }
+
+        if (unlockLevelText != null)
+        {
+            unlockLevelText.text = "";
+        }
+
+        if (priceText != null)
+        {
+            priceText.text = "";
+        }
+
+        if (spaceCostText != null)
+        {
+            spaceCostText.text = "";
+        }
+
+        if (buyButtonPriceText != null)
+        {
+            buyButtonPriceText.text = "";
         }
     }
 }

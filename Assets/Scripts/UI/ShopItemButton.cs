@@ -32,9 +32,6 @@ public class ShopItemButton : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 왼쪽 장비 목록 버튼을 클릭했을 때 실행된다.
-    /// </summary>
     private void OnClickItem()
     {
         if (shopPanelUI == null)
@@ -48,6 +45,8 @@ public class ShopItemButton : MonoBehaviour
             Debug.LogError("ShopItemButton: itemData가 연결되지 않았습니다.");
             return;
         }
+
+        Debug.Log("아이템 버튼 클릭됨: " + itemData.itemName);
 
         shopPanelUI.SelectItem(itemData);
     }
