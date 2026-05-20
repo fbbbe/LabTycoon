@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 709b0cd49dd81426e804db301fb02355
+guid: ff0bff4d14a7d49cf8364139c6d89e43
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4556733660187874020
-    second: MasterStudent_0
+      213: 3805351507875845423
+    second: ChairSet_MasterStudent_RD_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 1
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 256
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MasterStudent_0
+      name: ChairSet_MasterStudent_RD_0
       rect:
         serializedVersion: 2
-        x: 199
-        y: 66
-        width: 509
-        height: 751
+        x: 206
+        y: 179
+        width: 347
+        height: 559
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e2509f0f15cc3f30800000000000000
-      internalID: 4556733660187874020
+      spriteID: f25df68e8035fc430800000000000000
+      internalID: 3805351507875845423
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MasterStudent_0: 4556733660187874020
+      ChairSet_MasterStudent_RD_0: 3805351507875845423
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

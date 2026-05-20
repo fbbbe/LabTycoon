@@ -565,4 +565,43 @@ public class LabGridManager : MonoBehaviour
 
         return tileCenter + edgeOffset;
     }
+
+    /// <summary>
+    /// 타일 좌표를 기준으로 SpriteRenderer의 Sorting Order를 계산한다.
+    /// 
+    /// Unity 2D에서는 sortingOrder 값이 클수록 화면 앞에 보인다.
+    /// 
+    /// 현재 정렬 규칙:
+    /// 1. y값이 작은 타일에 있는 물체가 더 앞에 온다.
+    /// 2. y값이 같다면 x값이 작은 타일에 있는 물체가 더 앞에 온다.
+    /// 3. x와 y 기준이 충돌하면 y값 기준을 우선한다.
+    /// 
+    /// 예:
+    /// (0, 0) → 가장 앞쪽 우선
+    /// (1, 0) → 그다음
+    /// (0, 1) → y가 더 크므로 뒤쪽
+    /// 
+    /// y에 100을 곱하는 이유:
+    /// x 차이보다 y 차이를 훨씬 크게 반영하기 위해서다.
+    /// 즉, y 기준이 x 기준보다 우선된다.
+    /// </summary>
+    public int GetSortingOrderByTile(int tileX, int tileY)
+    {
+        int baseOrder = 1000;
+
+        return baseOrder - tileY * 100 - tileX;
+    }
+
+    /// <summary>
+    /// LabTile을 직접 받아서 Sorting Order를 계산한다.
+    /// </summary>
+    public int GetSortingOrderByTile(LabTile tile)
+    {
+        if (tile == null)
+        {
+            return 0;
+        }
+
+        return GetSortingOrderByTile(tile.gridX, tile.gridY);
+    }
 }

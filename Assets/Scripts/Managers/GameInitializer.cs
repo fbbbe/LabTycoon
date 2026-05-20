@@ -50,6 +50,16 @@ public class GameInitializer : MonoBehaviour
     [Tooltip("초기화가 이미 완료되었는지 확인하는 값입니다.")]
     public bool initialized = false;
 
+    [Header("초기 인력 생성 타일")]
+    [Tooltip("초기 학사생을 생성할 타일 X 좌표입니다.")]
+    public int undergraduateSpawnTileX = 1;
+
+    [Tooltip("초기 학사생을 생성할 타일 Y 좌표입니다.")]
+    public int undergraduateSpawnTileY = 2;
+
+    [Tooltip("타일 중심에서 인력을 얼마나 이동시켜 생성할지 정합니다.")]
+    public Vector3 undergraduateSpawnOffset = Vector3.zero;
+
     private IEnumerator Start()
     {
         // 한 프레임 기다린다.
@@ -194,7 +204,18 @@ public class GameInitializer : MonoBehaviour
     }
 
     /// <summary>
-    /// 게임 시작 시 학사생 1명을 문 앞에 생성한다.
+    /// 게임 시작 시 학사생 1명을 타일 좌표 기준으로 생성한다.
+    /// 
+    /// 예전 방식:
+    /// - DoorSpawnPoint라는 빈 오브젝트 위치에 생성
+    /// 
+    /// 수정 방식:
+    /// - LabGridManager에서 특정 타일을 가져옴
+    /// - 그 타일 중심 좌표에 생성
+    /// - 필요하면 undergraduateSpawnOffset으로 살짝 보정
+    /// 
+    /// 이렇게 하면 나중에 연구실 크기가 바뀌거나 타일 위치가 바뀌어도
+    /// 초기 인력 위치를 타일 기준으로 관리할 수 있다.
     /// </summary>
     private void SpawnInitialUndergraduate()
     {
@@ -204,18 +225,42 @@ public class GameInitializer : MonoBehaviour
             return;
         }
 
-        if (doorSpawnPoint == null)
+        if (LabGridManager.Instance == null)
         {
-            Debug.LogError("GameInitializer: DoorSpawnPoint가 연결되지 않았습니다.");
+            Debug.LogError("GameInitializer: LabGridManager.Instance가 없습니다.");
             return;
         }
 
+        LabTile spawnTile = LabGridManager.Instance.GetTile(
+            undergraduateSpawnTileX,
+            undergraduateSpawnTileY
+        );
+
+        if (spawnTile == null)
+        {
+            Debug.LogError("GameInitializer: 학사생을 생성할 타일을 찾지 못했습니다.");
+            return;
+        }
+
+        Vector3 spawnPosition = spawnTile.GetCenterPosition() + undergraduateSpawnOffset;
+
         GameObject staffObject = Instantiate(
             undergraduatePrefab,
-            doorSpawnPoint.position,
+            spawnPosition,
             Quaternion.identity
         );
 
         staffObject.name = "Initial_Undergraduate";
+
+        // 인력도 타일 기준으로 앞뒤 정렬을 맞춘다.
+        SpriteRenderer staffRenderer = staffObject.GetComponent<SpriteRenderer>();
+
+        if (staffRenderer != null)
+        {
+            int tileOrder = LabGridManager.Instance.GetSortingOrderByTile(spawnTile);
+
+            // 인력은 같은 타일의 가구보다 앞에 보이는 편이 자연스러우므로 +20 정도를 준다.
+            staffRenderer.sortingOrder = tileOrder + 20;
+        }
     }
 }

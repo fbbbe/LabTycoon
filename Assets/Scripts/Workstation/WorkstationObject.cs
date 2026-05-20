@@ -71,6 +71,10 @@ public class WorkstationObject : MonoBehaviour
     [Tooltip("앉아 있는 인력 종류입니다.")]
     public StaffType seatedStaffType;
 
+    [Header("타일 기준 정렬")]
+    [Tooltip("현재 배치된 타일 기준 Sorting Order입니다. 배치된 타일에 따라 자동 계산됩니다.")]
+    public int tileBaseSortingOrder = 0;
+
     private void Awake()
     {
         AutoFindReferencesIfNeeded();
@@ -269,51 +273,42 @@ public class WorkstationObject : MonoBehaviour
     /// <summary>
     /// 방향별 앞뒤 순서를 적용한다.
     /// 
-    /// 책상과 의자는 방향마다 앞에 와야 하는 이미지가 다를 수 있으므로
-    /// 방향별 Sorting Order가 필요하다.
+    /// 최종값 = 타일 기준 정렬값 + 방향별 내부 정렬값
     /// </summary>
     private void ApplySortingOrders(WorkstationDirectionSetting setting)
     {
         if (deskRenderer != null)
         {
-            deskRenderer.sortingOrder = setting.deskSortingOrder;
+            deskRenderer.sortingOrder = GetFinalSortingOrder(setting.deskSortingOrder);
         }
 
         if (chairRenderer != null)
         {
-            chairRenderer.sortingOrder = setting.chairSortingOrder;
+            chairRenderer.sortingOrder = GetFinalSortingOrder(setting.chairSortingOrder);
         }
 
-        if (deskEquipmentRenderer != null)
+        if (deskEquipmentObject != null && deskEquipmentObject.spriteRenderer != null)
         {
-            deskEquipmentRenderer.sortingOrder = setting.deskEquipmentSortingOrder;
+            deskEquipmentObject.spriteRenderer.sortingOrder =
+                GetFinalSortingOrder(setting.deskEquipmentSortingOrder);
         }
     }
 
     /// <summary>
-    /// 책상 위 장비가 있을 경우, Workstation 방향에 맞게 같이 갱신한다.
+    /// 최종 Sorting Order를 계산한다.
     /// 
-    /// Workstation이 RD/RU/LD/LU로 회전하면
-    /// 책상 위 장비도 같은 방향 Sprite로 바뀐다.
+    /// tileBaseSortingOrder:
+    /// - 이 Workstation이 놓인 타일 위치 기준 앞뒤 순서
+    /// 
+    /// localSortingOrder:
+    /// - 같은 Workstation 안에서 책상/의자/장비 중 무엇이 앞인지 정하는 보정값
     /// </summary>
-    private void ApplyDeskEquipment(WorkstationDirectionSetting setting)
+    private int GetFinalSortingOrder(int localSortingOrder)
     {
-        if (deskEquipmentObject == null)
-        {
-            return;
-        }
+        int finalOrder = tileBaseSortingOrder + localSortingOrder;
 
-        // 장비 위치를 현재 방향 설정의 EquipmentSlot 위치로 맞춘다.
-        deskEquipmentObject.transform.localPosition = setting.equipmentSlotLocalPosition;
-
-        // 장비 앞뒤 순서를 현재 방향 설정값에 맞춘다.
-        if (deskEquipmentObject.spriteRenderer != null)
-        {
-            deskEquipmentObject.spriteRenderer.sortingOrder = setting.deskEquipmentSortingOrder;
-        }
-
-        // 장비 데이터가 설치되어 있다면 방향에 맞는 Sprite 적용.
-        deskEquipmentObject.ApplyDirection(currentDirection);
+        // Unity sortingOrder에 너무 큰 값을 넣으면 값이 꼬일 수 있으므로 안전 범위로 제한한다.
+        return Mathf.Clamp(finalOrder, -30000, 30000);
     }
 
     /// <summary>
@@ -439,9 +434,24 @@ public class WorkstationObject : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 이 Workstation이 특정 타일에 배치 완료되었을 때 호출한다.
+    /// 
+    /// 이 함수는 단순히 placedTile만 저장하는 게 아니라,
+    /// 해당 타일 좌표 기준으로 앞뒤 정렬 기준값도 계산한다.
+    /// </summary>
     public void SetPlacedTile(LabTile tile)
     {
         placedTile = tile;
+
+        if (LabGridManager.Instance != null && tile != null)
+        {
+            tileBaseSortingOrder = LabGridManager.Instance.GetSortingOrderByTile(tile);
+        }
+
+        // 타일 기준 정렬값이 바뀌었으므로 현재 방향을 다시 적용한다.
+        // 이렇게 해야 책상/의자/노트북의 sortingOrder가 새 타일 기준으로 갱신된다.
+        ApplyDirection(currentDirection);
     }
 
     public bool CanInstallDeskEquipment()
@@ -556,5 +566,32 @@ public class WorkstationObject : MonoBehaviour
 
         // 기본적으로 비어 있으면 착석 가능.
         return true;
+    }
+
+    /// <summary>
+    /// 책상 위 장비가 있을 경우, Workstation 방향에 맞게 같이 갱신한다.
+    /// 
+    /// 주의:
+    /// 여기서도 sortingOrder는 반드시 tileBaseSortingOrder를 포함해서 계산해야 한다.
+    /// 단순히 setting.deskEquipmentSortingOrder만 넣으면 장비가 책상 뒤로 갈 수 있다.
+    /// </summary>
+    private void ApplyDeskEquipment(WorkstationDirectionSetting setting)
+    {
+        if (deskEquipmentObject == null)
+        {
+            return;
+        }
+
+        // 장비 위치를 현재 방향 설정의 EquipmentSlot 위치로 맞춘다.
+        deskEquipmentObject.transform.localPosition = setting.equipmentSlotLocalPosition;
+
+        if (deskEquipmentObject.spriteRenderer != null)
+        {
+            deskEquipmentObject.spriteRenderer.sortingOrder =
+                GetFinalSortingOrder(setting.deskEquipmentSortingOrder);
+        }
+
+        // 장비 데이터가 설치되어 있다면 현재 Workstation 방향에 맞는 Sprite를 적용한다.
+        deskEquipmentObject.ApplyDirection(currentDirection);
     }
 }

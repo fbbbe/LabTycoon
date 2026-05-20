@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 709b0cd49dd81426e804db301fb02355
+guid: dfab137b8b1eb42c8b3e0e5efed455c0
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4556733660187874020
-    second: MasterStudent_0
+      213: -5402483017602727818
+    second: ChairSet_MasterStudent_LU_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,13 +126,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: MasterStudent_0
+      name: ChairSet_MasterStudent_LU_0
       rect:
         serializedVersion: 2
-        x: 199
-        y: 66
-        width: 509
-        height: 751
+        x: 450
+        y: 174
+        width: 367
+        height: 517
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4e2509f0f15cc3f30800000000000000
-      internalID: 4556733660187874020
+      spriteID: 67085bea1568605b0800000000000000
+      internalID: -5402483017602727818
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      MasterStudent_0: 4556733660187874020
+      ChairSet_MasterStudent_LU_0: -5402483017602727818
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

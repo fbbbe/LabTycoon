@@ -404,7 +404,7 @@ MonoBehaviour:
     deskSprite: {fileID: 21300000, guid: 57aa98e1de5e34ff0944970e5ccf4a03, type: 3}
     emptyChairSprite: {fileID: 21300000, guid: d5f1f2c247df44071b50aa86b8cdd8f3, type: 3}
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 9b6e82f66afd3408f9cfe9e7bd3a53c3, type: 3}
-    masterSeatedChairSprite: {fileID: 21300000, guid: 9b6e82f66afd3408f9cfe9e7bd3a53c3, type: 3}
+    masterSeatedChairSprite: {fileID: 21300000, guid: ff0bff4d14a7d49cf8364139c6d89e43, type: 3}
     phdSeatedChairSprite: {fileID: 21300000, guid: 9b6e82f66afd3408f9cfe9e7bd3a53c3, type: 3}
     deskLocalPosition: {x: 0, y: 0, z: 0}
     chairLocalPosition: {x: 0, y: 0, z: 0}
@@ -417,7 +417,7 @@ MonoBehaviour:
     deskSprite: {fileID: 21300000, guid: a0769827e9ebf4743874f68784326a5e, type: 3}
     emptyChairSprite: {fileID: 21300000, guid: ecddd1fbb47614b089a48002c41fcaeb, type: 3}
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 5db1f82f1405046be8a6ac9a848e20ea, type: 3}
-    masterSeatedChairSprite: {fileID: 21300000, guid: 5db1f82f1405046be8a6ac9a848e20ea, type: 3}
+    masterSeatedChairSprite: {fileID: 21300000, guid: fcfe58bd4631a4348bc1c89072a5f966, type: 3}
     phdSeatedChairSprite: {fileID: 21300000, guid: 5db1f82f1405046be8a6ac9a848e20ea, type: 3}
     deskLocalPosition: {x: 0, y: 0, z: 0}
     chairLocalPosition: {x: 0, y: 0, z: 0}
@@ -430,7 +430,7 @@ MonoBehaviour:
     deskSprite: {fileID: 21300000, guid: 9263c584caa8541d7901c0f362d09b7e, type: 3}
     emptyChairSprite: {fileID: 21300000, guid: b8ff9f5b10f5b45bf84be43ed5228761, type: 3}
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 99d7559a2ca8b41e29349847b31b358b, type: 3}
-    masterSeatedChairSprite: {fileID: 21300000, guid: 99d7559a2ca8b41e29349847b31b358b, type: 3}
+    masterSeatedChairSprite: {fileID: 21300000, guid: 6f2a074241a3c45b88523fca997aec99, type: 3}
     phdSeatedChairSprite: {fileID: 21300000, guid: 99d7559a2ca8b41e29349847b31b358b, type: 3}
     deskLocalPosition: {x: 0, y: 0, z: 0}
     chairLocalPosition: {x: 0, y: 0, z: 0}
@@ -443,7 +443,7 @@ MonoBehaviour:
     deskSprite: {fileID: 21300000, guid: 6bc5bce9f2b6e4b359b616c17f44e5f2, type: 3}
     emptyChairSprite: {fileID: 21300000, guid: 8a81c33d8612d460ea9b7cd1fc5c3362, type: 3}
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 8e317e37a520f4b1a8e6573fe82a85e1, type: 3}
-    masterSeatedChairSprite: {fileID: 21300000, guid: 8e317e37a520f4b1a8e6573fe82a85e1, type: 3}
+    masterSeatedChairSprite: {fileID: 21300000, guid: dfab137b8b1eb42c8b3e0e5efed455c0, type: 3}
     phdSeatedChairSprite: {fileID: 21300000, guid: 8e317e37a520f4b1a8e6573fe82a85e1, type: 3}
     deskLocalPosition: {x: 0, y: 0, z: 0}
     chairLocalPosition: {x: 0, y: 0, z: 0}
@@ -464,6 +464,7 @@ MonoBehaviour:
   hasStaff: 0
   seatedStaff: {fileID: 0}
   seatedStaffType: 0
+  tileBaseSortingOrder: 0
 --- !u!114 &3314991730626256451
 MonoBehaviour:
   m_ObjectHideFlags: 0

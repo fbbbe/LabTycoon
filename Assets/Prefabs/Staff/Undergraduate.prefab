@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 19884972577746456}
   - component: {fileID: 7993734461187952}
   - component: {fileID: -2095417793736534809}
+  - component: {fileID: 3324486221179167732}
+  - component: {fileID: 6111378730375168300}
   m_Layer: 0
   m_Name: Undergraduate
   m_TagString: Untagged
@@ -126,7 +128,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 4, y: 2.4453125}
+    oldSize: {x: 4, y: 3.2578125}
     newSize: {x: 6.33, y: 9.17}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -134,3 +136,37 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 4, y: 2.4453125}
   m_EdgeRadius: 0
+--- !u!114 &3324486221179167732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269830188757030806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7de501da689b4290be41a5443c380b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seatDetectDistance: 1.2
+  draggingSortingOrder: 99999
+  normalSortingOrder: 10
+  normalSortingLayerName: Staff
+  draggingSortingLayerName: Dragging
+--- !u!114 &6111378730375168300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269830188757030806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9a92b38313364599b046dd64cc7e029, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  staffName: "\uD559\uC0AC\uC0DD"
+  staffType: 0
+  stress: 0
+  currentWorkstation: {fileID: 0}
+  isSeated: 0
