@@ -5,22 +5,39 @@ using UnityEngine.UI;
 /// <summary>
 /// 상점 패널 전체를 관리하는 스크립트.
 /// 
-/// 기능:
-/// 1. 상단 카테고리 버튼을 누르면 왼쪽 장비 목록 그룹을 바꾼다.
-/// 2. 왼쪽 장비 패널 버튼을 누르면 오른쪽 상세 정보가 바뀐다.
-/// 3. 구매 버튼에는 현재 선택된 장비의 가격이 표시된다.
-/// 4. 구매 버튼을 누르면 현재 선택된 장비의 구매 로직을 실행한다.
+/// 현재 구조:
+/// - EquipmentShopPanel 자체가 상점 배경 Panel
+/// - 카테고리별로 왼쪽 장비 목록 PNG가 바뀜
+/// - 왼쪽 목록 위의 투명 버튼 슬롯으로 장비 선택
+/// - 오른쪽 상세 정보는 선택된 ShopItemData로 갱신
+/// - 페이지 버튼은 사용하지 않음
 /// </summary>
 public class EquipmentShopPanelUI : MonoBehaviour
 {
-    [Header("카테고리별 왼쪽 목록 그룹")]
-    public GameObject computerItemGroup;
-    public GameObject researchItemGroup;
-    public GameObject environmentItemGroup;
-    public GameObject coffeeItemGroup;
-    public GameObject cleaningItemGroup;
+    [Header("패널")]
+    public GameObject panelRoot;
 
-    [Header("오른쪽 상세 정보 UI")]
+    [Header("왼쪽 장비 목록 이미지")]
+    public Image itemListImage;
+
+    [Header("카테고리별 왼쪽 목록 PNG")]
+    public Sprite computerListSprite;
+    public Sprite researchListSprite;
+    public Sprite environmentListSprite;
+    public Sprite coffeeListSprite;
+    public Sprite cleaningListSprite;
+
+    [Header("왼쪽 목록 투명 버튼 슬롯")]
+    public Button[] itemButtons;
+
+    [Header("카테고리별 아이템 데이터")]
+    public ShopItemData[] computerItems;
+    public ShopItemData[] researchItems;
+    public ShopItemData[] environmentItems;
+    public ShopItemData[] coffeeItems;
+    public ShopItemData[] cleaningItems;
+
+    [Header("오른쪽 상세 정보")]
     public Image detailItemImage;
     public TextMeshProUGUI detailNameText;
     public TextMeshProUGUI detailDescriptionText;
@@ -33,23 +50,50 @@ public class EquipmentShopPanelUI : MonoBehaviour
     public Button buyButton;
     public TextMeshProUGUI buyButtonPriceText;
 
-    [Header("패널 루트")]
-    public GameObject panelRoot;
+    [Header("하단 보유 금액")]
+    public TextMeshProUGUI ownedMoneyText;
 
-    [Header("현재 선택된 아이템")]
+    [Header("현재 선택 상태")]
+    public ShopCategory currentCategory = ShopCategory.Computer;
     public ShopItemData selectedItem;
+
+    private ShopItemData[] currentItems;
 
     private void Awake()
     {
+        RegisterItemButtons();
+
         if (buyButton != null)
         {
+            buyButton.onClick.RemoveAllListeners();
             buyButton.onClick.AddListener(BuySelectedItem);
         }
     }
 
     private void OnEnable()
     {
-        ShowCategory(ShopCategory.Computer);
+        ShowComputerCategory();
+    }
+
+    private void RegisterItemButtons()
+    {
+        if (itemButtons == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < itemButtons.Length; i++)
+        {
+            int localIndex = i;
+
+            if (itemButtons[i] == null)
+            {
+                continue;
+            }
+
+            itemButtons[i].onClick.RemoveAllListeners();
+            itemButtons[i].onClick.AddListener(() => SelectItemByIndex(localIndex));
+        }
     }
 
     public void ShowComputerCategory()
@@ -77,189 +121,146 @@ public class EquipmentShopPanelUI : MonoBehaviour
         ShowCategory(ShopCategory.Cleaning);
     }
 
-    /// <summary>
-    /// 선택한 카테고리의 장비 목록 그룹만 켜고 나머지는 끈다.
-    /// </summary>
-    public void ShowCategory(ShopCategory category)
+    private void ShowCategory(ShopCategory category)
     {
-        SetActiveSafe(computerItemGroup, category == ShopCategory.Computer);
-        SetActiveSafe(researchItemGroup, category == ShopCategory.Research);
-        SetActiveSafe(environmentItemGroup, category == ShopCategory.Environment);
-        SetActiveSafe(coffeeItemGroup, category == ShopCategory.Coffee);
-        SetActiveSafe(cleaningItemGroup, category == ShopCategory.Cleaning);
+        currentCategory = category;
+
+        switch (category)
+        {
+            case ShopCategory.Computer:
+                currentItems = computerItems;
+                SetItemListSprite(computerListSprite);
+                break;
+
+            case ShopCategory.Research:
+                currentItems = researchItems;
+                SetItemListSprite(researchListSprite);
+                break;
+
+            case ShopCategory.Environment:
+                currentItems = environmentItems;
+                SetItemListSprite(environmentListSprite);
+                break;
+
+            case ShopCategory.Coffee:
+                currentItems = coffeeItems;
+                SetItemListSprite(coffeeListSprite);
+                break;
+
+            case ShopCategory.Cleaning:
+                currentItems = cleaningItems;
+                SetItemListSprite(cleaningListSprite);
+                break;
+        }
+
+        RefreshItemButtonStates();
         ClearDetailInfo();
+        RefreshOwnedMoneyText();
     }
 
-    /// <summary>
-    /// 왼쪽 장비 목록 버튼을 눌렀을 때 호출된다.
-    /// 이 함수가 오른쪽 상세 정보 Text와 Image를 실제로 바꾼다.
-    /// </summary>
-    public void SelectItem(ShopItemData itemData)
+    private void SetItemListSprite(Sprite sprite)
     {
-        if (itemData == null)
+        if (itemListImage == null)
         {
             return;
         }
 
-        // 현재 선택된 장비를 저장한다.
-        // 구매 버튼을 눌렀을 때 이 selectedItem을 기준으로 구매 처리한다.
-        selectedItem = itemData;
+        itemListImage.sprite = sprite;
+        itemListImage.enabled = sprite != null;
+    }
+
+    private void RefreshItemButtonStates()
+    {
+        if (itemButtons == null)
+        {
+            return;
+        }
+
+        int count = currentItems == null ? 0 : currentItems.Length;
+
+        for (int i = 0; i < itemButtons.Length; i++)
+        {
+            if (itemButtons[i] == null)
+            {
+                continue;
+            }
+
+            itemButtons[i].gameObject.SetActive(i < count);
+        }
+    }
+
+    private void SelectItemByIndex(int index)
+    {
+        if (currentItems == null)
+        {
+            return;
+        }
+
+        if (index < 0 || index >= currentItems.Length)
+        {
+            return;
+        }
+
+        SelectItem(currentItems[index]);
+    }
+
+    private void SelectItem(ShopItemData item)
+    {
+        if (item == null)
+        {
+            return;
+        }
+
+        selectedItem = item;
 
         if (detailItemImage != null)
         {
             detailItemImage.enabled = true;
-            detailItemImage.sprite = itemData.detailImage;
+            detailItemImage.sprite = item.detailImage;
         }
 
         if (detailNameText != null)
         {
-            detailNameText.text = itemData.itemName;
+            detailNameText.text = item.itemName;
         }
 
         if (detailDescriptionText != null)
         {
-            detailDescriptionText.text = itemData.description;
+            detailDescriptionText.text = item.description;
         }
 
         if (moneyBonusText != null)
         {
-            moneyBonusText.text = itemData.GetMoneyBonusText();
+            moneyBonusText.text = item.GetMoneyBonusText();
         }
 
         if (unlockLevelText != null)
         {
-            unlockLevelText.text = "Lv." + itemData.unlockLevel;
+            unlockLevelText.text = "Lv." + item.unlockLevel;
         }
 
         if (priceText != null)
         {
-            priceText.text = itemData.GetPriceText();
+            priceText.text = item.GetPriceText();
         }
 
         if (spaceCostText != null)
         {
-            spaceCostText.text = itemData.spaceCost + "평";
+            spaceCostText.text = item.spaceCost + "평";
         }
 
         if (buyButtonPriceText != null)
         {
-            buyButtonPriceText.text = itemData.GetPriceText() + " 구매";
+            buyButtonPriceText.text = item.GetBuyButtonText();
         }
     }
 
-    /// <summary>
-    /// 구매 버튼을 눌렀을 때 실행된다.
-    /// 현재 선택된 장비의 purchaseType에 따라 다르게 처리한다.
-    /// </summary>
-    public void BuySelectedItem()
-    {
-        if (selectedItem == null)
-        {
-            Debug.Log("선택된 장비가 없습니다.");
-            return;
-        }
-
-        if (ResourceManager.Instance == null)
-        {
-            Debug.LogError("ResourceManager.Instance가 없습니다.");
-            return;
-        }
-
-        if (ResourceManager.Instance.money < selectedItem.price)
-        {
-            Debug.Log("돈이 부족합니다.");
-            return;
-        }
-
-        switch (selectedItem.purchaseType)
-        {
-            case ShopPurchaseType.TilePlaceable:
-                BuyTilePlaceableItem();
-                break;
-
-            case ShopPurchaseType.DeskEquipment:
-                BuyDeskEquipmentItem();
-                break;
-        }
-    }
-
-    /// <summary>
-    /// 타일 위에 직접 배치하는 장비 구매.
-    /// 예: 책상+의자 세트, 커피머신
-    /// </summary>
-    private void BuyTilePlaceableItem()
-    {
-        if (selectedItem.placeablePrefab == null)
-        {
-            Debug.LogError(selectedItem.itemName + "의 placeablePrefab이 비어 있습니다.");
-            return;
-        }
-
-        if (PlacementManager.Instance == null)
-        {
-            Debug.LogError("PlacementManager.Instance가 없습니다.");
-            return;
-        }
-
-        ClosePanel();
-
-        PlacementManager.Instance.StartPlacement(
-            selectedItem.placeablePrefab,
-            selectedItem.price
-        );
-    }
-
-    /// <summary>
-    /// 책상 위에 설치하는 장비 구매.
-    /// 예: 낡은 노트북, 중고 컴퓨터
-    /// 
-    /// 실제 Workstation 선택 모드는 다음 단계에서 구현한다.
-    /// </summary>
-    private void BuyDeskEquipmentItem()
-    {
-        if (selectedItem.deskEquipmentData == null)
-        {
-            Debug.LogError(selectedItem.itemName + "의 deskEquipmentData가 비어 있습니다.");
-            return;
-        }
-
-        Debug.Log("책상 위 장비 구매 선택됨: " + selectedItem.itemName);
-    }
-
-    public void ClosePanel()
-    {
-        if (panelRoot != null)
-        {
-            panelRoot.SetActive(false);
-        }
-        else
-        {
-            gameObject.SetActive(false);
-        }
-    }
-
-    private void SetActiveSafe(GameObject target, bool active)
-    {
-        if (target != null)
-        {
-            target.SetActive(active);
-        }
-    }
-
-    /// <summary>
-    /// 오른쪽 상세 정보 영역을 비운다.
-    /// 
-    /// 카테고리를 바꾸거나 상점창을 처음 열 때,
-    /// 이전에 선택했던 장비 정보가 남아 있지 않게 초기화한다.
-    /// </summary>
     private void ClearDetailInfo()
     {
-        // 현재 선택된 아이템이 없다는 뜻.
         selectedItem = null;
 
         if (detailItemImage != null)
         {
-            // 아무 장비도 선택하지 않았을 때 흰 사각형이 보이지 않게 한다.
             detailItemImage.sprite = null;
             detailItemImage.enabled = false;
         }
@@ -297,6 +298,99 @@ public class EquipmentShopPanelUI : MonoBehaviour
         if (buyButtonPriceText != null)
         {
             buyButtonPriceText.text = "";
+        }
+    }
+
+    private void RefreshOwnedMoneyText()
+    {
+        if (ownedMoneyText == null)
+        {
+            return;
+        }
+
+        if (ResourceManager.Instance == null)
+        {
+            ownedMoneyText.text = "";
+            return;
+        }
+
+        ownedMoneyText.text = ResourceManager.Instance.money.ToString("N0") + "원";
+    }
+
+    private void BuySelectedItem()
+    {
+        if (selectedItem == null)
+        {
+            Debug.Log("선택된 장비가 없습니다.");
+            return;
+        }
+
+        if (ResourceManager.Instance == null)
+        {
+            Debug.LogError("ResourceManager.Instance가 없습니다.");
+            return;
+        }
+
+        if (ResourceManager.Instance.money < selectedItem.price)
+        {
+            Debug.Log("돈이 부족합니다.");
+            return;
+        }
+
+        switch (selectedItem.purchaseType)
+        {
+            case ShopPurchaseType.TilePlaceable:
+                BuyTilePlaceable();
+                break;
+
+            case ShopPurchaseType.DeskEquipment:
+                BuyDeskEquipment();
+                break;
+        }
+    }
+
+    private void BuyTilePlaceable()
+    {
+        if (selectedItem.placeablePrefab == null)
+        {
+            Debug.LogError(selectedItem.itemName + "의 placeablePrefab이 없습니다.");
+            return;
+        }
+
+        if (PlacementManager.Instance == null)
+        {
+            Debug.LogError("PlacementManager.Instance가 없습니다.");
+            return;
+        }
+
+        ClosePanel();
+
+        PlacementManager.Instance.StartPlacement(
+            selectedItem.placeablePrefab,
+            selectedItem.price
+        );
+    }
+
+    private void BuyDeskEquipment()
+    {
+        if (selectedItem.deskEquipmentData == null)
+        {
+            Debug.LogError(selectedItem.itemName + "의 deskEquipmentData가 없습니다.");
+            return;
+        }
+
+        Debug.Log("책상 위 장비 구매 선택: " + selectedItem.itemName);
+    }
+
+    public void ClosePanel()
+    {
+        if (panelRoot != null)
+        {
+            panelRoot.SetActive(false);
+        }
+        else
+        {
+            gameObject.SetActive(false);
         }
     }
 }

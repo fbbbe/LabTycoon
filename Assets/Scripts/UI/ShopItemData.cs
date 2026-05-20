@@ -1,12 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// 상점에 표시되는 아이템 하나의 데이터.
+/// 상점에서 판매하는 장비 하나의 데이터.
 /// 
-/// 왼쪽 목록 버튼 자체는 PNG로 만들어져 있으므로,
-/// 왼쪽 목록에는 텍스트를 따로 넣지 않는다.
+/// 왼쪽 장비 목록은 PNG 한 장으로 표시한다.
+/// 따라서 왼쪽 목록 안의 텍스트는 코드로 만들지 않는다.
 /// 
-/// 대신 오른쪽 상세 정보 영역은 이 데이터로 텍스트를 갱신한다.
+/// 하지만 오른쪽 상세 정보는 선택한 장비에 따라
+/// 이 데이터의 값을 읽어서 Text와 Image를 갱신한다.
 /// </summary>
 [System.Serializable]
 public class ShopItemData
@@ -15,13 +16,13 @@ public class ShopItemData
     [Tooltip("장비 이름입니다. 예: 낡은 노트북")]
     public string itemName;
 
-    [Tooltip("이 장비가 속한 상점 카테고리입니다.")]
+    [Tooltip("장비 카테고리입니다.")]
     public ShopCategory category;
 
-    [Tooltip("구매 처리 방식입니다. 바닥 배치인지, 책상 위 장비인지 구분합니다.")]
+    [Tooltip("구매 처리 방식입니다.")]
     public ShopPurchaseType purchaseType;
 
-    [Header("상세 정보")]
+    [Header("오른쪽 상세 정보")]
     [Tooltip("오른쪽 상세 영역에 표시할 장비 이미지입니다.")]
     public Sprite detailImage;
 
@@ -29,7 +30,7 @@ public class ShopItemData
     [TextArea]
     public string description;
 
-    [Tooltip("돈 보상 증가율입니다. 예: 0.02는 +2%입니다.")]
+    [Tooltip("돈 보상 증가율입니다. 0.02는 +2%를 의미합니다.")]
     public float moneyBonusRate;
 
     [Tooltip("해금 레벨입니다.")]
@@ -42,14 +43,14 @@ public class ShopItemData
     public int spaceCost;
 
     [Header("구매 연결 데이터")]
-    [Tooltip("TilePlaceable일 때 배치할 프리팹입니다. 예: Workstation.prefab")]
+    [Tooltip("TilePlaceable일 때 배치할 프리팹입니다. 예: Workstation.prefab, CoffeeMachine.prefab")]
     public GameObject placeablePrefab;
 
-    [Tooltip("DeskEquipment일 때 설치할 책상 위 장비 데이터입니다.")]
+    [Tooltip("DeskEquipment일 때 책상 위에 설치할 장비 데이터입니다.")]
     public DeskEquipmentData deskEquipmentData;
 
     /// <summary>
-    /// 가격을 UI에 표시하기 좋은 문자열로 반환한다.
+    /// 가격을 UI 표시용 문자열로 변환한다.
     /// </summary>
     public string GetPriceText()
     {
@@ -57,7 +58,15 @@ public class ShopItemData
     }
 
     /// <summary>
-    /// 돈 보상 증가율을 UI에 표시하기 좋은 문자열로 반환한다.
+    /// 구매 버튼에 표시할 문자열을 만든다.
+    /// </summary>
+    public string GetBuyButtonText()
+    {
+        return price.ToString("N0") + "원 구매";
+    }
+
+    /// <summary>
+    /// 돈 보상 증가율을 UI 표시용 문자열로 변환한다.
     /// </summary>
     public string GetMoneyBonusText()
     {
