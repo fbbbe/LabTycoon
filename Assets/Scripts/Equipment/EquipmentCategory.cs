@@ -1,10 +1,9 @@
 /// <summary>
-/// 상점의 장비 카테고리.
+/// 상점 장비 카테고리.
 /// 
-/// 상단 카테고리 버튼을 누르면 이 값에 따라
-/// 왼쪽 장비 목록 이미지와 장비 데이터 목록이 바뀐다.
+/// 상단 탭 버튼과 연결된다.
 /// </summary>
-public enum ShopCategory
+public enum EquipmentCategory
 {
     Computer,      // 컴퓨터 장비
     Research,      // 연구 장비
