@@ -2,14 +2,13 @@ using UnityEngine;
 
 /// <summary>
 /// 타일 위에 직접 설치하는 장비의 배치 모드를 관리한다.
-/// 
-/// 중요:
-/// - 일반 타일 장비는 장비별 prefab을 만들지 않는다.
-/// - 공통 TilePlaceableEquipment prefab 하나를 사용한다.
-/// - 장비별 이미지는 EquipmentData.tilePlaceableData의 4방향 Sprite로 교체한다.
-/// 
-/// 예외:
-/// - 책상 의자 세트는 Workstation prefab을 생성한다.
+///
+/// 핵심 설계:
+/// - 타일을 직접 클릭해서 자유 좌표에 놓지 않는다.
+/// - LabGridManager가 생성한 배치 격자에 스냅해서 놓는다.
+/// - 배치 모드 중에는 GridOverlay를 표시한다.
+/// - 프리뷰는 항상 가장 가까운 격자 칸 중심으로 이동한다.
+/// - R키로 방향을 바꾸면 Sprite 방향과 점유 타일 방향이 함께 바뀐다.
 /// </summary>
 public class TileEquipmentPlacementManager : MonoBehaviour
 {
@@ -30,7 +29,9 @@ public class TileEquipmentPlacementManager : MonoBehaviour
 
     [Header("배치 프리뷰")]
     public GameObject previewObject;
+
     private TilePlaceableEquipmentObject previewEquipmentObject;
+    private LabTile currentPreviewTile;
 
     private void Awake()
     {
@@ -51,13 +52,11 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         }
 
         HandleRotationInput();
-        UpdatePreviewPosition();
+        UpdatePreviewByPlacementGrid();
+        HandlePlacementClickInput();
+        HandleCancelInput();
     }
 
-    /// <summary>
-    /// 타일 장비 배치 모드를 시작한다.
-    /// 구매 버튼을 눌렀을 때 ShopPurchaseManager에서 호출된다.
-    /// </summary>
     public void StartTileEquipmentPlacement(EquipmentData equipmentData)
     {
         if (equipmentData == null)
@@ -75,59 +74,82 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         pendingTileEquipment = equipmentData;
         isSelectingTile = true;
         currentDirection = PlacementDirection.RD;
+        currentPreviewTile = null;
+
+        if (LabGridManager.Instance != null)
+        {
+            LabGridManager.Instance.ShowPlacementGrid();
+        }
 
         CreatePreview();
 
         Debug.Log("타일 장비 배치 모드 시작: " + equipmentData.equipmentName);
     }
 
-    /// <summary>
-    /// R키를 누르면 배치 방향을 회전한다.
-    /// </summary>
     private void HandleRotationInput()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetKeyDown(KeyCode.R) == false)
         {
-            currentDirection = GetNextDirection(currentDirection);
-
-            if (previewEquipmentObject != null)
-            {
-                previewEquipmentObject.ApplyDirection(currentDirection);
-            }
-
-            Debug.Log("배치 방향 변경: " + currentDirection);
+            return;
         }
+
+        currentDirection = GetNextDirection(currentDirection);
+
+        if (previewEquipmentObject != null)
+        {
+            previewEquipmentObject.ApplyDirection(currentDirection);
+        }
+
+        Debug.Log("배치 방향 변경: " + currentDirection);
     }
 
-    /// <summary>
-    /// 마우스 위치를 따라 프리뷰를 이동시킨다.
-    /// 현재는 마우스 월드 좌표를 그대로 따라가고,
-    /// 타일 클릭 시 최종 위치가 타일 위치로 스냅된다.
-    /// </summary>
-    private void UpdatePreviewPosition()
+    private void HandleCancelInput()
     {
-        if (previewObject == null)
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
         {
-            return;
+            CancelPlacement();
         }
-
-        Camera mainCamera = Camera.main;
-
-        if (mainCamera == null)
-        {
-            return;
-        }
-
-        Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        mouseWorldPosition.z = 0f;
-
-        previewObject.transform.position = mouseWorldPosition;
     }
 
-    /// <summary>
-    /// 배치 프리뷰를 만든다.
-    /// 책상 의자 세트는 Workstation prefab이라 프리뷰를 일단 생략한다.
-    /// </summary>
+    private void UpdatePreviewByPlacementGrid()
+    {
+        if (LabGridManager.Instance == null)
+        {
+            return;
+        }
+
+        currentPreviewTile = LabGridManager.Instance.GetNearestTileFromMousePosition();
+
+        if (currentPreviewTile == null)
+        {
+            return;
+        }
+
+        if (previewObject != null)
+        {
+            previewObject.transform.position = currentPreviewTile.GetCenterPosition();
+        }
+
+        bool canPlace = CanPlaceOnCurrentPreviewTile();
+        SetPreviewAlpha(previewObject, canPlace ? 0.55f : 0.25f);
+    }
+
+    private void HandlePlacementClickInput()
+    {
+        if (Input.GetMouseButtonDown(0) == false)
+        {
+            return;
+        }
+
+        if (currentPreviewTile == null)
+        {
+            Debug.Log("배치 실패: 현재 선택된 격자 칸이 없습니다.");
+            return;
+        }
+
+        TryPlaceToTile(currentPreviewTile);
+    }
+
     private void CreatePreview()
     {
         ClearPreview();
@@ -137,7 +159,6 @@ public class TileEquipmentPlacementManager : MonoBehaviour
             return;
         }
 
-        // 책상 의자 세트는 Workstation prefab을 사용하는 특수 케이스.
         if (pendingTileEquipment.equipmentName == "책상 의자 세트")
         {
             Debug.Log("책상 의자 세트는 Workstation prefab을 사용하므로 현재 프리뷰는 생략합니다.");
@@ -171,12 +192,9 @@ public class TileEquipmentPlacementManager : MonoBehaviour
             currentDirection
         );
 
-        SetPreviewAlpha(previewObject, 0.5f);
+        SetPreviewAlpha(previewObject, 0.55f);
     }
 
-    /// <summary>
-    /// 프리뷰는 반투명하게 보이도록 알파값을 낮춘다.
-    /// </summary>
     private void SetPreviewAlpha(GameObject target, float alpha)
     {
         if (target == null)
@@ -194,10 +212,20 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 타일을 클릭했을 때 호출된다.
-    /// LabTile.OnMouseDown()에서 이 함수를 호출해야 한다.
-    /// </summary>
+    private bool CanPlaceOnCurrentPreviewTile()
+    {
+        if (LabGridManager.Instance == null || pendingTileEquipment == null || currentPreviewTile == null)
+        {
+            return false;
+        }
+
+        return LabGridManager.Instance.CanPlaceEquipment(
+            currentPreviewTile,
+            pendingTileEquipment.spaceCost,
+            currentDirection
+        );
+    }
+
     public void TryPlaceToTile(LabTile tile)
     {
         if (isSelectingTile == false)
@@ -215,6 +243,18 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         if (tile == null)
         {
             Debug.LogError("선택한 타일이 없습니다.");
+            return;
+        }
+
+        if (LabGridManager.Instance == null)
+        {
+            Debug.LogError("LabGridManager.Instance가 없습니다.");
+            return;
+        }
+
+        if (LabGridManager.Instance.CanPlaceEquipment(tile, pendingTileEquipment.spaceCost, currentDirection) == false)
+        {
+            Debug.Log("배치할 수 없는 위치입니다: " + pendingTileEquipment.equipmentName);
             return;
         }
 
@@ -248,31 +288,19 @@ public class TileEquipmentPlacementManager : MonoBehaviour
             return;
         }
 
+        LabGridManager.Instance.MarkEquipmentTilesOccupied(
+            tile,
+            pendingTileEquipment.spaceCost,
+            currentDirection
+        );
+
         RegisterEquipmentEffect(pendingTileEquipment, placedObject);
 
         Debug.Log("타일 장비 배치 완료: " + pendingTileEquipment.equipmentName);
 
-        ClearPreview();
-
-        pendingTileEquipment = null;
-        isSelectingTile = false;
-
-        if (ShopPurchaseManager.Instance != null)
-        {
-            ShopPurchaseManager.Instance.CancelPurchase();
-        }
+        FinishPlacement();
     }
 
-    /// <summary>
-    /// 실제 배치 오브젝트를 생성한다.
-    /// 
-    /// 책상 의자 세트:
-    /// - Workstation prefab 생성
-    /// 
-    /// 일반 타일 장비:
-    /// - 공통 TilePlaceableEquipment prefab 생성
-    /// - EquipmentData의 4방향 Sprite 적용
-    /// </summary>
     private GameObject CreatePlacedObject(LabTile tile)
     {
         if (pendingTileEquipment.equipmentName == "책상 의자 세트")
@@ -283,9 +311,6 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         return CreateCommonTileEquipmentObject(tile);
     }
 
-    /// <summary>
-    /// 책상 의자 세트는 Workstation prefab으로 생성한다.
-    /// </summary>
     private GameObject CreateWorkstationObject(LabTile tile)
     {
         if (string.IsNullOrEmpty(pendingTileEquipment.placeablePrefabResourcePath))
@@ -304,7 +329,7 @@ public class TileEquipmentPlacementManager : MonoBehaviour
 
         GameObject obj = Instantiate(
             prefab,
-            tile.transform.position,
+            tile.GetCenterPosition(),
             Quaternion.identity
         );
 
@@ -313,9 +338,6 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         return obj;
     }
 
-    /// <summary>
-    /// 일반 타일 장비는 공통 prefab으로 생성한다.
-    /// </summary>
     private GameObject CreateCommonTileEquipmentObject(LabTile tile)
     {
         GameObject prefab = Resources.Load<GameObject>(commonTileEquipmentPrefabPath);
@@ -328,7 +350,7 @@ public class TileEquipmentPlacementManager : MonoBehaviour
 
         GameObject obj = Instantiate(
             prefab,
-            tile.transform.position,
+            tile.GetCenterPosition(),
             Quaternion.identity
         );
 
@@ -352,9 +374,6 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         return obj;
     }
 
-    /// <summary>
-    /// 배치 완료 후 장비 효과를 등록한다.
-    /// </summary>
     private void RegisterEquipmentEffect(EquipmentData equipmentData, GameObject placedObject)
     {
         if (equipmentData == null)
@@ -362,7 +381,6 @@ public class TileEquipmentPlacementManager : MonoBehaviour
             return;
         }
 
-        // 책상 의자 세트는 Workstation 자체라서 전역 효과가 없다.
         if (equipmentData.equipmentName == "책상 의자 세트")
         {
             Debug.Log("책상 의자 세트 배치 완료. 전역 효과 없음.");
@@ -375,10 +393,25 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 타일 장비 배치 취소.
-    /// 돈 차감 없음.
-    /// </summary>
+    private void FinishPlacement()
+    {
+        ClearPreview();
+
+        pendingTileEquipment = null;
+        isSelectingTile = false;
+        currentPreviewTile = null;
+
+        if (LabGridManager.Instance != null)
+        {
+            LabGridManager.Instance.HidePlacementGrid();
+        }
+
+        if (ShopPurchaseManager.Instance != null)
+        {
+            ShopPurchaseManager.Instance.CancelPurchase();
+        }
+    }
+
     public void CancelPlacement()
     {
         if (pendingTileEquipment != null)
@@ -390,6 +423,12 @@ public class TileEquipmentPlacementManager : MonoBehaviour
 
         pendingTileEquipment = null;
         isSelectingTile = false;
+        currentPreviewTile = null;
+
+        if (LabGridManager.Instance != null)
+        {
+            LabGridManager.Instance.HidePlacementGrid();
+        }
 
         if (ShopPurchaseManager.Instance != null)
         {

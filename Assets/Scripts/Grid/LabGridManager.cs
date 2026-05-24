@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -377,6 +378,136 @@ public class LabGridManager : MonoBehaviour
         }
 
         return tile.CanPlaceObject();
+    }
+
+    /// <summary>
+    /// 현재 마우스 위치에서 가장 가까운 연구실 타일을 반환한다.
+    /// 
+    /// 배치 모드에서는 타일 오브젝트를 직접 클릭하지 않고,
+    /// 마우스 월드 좌표를 가장 가까운 격자 칸으로 스냅하기 위해 이 함수를 사용한다.
+    /// </summary>
+    public LabTile GetNearestTileFromMousePosition()
+    {
+        Camera mainCamera = Camera.main;
+
+        if (mainCamera == null)
+        {
+            Debug.LogError("LabGridManager: Main Camera가 없습니다.");
+            return null;
+        }
+
+        Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        mouseWorldPosition.z = 0f;
+
+        return GetNearestTile(mouseWorldPosition);
+    }
+
+    /// <summary>
+    /// 장비가 차지할 타일 목록을 계산한다.
+    /// 
+    /// 기준 타일 originTile에서 시작해서,
+    /// 장비의 차지 평수(spaceCost)만큼 현재 방향(direction)으로 이어지는 타일을 가져온다.
+    /// 
+    /// 방향 기준:
+    /// RD: x 증가 방향, 오른쪽 아래
+    /// LD: y 증가 방향, 왼쪽 아래
+    /// RU: x 감소 방향, 오른쪽 위
+    /// LU: y 감소 방향, 왼쪽 위
+    /// </summary>
+    public List<LabTile> GetPlacementTiles(LabTile originTile, int spaceCost, PlacementDirection direction)
+    {
+        List<LabTile> result = new List<LabTile>();
+
+        if (originTile == null)
+        {
+            return result;
+        }
+
+        int finalSpaceCost = Mathf.Max(1, spaceCost);
+        Vector2Int step = GetPlacementDirectionStep(direction);
+
+        for (int i = 0; i < finalSpaceCost; i++)
+        {
+            int targetX = originTile.gridX + step.x * i;
+            int targetY = originTile.gridY + step.y * i;
+
+            LabTile tile = GetTile(targetX, targetY);
+
+            if (tile == null)
+            {
+                result.Clear();
+                return result;
+            }
+
+            result.Add(tile);
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 특정 장비를 기준 타일에 현재 방향으로 배치할 수 있는지 검사한다.
+    /// 
+    /// 장비가 여러 평을 차지하면, 차지할 모든 타일이 존재하고 비어 있어야 한다.
+    /// </summary>
+    public bool CanPlaceEquipment(LabTile originTile, int spaceCost, PlacementDirection direction)
+    {
+        List<LabTile> placementTiles = GetPlacementTiles(originTile, spaceCost, direction);
+
+        if (placementTiles.Count == 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < placementTiles.Count; i++)
+        {
+            if (placementTiles[i] == null || placementTiles[i].CanPlaceObject() == false)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 특정 장비가 차지하는 모든 타일을 점유 상태로 표시한다.
+    /// </summary>
+    public void MarkEquipmentTilesOccupied(LabTile originTile, int spaceCost, PlacementDirection direction)
+    {
+        List<LabTile> placementTiles = GetPlacementTiles(originTile, spaceCost, direction);
+
+        for (int i = 0; i < placementTiles.Count; i++)
+        {
+            if (placementTiles[i] != null)
+            {
+                placementTiles[i].SetOccupied(true);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 배치 방향을 격자 좌표 증가 방향으로 변환한다.
+    /// </summary>
+    private Vector2Int GetPlacementDirectionStep(PlacementDirection direction)
+    {
+        switch (direction)
+        {
+            case PlacementDirection.RD:
+                return new Vector2Int(1, 0);
+
+            case PlacementDirection.LD:
+                return new Vector2Int(0, 1);
+
+            case PlacementDirection.RU:
+                return new Vector2Int(-1, 0);
+
+            case PlacementDirection.LU:
+                return new Vector2Int(0, -1);
+
+            default:
+                return new Vector2Int(1, 0);
+        }
     }
 
     /// <summary>
