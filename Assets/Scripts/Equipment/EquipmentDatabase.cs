@@ -22,7 +22,6 @@ public class EquipmentDatabase
     /// 전역 접근용 Instance.
     ///
     /// MonoBehaviour가 아니므로 씬에 오브젝트가 없어도 자동으로 생성된다.
-    /// 기존처럼 EquipmentDatabase.Instance.FindByName(...) 형태로 사용할 수 있다.
     /// </summary>
     public static EquipmentDatabase Instance
     {
@@ -94,7 +93,7 @@ public class EquipmentDatabase
             researchBonusRate: 0f
         );
 
-        oldLaptop.effects.Add(new EquipmentEffectData(EquipmentEffectType.MoneyRewardBonus, 0.02f));
+        oldLaptop.effects.Add(CreateEffect(EquipmentEffectScope.PersonalStaff, EquipmentEffectType.MoneyRewardBonus, 0.02f));
         equipments.Add(oldLaptop);
 
         EquipmentData usedComputer = new EquipmentData(
@@ -117,7 +116,7 @@ public class EquipmentDatabase
             researchBonusRate: 0f
         );
 
-        usedComputer.effects.Add(new EquipmentEffectData(EquipmentEffectType.MoneyRewardBonus, 0.04f));
+        usedComputer.effects.Add(CreateEffect(EquipmentEffectScope.PersonalStaff, EquipmentEffectType.MoneyRewardBonus, 0.04f));
         equipments.Add(usedComputer);
 
         AddComputerOnly(
@@ -179,7 +178,7 @@ public class EquipmentDatabase
             prefabPath: "Prefabs/Equipment/GPUServer",
             effects: new EquipmentEffectData[]
             {
-                new EquipmentEffectData(EquipmentEffectType.MoneyRewardBonus, 0.30f)
+                CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.30f)
             }
         );
 
@@ -194,13 +193,14 @@ public class EquipmentDatabase
             prefabPath: "Prefabs/Equipment/AIServer",
             effects: new EquipmentEffectData[]
             {
-                new EquipmentEffectData(EquipmentEffectType.MoneyRewardBonus, 0.40f)
+                CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.40f)
             }
         );
     }
 
     /// <summary>
     /// 책상 위에 설치하는 컴퓨터 계열 장비를 추가한다.
+    /// 컴퓨터 장비 효과는 해당 Workstation을 사용하는 인력에게만 적용된다.
     /// </summary>
     private void AddComputerOnly(
         string name,
@@ -234,12 +234,13 @@ public class EquipmentDatabase
             researchBonusRate: 0f
         );
 
-        data.effects.Add(new EquipmentEffectData(EquipmentEffectType.MoneyRewardBonus, moneyBonus));
+        data.effects.Add(CreateEffect(EquipmentEffectScope.PersonalStaff, EquipmentEffectType.MoneyRewardBonus, moneyBonus));
         equipments.Add(data);
     }
 
     /// <summary>
     /// 환경 장비 데이터 생성.
+    /// 환경 장비는 게임 시스템 전체의 스트레스 계산에 적용된다.
     /// </summary>
     private void CreateEnvironmentEquipments()
     {
@@ -268,11 +269,15 @@ public class EquipmentDatabase
             prefabPath: "Prefabs/Equipment/Fan",
             effects: new EquipmentEffectData[]
             {
-                new EquipmentEffectData(EquipmentEffectType.StressIncreaseReduction, 0.05f)
+                CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.05f)
             }
         );
     }
 
+    /// <summary>
+    /// 연구 장비 데이터 생성.
+    /// 연구 장비는 게임 시스템 전체의 연구성과 보상 계산에 적용된다.
+    /// </summary>
     private void CreateResearchEquipments()
     {
         AddTileEquipment(
@@ -286,11 +291,15 @@ public class EquipmentDatabase
             prefabPath: "Prefabs/Equipment/ExperimentKit",
             effects: new EquipmentEffectData[]
             {
-                new EquipmentEffectData(EquipmentEffectType.ResearchResultBonus, 0.03f)
+                CreateEffect(EquipmentEffectScope.GlobalResearchResult, EquipmentEffectType.ResearchResultBonus, 0.03f)
             }
         );
     }
 
+    /// <summary>
+    /// 커피 장비 데이터 생성.
+    /// 커피 장비의 보상 효과는 전역 적용, 패널티는 전체 인력에게 적용된다.
+    /// </summary>
     private void CreateCoffeeEquipments()
     {
         AddTileEquipment(
@@ -304,12 +313,16 @@ public class EquipmentDatabase
             prefabPath: "Prefabs/Equipment/MixCoffeeBox",
             effects: new EquipmentEffectData[]
             {
-                new EquipmentEffectData(EquipmentEffectType.MoneyRewardBonus, 0.01f),
-                new EquipmentEffectData(EquipmentEffectType.ExtraStressIncrease, 1f)
+                CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.01f),
+                CreateEffect(EquipmentEffectScope.AllStaffPenalty, EquipmentEffectType.ExtraStressIncrease, 1f)
             }
         );
     }
 
+    /// <summary>
+    /// 청소 장비 데이터 생성.
+    /// 청소 장비 효과는 전체 청소 시스템과 모든 인력에게 적용된다.
+    /// </summary>
     private void CreateCleaningEquipments()
     {
         AddTileEquipment(
@@ -323,7 +336,7 @@ public class EquipmentDatabase
             prefabPath: "Prefabs/Equipment/CleaningBox",
             effects: new EquipmentEffectData[]
             {
-                new EquipmentEffectData(EquipmentEffectType.CleaningTimeReduction, 1f)
+                CreateEffect(EquipmentEffectScope.GlobalCleaning, EquipmentEffectType.CleaningTimeReduction, 1f)
             }
         );
     }
@@ -395,6 +408,15 @@ public class EquipmentDatabase
         data.researchRewardBonusRate = researchBonusRate;
 
         return data;
+    }
+
+    /// <summary>
+    /// 효과 데이터를 생성한다.
+    /// EquipmentEffectData 생성자 변경에 따른 호출부 중복을 줄이기 위한 헬퍼 함수다.
+    /// </summary>
+    private EquipmentEffectData CreateEffect(EquipmentEffectScope scope, EquipmentEffectType effectType, float value)
+    {
+        return new EquipmentEffectData(scope, effectType, value);
     }
 
     /// <summary>

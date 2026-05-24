@@ -368,6 +368,13 @@ public class WorkstationObject : MonoBehaviour
         staff.gameObject.SetActive(false);
 
         ApplyDirection(currentDirection);
+
+        WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
+
+        if (taskController != null)
+        {
+            taskController.RefreshUI();
+        }
     }
 
     /// <summary>

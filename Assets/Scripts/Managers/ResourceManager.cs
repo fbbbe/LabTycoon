@@ -3,31 +3,25 @@ using UnityEngine;
 /// <summary>
 /// 게임 전체 자원을 관리하는 스크립트.
 /// 
-/// 여기에는 "전체 자원"만 넣는다.
-/// 인력마다 다른 연구력, 스트레스, 인력 레벨은 StaffWorker.cs에서 관리한다.
-/// 
-/// 현재 전체 자원:
-/// - 돈
-/// - 연구성과
-/// - 연구실 전체 레벨
+/// 여기에는 전체 자원만 들어간다.
+/// 인력마다 다른 연구력, 스트레스는 StaffWorker에서 관리한다.
 /// </summary>
 public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance;
 
-    [Header("전체 자원")]
-    [Tooltip("플레이어가 보유한 돈입니다. 장비 구매, 인력 고용, 연구실 확장 등에 사용됩니다.")]
-    public int money = 100000;
+    [Header("초기 자원")]
+    public int startingMoney = 100000;
+    public int startingResearchResult = 0;
+    public int startingLabLevel = 1;
 
-    [Tooltip("과제 검사 완료 후 얻는 연구성과입니다. 연구실 전체 레벨업에 사용됩니다.")]
-    public int researchResult = 0;
-
-    [Tooltip("연구실 전체 레벨입니다. 과제 등급, 인력 고용, 연구실 확장 해금에 사용됩니다.")]
-    public int level = 1;
+    [Header("현재 자원")]
+    public int money;
+    public int researchResult;
+    public int labLevel;
 
     private void Awake()
     {
-        // ResourceManager는 씬에 하나만 있어야 한다.
         if (Instance != null)
         {
             Destroy(gameObject);
@@ -35,11 +29,31 @@ public class ResourceManager : MonoBehaviour
         }
 
         Instance = this;
+
+        InitializeResources();
+    }
+
+    /// <summary>
+    /// 게임 시작 시 기본 자원을 세팅한다.
+    /// </summary>
+    private void InitializeResources()
+    {
+        money = startingMoney;
+        researchResult = startingResearchResult;
+        labLevel = startingLabLevel;
+    }
+
+    /// <summary>
+    /// 돈이 충분한지 확인한다.
+    /// </summary>
+    public bool HasEnoughMoney(int amount)
+    {
+        return money >= amount;
     }
 
     /// <summary>
     /// 돈을 사용한다.
-    /// 돈이 부족하면 false를 반환한다.
+    /// 구매 확정, 배치 완료 시점에서 호출한다.
     /// </summary>
     public bool SpendMoney(int amount)
     {
@@ -55,6 +69,7 @@ public class ResourceManager : MonoBehaviour
 
     /// <summary>
     /// 돈을 추가한다.
+    /// 과제 검사 완료 후 보상 지급 시 사용한다.
     /// </summary>
     public void AddMoney(int amount)
     {
@@ -68,7 +83,7 @@ public class ResourceManager : MonoBehaviour
 
     /// <summary>
     /// 연구성과를 추가한다.
-    /// 과제 검사 완료 후 호출될 예정이다.
+    /// 과제 검사 완료 후 보상 지급 시 사용한다.
     /// </summary>
     public void AddResearchResult(int amount)
     {
@@ -78,14 +93,5 @@ public class ResourceManager : MonoBehaviour
         {
             researchResult = 0;
         }
-    }
-
-    /// <summary>
-    /// 연구실 레벨을 올린다.
-    /// 나중에 연구성과 요구량 조건을 추가할 예정이다.
-    /// </summary>
-    public void LevelUp()
-    {
-        level++;
     }
 }

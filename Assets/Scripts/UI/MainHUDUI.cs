@@ -33,7 +33,7 @@ public class MainHUDUI : MonoBehaviour
 
         if (levelText != null)
         {
-            levelText.text = "LV. " + ResourceManager.Instance.level;
+            levelText.text = "LV. " + ResourceManager.Instance.labLevel;
         }
     }
 }
