@@ -134,7 +134,7 @@ public class DeskEquipmentPlacementManager : MonoBehaviour
 
         if (ShopPurchaseManager.Instance != null)
         {
-            ShopPurchaseManager.Instance.CancelPurchase();
+            ShopPurchaseManager.Instance.ClearPendingPurchase();
         }
     }
 

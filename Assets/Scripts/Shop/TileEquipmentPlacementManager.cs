@@ -408,7 +408,7 @@ public class TileEquipmentPlacementManager : MonoBehaviour
 
         if (ShopPurchaseManager.Instance != null)
         {
-            ShopPurchaseManager.Instance.CancelPurchase();
+            ShopPurchaseManager.Instance.ClearPendingPurchase();
         }
     }
 

@@ -162,4 +162,19 @@ public class ShopPurchaseManager : MonoBehaviour
     {
         return pendingEquipment;
     }
+
+    /// <summary>
+    /// 구매가 정상 완료된 뒤 구매 대기 상태를 정리한다.
+    /// 취소가 아니라 성공 후 초기화용이다.
+    /// </summary>
+    public void ClearPendingPurchase()
+    {
+        if (pendingEquipment != null)
+        {
+            Debug.Log("구매 대기 상태 정리: " + pendingEquipment.equipmentName);
+        }
+
+        pendingEquipment = null;
+        isWaitingForPlacement = false;
+    }
 }
