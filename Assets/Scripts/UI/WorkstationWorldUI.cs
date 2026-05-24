@@ -23,6 +23,19 @@ public class WorkstationWorldUI : MonoBehaviour
 
     private WorkstationTaskController taskController;
 
+    [Header("방향별 UI 위치 오프셋")]
+    [Tooltip("오른쪽 아래 방향일 때 버튼 위치")]
+    public Vector3 rightDownOffset = new Vector3(0f, 1.1f, 0f);
+
+    [Tooltip("오른쪽 위 방향일 때 버튼 위치")]
+    public Vector3 rightUpOffset = new Vector3(0f, 1.1f, 0f);
+
+    [Tooltip("왼쪽 아래 방향일 때 버튼 위치")]
+    public Vector3 leftDownOffset = new Vector3(0f, 1.1f, 0f);
+
+    [Tooltip("왼쪽 위 방향일 때 버튼 위치")]
+    public Vector3 leftUpOffset = new Vector3(0f, 1.1f, 0f);
+
     private void Awake()
     {
         taskController = GetComponentInParent<WorkstationTaskController>();
@@ -133,6 +146,31 @@ public class WorkstationWorldUI : MonoBehaviour
         if (taskController != null)
         {
             taskController.StartCleaning();
+        }
+    }
+
+    /// <summary>
+    /// Workstation 방향에 따라 과제/검사/청소 버튼 위치를 조정한다.
+    /// </summary>
+    public void ApplyDirection(PlacementDirection direction)
+    {
+        switch (direction)
+        {
+            case PlacementDirection.RD:
+                transform.localPosition = rightDownOffset;
+                break;
+
+            case PlacementDirection.RU:
+                transform.localPosition = rightUpOffset;
+                break;
+
+            case PlacementDirection.LD:
+                transform.localPosition = leftDownOffset;
+                break;
+
+            case PlacementDirection.LU:
+                transform.localPosition = leftUpOffset;
+                break;
         }
     }
 }

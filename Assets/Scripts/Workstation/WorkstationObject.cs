@@ -73,6 +73,9 @@ public class WorkstationObject : MonoBehaviour
 
     [Header("타일 기준 정렬")]
     [Tooltip("현재 배치된 타일 기준 Sorting Order입니다. 배치된 타일에 따라 자동 계산됩니다.")]
+
+    [Header("Workstation 위 버튼 UI")]
+    public WorkstationWorldUI workstationWorldUI;
     public int tileBaseSortingOrder = 0;
 
     private void Awake()
@@ -196,11 +199,17 @@ public class WorkstationObject : MonoBehaviour
             return;
         }
 
+
         ApplyDesk(setting);
         ApplyChairOrSeatedStaff(setting);
         ApplyLocalPositions(setting);
         ApplySortingOrders(setting);
         ApplyDeskEquipment(setting);
+
+        if (workstationWorldUI != null)
+        {
+            workstationWorldUI.ApplyDirection(direction);
+        }
     }
 
     /// <summary>
