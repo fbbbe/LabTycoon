@@ -245,15 +245,15 @@ public class EquipmentDatabase
     private void CreateEnvironmentEquipments()
     {
         EquipmentData deskChairSet = new EquipmentData(
-            equipmentName: "책상 의자 세트",
-            category: EquipmentCategory.Environment,
-            installType: EquipmentInstallType.TilePlaceable,
-            listIndex: 0,
-            unlockLevel: 1,
-            price: 50000,
-            spaceCost: 1,
-            detailCardResourcePath: "Shop/Details/DeskChairSet"
-        );
+     equipmentName: "책상 의자 세트",
+     category: EquipmentCategory.Environment,
+     installType: EquipmentInstallType.TilePlaceable,
+     listIndex: 0,
+     unlockLevel: 1,
+     price: 50000,
+     spaceCost: 1,
+     detailCardResourcePath: "Shop/Details/DeskChairSet"
+ );
 
         deskChairSet.placeablePrefabResourcePath = "Prefabs/Workstation/Workstation";
         equipments.Add(deskChairSet);

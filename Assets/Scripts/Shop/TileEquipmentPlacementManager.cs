@@ -99,10 +99,34 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         {
             previewEquipmentObject.ApplyDirection(currentDirection);
         }
+        else
+        {
+            ApplyWorkstationPreviewDirection(currentDirection);
+        }
 
         Debug.Log("배치 방향 변경: " + currentDirection);
     }
 
+    /// <summary>
+    /// Workstation 프리뷰의 방향을 변경한다.
+    /// </summary>
+    private void ApplyWorkstationPreviewDirection(PlacementDirection direction)
+    {
+        if (previewObject == null)
+        {
+            return;
+        }
+
+        WorkstationObject workstationObject = previewObject.GetComponent<WorkstationObject>();
+
+        if (workstationObject != null)
+        {
+            workstationObject.ApplyDirection(direction);
+            return;
+        }
+
+        Debug.LogWarning("Workstation 프리뷰에 WorkstationObject가 없습니다.");
+    }
     private void HandleCancelInput()
     {
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetMouseButtonDown(1))
@@ -150,6 +174,15 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         TryPlaceToTile(currentPreviewTile);
     }
 
+    /// <summary>
+    /// 배치 프리뷰를 만든다.
+    /// 
+    /// 일반 타일 장비:
+    /// - 공통 TilePlaceableEquipment prefab 사용
+    /// 
+    /// 책상 의자 세트:
+    /// - Workstation prefab을 프리뷰로 사용
+    /// </summary>
     private void CreatePreview()
     {
         ClearPreview();
@@ -161,10 +194,18 @@ public class TileEquipmentPlacementManager : MonoBehaviour
 
         if (pendingTileEquipment.equipmentName == "책상 의자 세트")
         {
-            Debug.Log("책상 의자 세트는 Workstation prefab을 사용하므로 현재 프리뷰는 생략합니다.");
+            CreateWorkstationPreview();
             return;
         }
 
+        CreateCommonTileEquipmentPreview();
+    }
+
+    /// <summary>
+    /// 일반 타일 장비 프리뷰를 생성한다.
+    /// </summary>
+    private void CreateCommonTileEquipmentPreview()
+    {
         GameObject prefab = Resources.Load<GameObject>(commonTileEquipmentPrefabPath);
 
         if (prefab == null)
@@ -192,9 +233,37 @@ public class TileEquipmentPlacementManager : MonoBehaviour
             currentDirection
         );
 
+        DisablePreviewInteraction(previewObject);
         SetPreviewAlpha(previewObject, 0.55f);
     }
 
+    /// <summary>
+    /// 책상 의자 세트용 Workstation 프리뷰를 생성한다.
+    /// </summary>
+    private void CreateWorkstationPreview()
+    {
+        if (string.IsNullOrEmpty(pendingTileEquipment.placeablePrefabResourcePath))
+        {
+            Debug.LogError("책상 의자 세트의 Workstation prefab 경로가 비어 있습니다.");
+            return;
+        }
+
+        GameObject prefab = Resources.Load<GameObject>(pendingTileEquipment.placeablePrefabResourcePath);
+
+        if (prefab == null)
+        {
+            Debug.LogError("Workstation prefab을 찾지 못했습니다: " + pendingTileEquipment.placeablePrefabResourcePath);
+            return;
+        }
+
+        previewObject = Instantiate(prefab);
+        previewObject.name = "Preview_" + pendingTileEquipment.equipmentName;
+
+        DisablePreviewInteraction(previewObject);
+        SetPreviewAlpha(previewObject, 0.55f);
+
+        ApplyWorkstationPreviewDirection(currentDirection);
+    }
     private void SetPreviewAlpha(GameObject target, float alpha)
     {
         if (target == null)
@@ -328,12 +397,19 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         }
 
         GameObject obj = Instantiate(
-            prefab,
-            tile.GetCenterPosition(),
-            Quaternion.identity
-        );
+    prefab,
+    tile.GetCenterPosition(),
+    Quaternion.identity
+);
 
         obj.name = pendingTileEquipment.equipmentName;
+
+        WorkstationObject workstationObject = obj.GetComponent<WorkstationObject>();
+
+        if (workstationObject != null)
+        {
+            workstationObject.ApplyDirection(currentDirection);
+        }
 
         return obj;
     }
@@ -464,6 +540,33 @@ public class TileEquipmentPlacementManager : MonoBehaviour
 
             default:
                 return PlacementDirection.RD;
+        }
+    }
+
+    /// <summary>
+    /// 프리뷰 오브젝트가 클릭이나 게임 로직에 반응하지 않도록 비활성화한다.
+    /// Renderer는 그대로 두고, Collider와 MonoBehaviour 로직만 끈다.
+    /// </summary>
+    private void DisablePreviewInteraction(GameObject target)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        Collider2D[] colliders = target.GetComponentsInChildren<Collider2D>(true);
+
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            colliders[i].enabled = false;
+        }
+
+        MonoBehaviour[] behaviours = target.GetComponentsInChildren<MonoBehaviour>(true);
+
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            // 이 매니저가 붙은 오브젝트가 아니라, 프리뷰 내부 컴포넌트만 끈다.
+            behaviours[i].enabled = false;
         }
     }
 }
