@@ -26,4 +26,11 @@ public class TaskData
 
     [Tooltip("이 과제를 수행하기 위해 필요한 연구력입니다.")]
     public int requiredResearchPower = 10;
+
+    [Header("청소 정보")]
+    [Tooltip("청소하는 데 걸리는 기본 시간입니다.")]
+    public float baseCleaningTime = 3f;
+
+    [Tooltip("청소로 증가하는 기본 스트레스입니다.")]
+    public int baseCleaningStress = 1;
 }

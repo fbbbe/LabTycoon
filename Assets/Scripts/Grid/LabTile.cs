@@ -69,4 +69,14 @@ public class LabTile : MonoBehaviour
     {
         isOccupied = occupied;
     }
+
+    private void OnMouseDown()
+    {
+        if (TileEquipmentPlacementManager.Instance != null &&
+            TileEquipmentPlacementManager.Instance.isSelectingTile)
+        {
+            TileEquipmentPlacementManager.Instance.TryPlaceToTile(this);
+            return;
+        }
+    }
 }

@@ -76,7 +76,7 @@ public class EquipmentShopPanelUI : MonoBehaviour
         {
             // 구매 버튼은 항상 현재 selectedEquipment를 기준으로 처리한다.
             buyButton.onClick.RemoveAllListeners();
-            buyButton.onClick.AddListener(BuySelectedEquipment);
+            buyButton.onClick.AddListener(OnClickBuyButton);
         }
     }
 
@@ -346,5 +346,24 @@ public class EquipmentShopPanelUI : MonoBehaviour
         {
             target.SetActive(active);
         }
+    }
+
+    public void OnClickBuyButton()
+    {
+        if (selectedEquipment == null)
+        {
+            Debug.Log("선택된 장비가 없습니다.");
+            return;
+        }
+
+        if (ShopPurchaseManager.Instance == null)
+        {
+            Debug.LogError("ShopPurchaseManager.Instance가 없습니다.");
+            return;
+        }
+
+        ShopPurchaseManager.Instance.StartPurchase(selectedEquipment);
+
+        gameObject.SetActive(false);
     }
 }

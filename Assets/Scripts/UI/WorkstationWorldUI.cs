@@ -130,6 +130,9 @@ public class WorkstationWorldUI : MonoBehaviour
 
     private void OnClickCleaningButton()
     {
-        Debug.Log("청소하기 버튼 클릭됨. 다음 단계에서 청소 시스템 연결 예정.");
+        if (taskController != null)
+        {
+            taskController.StartCleaning();
+        }
     }
 }

@@ -463,7 +463,10 @@ public class WorkstationObject : MonoBehaviour
 
     public bool CanInstallDeskEquipment()
     {
-        return hasDeskEquipment == false;
+        // 책상 위 장비는 빈 책상에 새로 설치할 수도 있고,
+        // 이미 낡은 노트북 같은 장비가 있으면 새 컴퓨터로 교체할 수도 있다.
+        // 따라서 hasDeskEquipment가 true여도 설치/교체 가능으로 처리한다.
+        return deskEquipmentObject != null;
     }
 
     public void SetDeskEquipmentInstalled(bool installed)
@@ -493,10 +496,15 @@ public class WorkstationObject : MonoBehaviour
 
 
     /// <summary>
-    /// 책상 위 장비를 설치한다.
+    /// 책상 위 장비를 설치하거나 교체한다.
     /// 
     /// 노트북/컴퓨터는 타일에 직접 배치되지 않고,
     /// 반드시 이 함수를 통해 Workstation 위에 장착된다.
+    /// 
+    /// 중요:
+    /// - 초기 Workstation에는 이미 낡은 노트북이 있을 수 있다.
+    /// - 따라서 hasDeskEquipment가 true여도 구매한 컴퓨터로 교체 가능해야 한다.
+    /// - 실제 돈 차감은 이 함수가 true를 반환한 뒤 PlacementManager에서 처리한다.
     /// </summary>
     public bool InstallDeskEquipment(DeskEquipmentData equipmentData)
     {
@@ -506,16 +514,19 @@ public class WorkstationObject : MonoBehaviour
             return false;
         }
 
-        if (hasDeskEquipment)
-        {
-            Debug.Log("이미 책상 위에 장비가 설치되어 있습니다.");
-            return false;
-        }
-
         if (deskEquipmentObject == null)
         {
             Debug.LogError("InstallDeskEquipment: DeskEquipmentObject가 연결되지 않았습니다.");
             return false;
+        }
+
+        if (hasDeskEquipment)
+        {
+            Debug.Log("기존 책상 위 장비를 새 장비로 교체합니다: " + equipmentData.equipmentName);
+        }
+        else
+        {
+            Debug.Log("책상 위 장비를 새로 설치합니다: " + equipmentData.equipmentName);
         }
 
         hasDeskEquipment = true;
@@ -600,5 +611,15 @@ public class WorkstationObject : MonoBehaviour
 
         // 장비 데이터가 설치되어 있다면 현재 Workstation 방향에 맞는 Sprite를 적용한다.
         deskEquipmentObject.ApplyDirection(currentDirection);
+    }
+
+    private void OnMouseDown()
+    {
+        if (DeskEquipmentPlacementManager.Instance != null &&
+            DeskEquipmentPlacementManager.Instance.isSelectingWorkstation)
+        {
+            DeskEquipmentPlacementManager.Instance.TryInstallToWorkstation(this);
+            return;
+        }
     }
 }

@@ -257,4 +257,81 @@ public class WorkstationTaskController : MonoBehaviour
 
         inspectionVisualSwitcher.RestoreSeatedVisualAfterInspection();
     }
+
+    /// <summary>
+    /// 청소를 시작한다.
+    /// 
+    /// 청소하기 버튼을 눌렀을 때 호출된다.
+    /// 청소가 끝나면 다시 과제 가능 상태로 돌아간다.
+    /// </summary>
+    public void StartCleaning()
+    {
+        if (taskState != StaffTaskState.NeedCleaning)
+        {
+            Debug.Log("현재 청소할 수 없는 상태입니다: " + taskState);
+            return;
+        }
+
+        if (workstation == null || workstation.seatedStaff == null)
+        {
+            Debug.Log("청소할 인력이 없습니다.");
+            return;
+        }
+
+        StaffWorker staff = workstation.seatedStaff;
+
+        if (staff.CanAct() == false)
+        {
+            Debug.Log("스트레스가 너무 높아 청소할 수 없습니다.");
+            return;
+        }
+
+        taskState = StaffTaskState.Cleaning;
+        RefreshUI();
+
+        StartCoroutine(CleaningRoutine());
+    }
+
+    /// <summary>
+    /// 청소 시간만큼 기다린 뒤 청소 완료 처리한다.
+    /// 청소 시간은 청소 장비 효과를 반영한다.
+    /// </summary>
+    private IEnumerator CleaningRoutine()
+    {
+        float finalCleaningTime = StressCalculator.CalculateCleaningTime(
+            currentTask.baseCleaningTime
+        );
+
+        Debug.Log("청소 시작. 청소 시간: " + finalCleaningTime + "초");
+
+        yield return new WaitForSeconds(finalCleaningTime);
+
+        CompleteCleaning();
+    }
+
+    /// <summary>
+    /// 청소 완료 처리.
+    /// 청소 스트레스를 적용하고 다시 과제 가능 상태로 되돌린다.
+    /// </summary>
+    private void CompleteCleaning()
+    {
+        if (workstation == null || workstation.seatedStaff == null)
+        {
+            Debug.LogError("청소 완료 처리 실패: seatedStaff가 없습니다.");
+            return;
+        }
+
+        StaffWorker staff = workstation.seatedStaff;
+
+        int finalCleaningStress = StressCalculator.CalculateCleaningStress(
+            currentTask.baseCleaningStress
+        );
+
+        staff.AddStress(finalCleaningStress);
+
+        Debug.Log("청소 완료: 스트레스 +" + finalCleaningStress);
+
+        taskState = StaffTaskState.Idle;
+        RefreshUI();
+    }
 }

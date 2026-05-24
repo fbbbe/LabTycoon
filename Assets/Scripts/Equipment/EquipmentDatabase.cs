@@ -175,7 +175,7 @@ public class EquipmentDatabase
             price: 40000000,
             spaceCost: 3,
             detailPath: "Shop/Details/GPUServer",
-            prefabPath: "Prefabs/Equipment/GPUServer",
+            spritePathPrefix: "TileEquipmentSprites/GPUServer",
             effects: new EquipmentEffectData[]
             {
                 CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.30f)
@@ -190,7 +190,7 @@ public class EquipmentDatabase
             price: 120000000,
             spaceCost: 4,
             detailPath: "Shop/Details/AIServer",
-            prefabPath: "Prefabs/Equipment/AIServer",
+            spritePathPrefix: "TileEquipmentSprites/AIServer",
             effects: new EquipmentEffectData[]
             {
                 CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.40f)
@@ -240,7 +240,7 @@ public class EquipmentDatabase
 
     /// <summary>
     /// 환경 장비 데이터 생성.
-    /// 환경 장비는 게임 시스템 전체의 스트레스 계산에 적용된다.
+    /// 환경 장비는 과제 스트레스와 청소 스트레스 증가량을 전체적으로 감소시킨다.
     /// </summary>
     private void CreateEnvironmentEquipments()
     {
@@ -266,10 +266,115 @@ public class EquipmentDatabase
             price: 50000,
             spaceCost: 1,
             detailPath: "Shop/Details/Fan",
-            prefabPath: "Prefabs/Equipment/Fan",
+            spritePathPrefix: "TileEquipmentSprites/Fan",
             effects: new EquipmentEffectData[]
             {
                 CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.05f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "전기장판",
+            category: EquipmentCategory.Environment,
+            listIndex: 2,
+            unlockLevel: 5,
+            price: 70000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/ElectricBlanket",
+            spritePathPrefix: "TileEquipmentSprites/ElectricBlanket",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.05f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "기본 에어컨",
+            category: EquipmentCategory.Environment,
+            listIndex: 3,
+            unlockLevel: 15,
+            price: 700000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/BasicAirConditioner",
+            spritePathPrefix: "TileEquipmentSprites/BasicAirConditioner",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.10f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "기본 난방기",
+            category: EquipmentCategory.Environment,
+            listIndex: 4,
+            unlockLevel: 15,
+            price: 700000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/BasicHeater",
+            spritePathPrefix: "TileEquipmentSprites/BasicHeater",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.10f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "공기청정기",
+            category: EquipmentCategory.Environment,
+            listIndex: 5,
+            unlockLevel: 25,
+            price: 1500000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/AirPurifier",
+            spritePathPrefix: "TileEquipmentSprites/AirPurifier",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.08f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "대형 에어컨",
+            category: EquipmentCategory.Environment,
+            listIndex: 6,
+            unlockLevel: 45,
+            price: 5000000,
+            spaceCost: 2,
+            detailPath: "Shop/Details/LargeAirConditioner",
+            spritePathPrefix: "TileEquipmentSprites/LargeAirConditioner",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.18f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "프리미엄 공조 시스템",
+            category: EquipmentCategory.Environment,
+            listIndex: 7,
+            unlockLevel: 70,
+            price: 20000000,
+            spaceCost: 3,
+            detailPath: "Shop/Details/PremiumAirSystem",
+            spritePathPrefix: "TileEquipmentSprites/PremiumAirSystem",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.25f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "스마트 연구실 환경 시스템",
+            category: EquipmentCategory.Environment,
+            listIndex: 8,
+            unlockLevel: 90,
+            price: 80000000,
+            spaceCost: 4,
+            detailPath: "Shop/Details/SmartLabEnvironmentSystem",
+            spritePathPrefix: "TileEquipmentSprites/SmartLabEnvironmentSystem",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalStress, EquipmentEffectType.StressIncreaseReduction, 0.35f)
             }
         );
     }
@@ -288,10 +393,85 @@ public class EquipmentDatabase
             price: 150000,
             spaceCost: 1,
             detailPath: "Shop/Details/ExperimentKit",
-            prefabPath: "Prefabs/Equipment/ExperimentKit",
+            spritePathPrefix: "TileEquipmentSprites/ExperimentKit",
             effects: new EquipmentEffectData[]
             {
                 CreateEffect(EquipmentEffectScope.GlobalResearchResult, EquipmentEffectType.ResearchResultBonus, 0.03f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "분석 도구",
+            category: EquipmentCategory.Research,
+            listIndex: 1,
+            unlockLevel: 20,
+            price: 600000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/AnalysisTool",
+            spritePathPrefix: "TileEquipmentSprites/AnalysisTool",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalResearchResult, EquipmentEffectType.ResearchResultBonus, 0.06f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "정밀 측정 장비",
+            category: EquipmentCategory.Research,
+            listIndex: 2,
+            unlockLevel: 35,
+            price: 2000000,
+            spaceCost: 2,
+            detailPath: "Shop/Details/PrecisionMeasurementDevice",
+            spritePathPrefix: "TileEquipmentSprites/PrecisionMeasurementDevice",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalResearchResult, EquipmentEffectType.ResearchResultBonus, 0.10f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "자동 실험 장비",
+            category: EquipmentCategory.Research,
+            listIndex: 3,
+            unlockLevel: 55,
+            price: 8000000,
+            spaceCost: 2,
+            detailPath: "Shop/Details/AutoExperimentDevice",
+            spritePathPrefix: "TileEquipmentSprites/AutoExperimentDevice",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalResearchResult, EquipmentEffectType.ResearchResultBonus, 0.15f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "첨단 분석 장비",
+            category: EquipmentCategory.Research,
+            listIndex: 4,
+            unlockLevel: 75,
+            price: 25000000,
+            spaceCost: 3,
+            detailPath: "Shop/Details/AdvancedAnalysisDevice",
+            spritePathPrefix: "TileEquipmentSprites/AdvancedAnalysisDevice",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalResearchResult, EquipmentEffectType.ResearchResultBonus, 0.22f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "차세대 연구 장비",
+            category: EquipmentCategory.Research,
+            listIndex: 5,
+            unlockLevel: 92,
+            price: 90000000,
+            spaceCost: 4,
+            detailPath: "Shop/Details/NextGenResearchDevice",
+            spritePathPrefix: "TileEquipmentSprites/NextGenResearchDevice",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalResearchResult, EquipmentEffectType.ResearchResultBonus, 0.35f)
             }
         );
     }
@@ -310,18 +490,82 @@ public class EquipmentDatabase
             price: 20000,
             spaceCost: 0,
             detailPath: "Shop/Details/MixCoffeeBox",
-            prefabPath: "Prefabs/Equipment/MixCoffeeBox",
+            spritePathPrefix: "TileEquipmentSprites/MixCoffeeBox",
             effects: new EquipmentEffectData[]
             {
                 CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.01f),
                 CreateEffect(EquipmentEffectScope.AllStaffPenalty, EquipmentEffectType.ExtraStressIncrease, 1f)
             }
         );
+
+        AddTileEquipment(
+            name: "커피포트",
+            category: EquipmentCategory.Coffee,
+            listIndex: 1,
+            unlockLevel: 8,
+            price: 150000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/CoffeePot",
+            spritePathPrefix: "TileEquipmentSprites/CoffeePot",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.03f),
+                CreateEffect(EquipmentEffectScope.AllStaffPenalty, EquipmentEffectType.ExtraStressIncrease, 2f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "기본 커피머신",
+            category: EquipmentCategory.Coffee,
+            listIndex: 2,
+            unlockLevel: 20,
+            price: 800000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/BasicCoffeeMachine",
+            spritePathPrefix: "TileEquipmentSprites/BasicCoffeeMachine",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.05f),
+                CreateEffect(EquipmentEffectScope.AllStaffPenalty, EquipmentEffectType.ExtraStressIncrease, 3f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "고급 커피머신",
+            category: EquipmentCategory.Coffee,
+            listIndex: 3,
+            unlockLevel: 45,
+            price: 5000000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/PremiumCoffeeMachine",
+            spritePathPrefix: "TileEquipmentSprites/PremiumCoffeeMachine",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.08f),
+                CreateEffect(EquipmentEffectScope.AllStaffPenalty, EquipmentEffectType.ExtraStressIncrease, 5f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "연구실 카페테리아",
+            category: EquipmentCategory.Coffee,
+            listIndex: 4,
+            unlockLevel: 75,
+            price: 30000000,
+            spaceCost: 3,
+            detailPath: "Shop/Details/LabCafeteria",
+            spritePathPrefix: "TileEquipmentSprites/LabCafeteria",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalMoneyReward, EquipmentEffectType.MoneyRewardBonus, 0.12f),
+                CreateEffect(EquipmentEffectScope.AllStaffPenalty, EquipmentEffectType.ExtraStressIncrease, 10f)
+            }
+        );
     }
 
     /// <summary>
     /// 청소 장비 데이터 생성.
-    /// 청소 장비 효과는 전체 청소 시스템과 모든 인력에게 적용된다.
+    /// 청소 장비 효과는 전체 청소 시스템에 적용된다.
     /// </summary>
     private void CreateCleaningEquipments()
     {
@@ -333,16 +577,65 @@ public class EquipmentDatabase
             price: 50000,
             spaceCost: 1,
             detailPath: "Shop/Details/CleaningBox",
-            prefabPath: "Prefabs/Equipment/CleaningBox",
+            spritePathPrefix: "TileEquipmentSprites/CleaningBox",
             effects: new EquipmentEffectData[]
             {
                 CreateEffect(EquipmentEffectScope.GlobalCleaning, EquipmentEffectType.CleaningTimeReduction, 1f)
             }
         );
+
+        AddTileEquipment(
+            name: "무선 청소기",
+            category: EquipmentCategory.Cleaning,
+            listIndex: 1,
+            unlockLevel: 25,
+            price: 800000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/WirelessVacuum",
+            spritePathPrefix: "TileEquipmentSprites/WirelessVacuum",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalCleaning, EquipmentEffectType.CleaningTimeReduction, 2f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "청소 로봇",
+            category: EquipmentCategory.Cleaning,
+            listIndex: 2,
+            unlockLevel: 55,
+            price: 8000000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/CleaningRobot",
+            spritePathPrefix: "TileEquipmentSprites/CleaningRobot",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalCleaning, EquipmentEffectType.CleaningTimeReduction, 2f)
+            }
+        );
+
+        AddTileEquipment(
+            name: "자동 청소 시스템",
+            category: EquipmentCategory.Cleaning,
+            listIndex: 3,
+            unlockLevel: 85,
+            price: 50000000,
+            spaceCost: 1,
+            detailPath: "Shop/Details/AutoCleaningSystem",
+            spritePathPrefix: "TileEquipmentSprites/AutoCleaningSystem",
+            effects: new EquipmentEffectData[]
+            {
+                CreateEffect(EquipmentEffectScope.GlobalCleaning, EquipmentEffectType.CleaningTimeReduction, 2f)
+            }
+        );
     }
 
     /// <summary>
-    /// 타일 위에 직접 배치하는 장비를 추가한다.
+    /// 타일 위에 직접 배치하는 일반 장비를 추가한다.
+    ///
+    /// Workstation처럼 별도 prefab이 필요한 특수 장비가 아니라면,
+    /// 장비마다 prefab을 따로 만들지 않고 공통 TilePlaceableEquipment prefab을 사용한다.
+    /// 이 함수는 장비별 4방향 Sprite 데이터만 EquipmentData에 연결한다.
     /// </summary>
     private void AddTileEquipment(
         string name,
@@ -352,7 +645,7 @@ public class EquipmentDatabase
         int price,
         int spaceCost,
         string detailPath,
-        string prefabPath,
+        string spritePathPrefix,
         EquipmentEffectData[] effects
     )
     {
@@ -367,7 +660,10 @@ public class EquipmentDatabase
             detailCardResourcePath: detailPath
         );
 
-        data.placeablePrefabResourcePath = prefabPath;
+        data.tilePlaceableData = CreateTilePlaceableEquipmentData(
+            name,
+            spritePathPrefix
+        );
 
         if (effects != null)
         {
@@ -463,5 +759,42 @@ public class EquipmentDatabase
         result.Sort((a, b) => a.listIndex.CompareTo(b.listIndex));
 
         return result;
+    }
+
+    private TilePlaceableEquipmentData CreateTilePlaceableEquipmentData(
+        string equipmentName,
+        string spritePathPrefix
+    )
+    {
+        TilePlaceableEquipmentData data = new TilePlaceableEquipmentData();
+
+        data.equipmentName = equipmentName;
+
+        data.rightDownSprite = Resources.Load<Sprite>(spritePathPrefix + "_RD");
+        data.rightUpSprite = Resources.Load<Sprite>(spritePathPrefix + "_RU");
+        data.leftDownSprite = Resources.Load<Sprite>(spritePathPrefix + "_LD");
+        data.leftUpSprite = Resources.Load<Sprite>(spritePathPrefix + "_LU");
+
+        if (data.rightDownSprite == null)
+        {
+            Debug.LogWarning("RD Sprite를 찾지 못했습니다: " + spritePathPrefix + "_RD");
+        }
+
+        if (data.rightUpSprite == null)
+        {
+            Debug.LogWarning("RU Sprite를 찾지 못했습니다: " + spritePathPrefix + "_RU");
+        }
+
+        if (data.leftDownSprite == null)
+        {
+            Debug.LogWarning("LD Sprite를 찾지 못했습니다: " + spritePathPrefix + "_LD");
+        }
+
+        if (data.leftUpSprite == null)
+        {
+            Debug.LogWarning("LU Sprite를 찾지 못했습니다: " + spritePathPrefix + "_LU");
+        }
+
+        return data;
     }
 }

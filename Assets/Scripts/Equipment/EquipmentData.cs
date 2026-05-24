@@ -27,6 +27,8 @@ public class EquipmentData
     // 타일 위에 직접 배치되는 장비일 때 사용할 프리팹 경로
     public string placeablePrefabResourcePath;
 
+    public TilePlaceableEquipmentData tilePlaceableData;
+
     // 책상 위 장비일 때 사용할 DeskEquipmentData
     public DeskEquipmentData deskEquipmentData;
 
