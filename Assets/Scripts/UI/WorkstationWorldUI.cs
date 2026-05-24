@@ -16,6 +16,7 @@ public class WorkstationWorldUI : MonoBehaviour
     [Header("버튼 오브젝트")]
     public Button taskButton;
     public Button inspectionButton;
+    public Button cleaningButton;
 
     [Header("버튼 위치 기준")]
     public Vector3 localOffset = new Vector3(0f, 1.2f, 0f);
@@ -36,6 +37,12 @@ public class WorkstationWorldUI : MonoBehaviour
         {
             inspectionButton.onClick.RemoveAllListeners();
             inspectionButton.onClick.AddListener(OnClickInspectionButton);
+        }
+
+        if (cleaningButton != null)
+        {
+            cleaningButton.onClick.RemoveAllListeners();
+            cleaningButton.onClick.AddListener(OnClickCleaningButton);
         }
     }
 
@@ -77,6 +84,13 @@ public class WorkstationWorldUI : MonoBehaviour
                     inspectionButton.gameObject.SetActive(true);
                 }
                 break;
+
+            case StaffTaskState.NeedCleaning:
+                if (cleaningButton != null)
+                {
+                    cleaningButton.gameObject.SetActive(true);
+                }
+                break;
         }
     }
 
@@ -91,6 +105,11 @@ public class WorkstationWorldUI : MonoBehaviour
         {
             inspectionButton.gameObject.SetActive(false);
         }
+
+        if (cleaningButton != null)
+        {
+            cleaningButton.gameObject.SetActive(false);
+        }
     }
 
     private void OnClickTaskButton()
@@ -103,6 +122,14 @@ public class WorkstationWorldUI : MonoBehaviour
 
     private void OnClickInspectionButton()
     {
-        Debug.Log("검사받기 버튼 클릭됨. 다음 단계에서 검사 시스템 연결 예정.");
+        if (taskController != null)
+        {
+            taskController.StartInspection();
+        }
+    }
+
+    private void OnClickCleaningButton()
+    {
+        Debug.Log("청소하기 버튼 클릭됨. 다음 단계에서 청소 시스템 연결 예정.");
     }
 }

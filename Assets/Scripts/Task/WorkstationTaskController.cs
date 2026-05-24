@@ -22,7 +22,12 @@ public class WorkstationTaskController : MonoBehaviour
     [Header("현재 작업 상태")]
     public StaffTaskState taskState = StaffTaskState.Idle;
 
+
     private Coroutine taskCoroutine;
+
+    [Header("검사 연출 중 착석 이미지 교체")]
+    [Tooltip("검사 연출 중 의자+인력 합성 이미지를 방향에 맞는 빈 의자 이미지로 교체하는 스크립트입니다.")]
+    public WorkstationInspectionVisualSwitcher inspectionVisualSwitcher;
 
     private void Awake()
     {
@@ -34,6 +39,16 @@ public class WorkstationTaskController : MonoBehaviour
         if (worldUI == null)
         {
             worldUI = GetComponentInChildren<WorkstationWorldUI>();
+        }
+
+        if (inspectionVisualSwitcher == null)
+        {
+            inspectionVisualSwitcher = GetComponent<WorkstationInspectionVisualSwitcher>();
+        }
+
+        if (inspectionVisualSwitcher == null)
+        {
+            Debug.LogWarning("WorkstationTaskController: WorkstationInspectionVisualSwitcher가 없습니다. 검사 연출 중 착석 이미지를 빈 의자로 바꾸려면 Workstation에 해당 컴포넌트를 추가해야 합니다.");
         }
     }
 
@@ -131,5 +146,115 @@ public class WorkstationTaskController : MonoBehaviour
     {
         taskState = StaffTaskState.Idle;
         RefreshUI();
+    }
+
+    /// <summary>
+    /// 검사받기를 시작한다.
+    /// 
+    /// 검사받기 버튼을 눌렀을 때 호출된다.
+    /// 실제 교수님 등장 연출은 InspectionManager가 담당한다.
+    /// </summary>
+    public void StartInspection()
+    {
+        if (taskState != StaffTaskState.WaitingForInspection)
+        {
+            Debug.Log("현재 검사받을 수 없는 상태입니다: " + taskState);
+            return;
+        }
+
+        if (workstation == null || workstation.seatedStaff == null)
+        {
+            Debug.Log("검사받을 인력이 없습니다.");
+            return;
+        }
+
+        taskState = StaffTaskState.Inspecting;
+        RefreshUI();
+
+        if (InspectionManager.Instance == null)
+        {
+            Debug.LogError("InspectionManager.Instance가 없습니다. InspectionSystem 오브젝트에 InspectionManager를 붙였는지 확인하세요.");
+            return;
+        }
+
+        Debug.Log("WorkstationTaskController: 검사 연출 시작");
+        InspectionManager.Instance.StartInspectionSequence(this);
+    }
+
+
+    /// <summary>
+    /// 교수님 검사 연출이 끝난 뒤 호출된다.
+    /// 여기서 실제 보상과 스트레스를 적용한다.
+    /// </summary>
+    public void CompleteInspectionAfterSequence()
+    {
+        StaffWorker staff = workstation.seatedStaff;
+
+        if (staff == null)
+        {
+            Debug.LogError("검사 완료 처리 실패: seatedStaff가 없습니다.");
+            return;
+        }
+
+        int finalMoneyReward = RewardCalculator.CalculateMoneyReward(
+            currentTask.baseMoneyReward,
+            staff
+        );
+
+        int finalResearchResult = RewardCalculator.CalculateResearchResult(
+            currentTask.baseResearchResult
+        );
+
+        int finalStress = StressCalculator.CalculateTaskStress(
+            currentTask.baseTaskStress
+        );
+
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.AddMoney(finalMoneyReward);
+            ResourceManager.Instance.AddResearchResult(finalResearchResult);
+        }
+
+        staff.AddStress(finalStress);
+
+        Debug.Log(
+            "검사 완료: 돈 +" + finalMoneyReward +
+            ", 연구성과 +" + finalResearchResult +
+            ", 스트레스 +" + finalStress
+        );
+
+        taskState = StaffTaskState.NeedCleaning;
+        RefreshUI();
+    }
+
+    /// <summary>
+    /// 검사 연출이 시작될 때 원래 자리에 보이는 의자+인력 합성 이미지를 빈 의자 이미지로 교체한다.
+    ///
+    /// 주의:
+    /// 오브젝트를 SetActive(false)로 끄면 의자까지 사라진다.
+    /// 따라서 SpriteRenderer의 Sprite만 방향에 맞는 빈 의자 Sprite로 교체한다.
+    /// </summary>
+    public void HideSeatedVisualForInspection()
+    {
+        if (inspectionVisualSwitcher == null)
+        {
+            Debug.LogWarning("inspectionVisualSwitcher가 연결되지 않았습니다. Workstation에 WorkstationInspectionVisualSwitcher를 추가하고 Chair Renderer와 빈 의자 4방향 Sprite를 연결하세요.");
+            return;
+        }
+
+        inspectionVisualSwitcher.ShowChairOnlyForInspection();
+    }
+
+    /// <summary>
+    /// 검사 연출이 끝나면 검사 전 저장해 둔 의자+인력 합성 이미지로 복구한다.
+    /// </summary>
+    public void RestoreSeatedVisualAfterInspection()
+    {
+        if (inspectionVisualSwitcher == null)
+        {
+            return;
+        }
+
+        inspectionVisualSwitcher.RestoreSeatedVisualAfterInspection();
     }
 }
