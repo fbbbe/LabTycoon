@@ -65,4 +65,18 @@ public class StaffWorker : MonoBehaviour
             stress = 0;
         }
     }
+
+    public void InitializeFromHireData(StaffHireData data)
+    {
+        if (data == null)
+        {
+            return;
+        }
+
+        staffName = data.staffName;
+        staffType = data.staffType;
+        staffLevel = data.level;
+        researchPower = data.researchPower;
+        stress = data.initialStress;
+    }
 }

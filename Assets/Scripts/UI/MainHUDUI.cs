@@ -2,19 +2,41 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// 메인 화면 HUD를 갱신하는 스크립트.
-/// 
-/// 메인 HUD에는 전체 자원만 표시한다.
-/// 인력별 연구력/스트레스/상태는 나중에 StaffInfoPanel에서 표시한다.
+/// 메인 HUD의 돈, 연구성과, 연구실 레벨 Text를 ResourceManager와 연결한다.
 /// </summary>
 public class MainHUDUI : MonoBehaviour
 {
-    [Header("자원 텍스트")]
+    [Header("돈 HUD")]
     public TextMeshProUGUI moneyText;
-    public TextMeshProUGUI researchResultText;
-    public TextMeshProUGUI levelText;
 
-    private void Update()
+    [Header("연구성과 HUD")]
+    public TextMeshProUGUI researchResultText;
+
+    [Header("전체 레벨 HUD")]
+    public TextMeshProUGUI labLevelText;
+
+    private void Start()
+    {
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.OnResourceChanged += Refresh;
+        }
+
+        Refresh();
+    }
+
+    private void OnDestroy()
+    {
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.OnResourceChanged -= Refresh;
+        }
+    }
+
+    /// <summary>
+    /// ResourceManager의 현재 값을 HUD Text에 반영한다.
+    /// </summary>
+    public void Refresh()
     {
         if (ResourceManager.Instance == null)
         {
@@ -23,17 +45,22 @@ public class MainHUDUI : MonoBehaviour
 
         if (moneyText != null)
         {
-            moneyText.text = ResourceManager.Instance.money.ToString("N0") + " G";
+            moneyText.text = FormatMoney(ResourceManager.Instance.money);
         }
 
         if (researchResultText != null)
         {
-            researchResultText.text = ResourceManager.Instance.researchResult.ToString("N0");
+            researchResultText.text = ResourceManager.Instance.researchResult.ToString();
         }
 
-        if (levelText != null)
+        if (labLevelText != null)
         {
-            levelText.text = "LV. " + ResourceManager.Instance.labLevel;
+            labLevelText.text = "Lv." + ResourceManager.Instance.labLevel;
         }
+    }
+
+    private string FormatMoney(int value)
+    {
+        return value.ToString("N0") + "$";
     }
 }

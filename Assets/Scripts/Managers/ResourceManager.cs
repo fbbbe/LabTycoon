@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -9,6 +10,11 @@ using UnityEngine;
 public class ResourceManager : MonoBehaviour
 {
     public static ResourceManager Instance;
+
+    /// <summary>
+    /// 돈, 연구성과, 연구실 레벨 중 하나라도 바뀌었을 때 HUD가 갱신할 수 있도록 알린다.
+    /// </summary>
+    public event Action OnResourceChanged;
 
     [Header("초기 자원")]
     public int startingMoney = 100000;
@@ -41,6 +47,8 @@ public class ResourceManager : MonoBehaviour
         money = startingMoney;
         researchResult = startingResearchResult;
         labLevel = startingLabLevel;
+
+        NotifyResourceChanged();
     }
 
     /// <summary>
@@ -64,6 +72,8 @@ public class ResourceManager : MonoBehaviour
         }
 
         money -= amount;
+        NotifyResourceChanged();
+
         return true;
     }
 
@@ -79,6 +89,8 @@ public class ResourceManager : MonoBehaviour
         {
             money = 0;
         }
+
+        NotifyResourceChanged();
     }
 
     /// <summary>
@@ -92,6 +104,29 @@ public class ResourceManager : MonoBehaviour
         if (researchResult < 0)
         {
             researchResult = 0;
+        }
+
+        NotifyResourceChanged();
+    }
+
+    /// <summary>
+    /// 연구실 전체 레벨을 변경한다.
+    /// 나중에 연구실 확장, 레벨업 시스템에서 호출한다.
+    /// </summary>
+    public void SetLabLevel(int newLevel)
+    {
+        labLevel = Mathf.Max(1, newLevel);
+        NotifyResourceChanged();
+    }
+
+    /// <summary>
+    /// 현재 자원 값이 바뀌었음을 외부 UI에 알린다.
+    /// </summary>
+    private void NotifyResourceChanged()
+    {
+        if (OnResourceChanged != null)
+        {
+            OnResourceChanged.Invoke();
         }
     }
 }
