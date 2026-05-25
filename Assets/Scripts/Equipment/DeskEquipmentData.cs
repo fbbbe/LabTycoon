@@ -25,7 +25,7 @@ public class DeskEquipmentData
     public DeskEquipmentType equipmentType;
 
     [Tooltip("구매 가격입니다.")]
-    public int price;
+    public long price;
 
     [Header("장비 4방향 이미지")]
     [Tooltip("Workstation 방향 RD일 때 사용할 장비 이미지입니다.")]

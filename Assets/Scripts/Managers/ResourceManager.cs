@@ -17,12 +17,12 @@ public class ResourceManager : MonoBehaviour
     public event Action OnResourceChanged;
 
     [Header("초기 자원")]
-    public int startingMoney = 100000;
+    public long startingMoney = 9999999999999L;
     public int startingResearchResult = 0;
     public int startingLabLevel = 1;
 
     [Header("현재 자원")]
-    public int money;
+    public long money;
     public int researchResult;
     public int labLevel;
 
@@ -54,7 +54,7 @@ public class ResourceManager : MonoBehaviour
     /// <summary>
     /// 돈이 충분한지 확인한다.
     /// </summary>
-    public bool HasEnoughMoney(int amount)
+    public bool HasEnoughMoney(long amount)
     {
         return money >= amount;
     }
@@ -63,7 +63,7 @@ public class ResourceManager : MonoBehaviour
     /// 돈을 사용한다.
     /// 구매 확정, 배치 완료 시점에서 호출한다.
     /// </summary>
-    public bool SpendMoney(int amount)
+    public bool SpendMoney(long amount)
     {
         if (money < amount)
         {
@@ -81,7 +81,7 @@ public class ResourceManager : MonoBehaviour
     /// 돈을 추가한다.
     /// 과제 검사 완료 후 보상 지급 시 사용한다.
     /// </summary>
-    public void AddMoney(int amount)
+    public void AddMoney(long amount)
     {
         money += amount;
 

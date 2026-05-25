@@ -18,7 +18,7 @@ public class EquipmentData
 
     public int listIndex;
     public int unlockLevel;
-    public int price;
+    public long price;
     public int spaceCost;
 
     // 오른쪽 상세 카드 PNG를 Resources에서 불러오기 위한 경로
@@ -41,7 +41,7 @@ public class EquipmentData
         EquipmentInstallType installType,
         int listIndex,
         int unlockLevel,
-        int price,
+        long price,
         int spaceCost,
         string detailCardResourcePath
     )

@@ -12,7 +12,7 @@ public class StaffHireData
     public string staffName;
     public StaffType staffType;
 
-    public int price;
+    public long price;
     public int level;
     public int researchPower;
     public int initialStress;
@@ -22,7 +22,7 @@ public class StaffHireData
     public StaffHireData(
         string staffName,
         StaffType staffType,
-        int price,
+        long price,
         int level,
         int researchPower,
         int initialStress,

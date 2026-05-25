@@ -59,7 +59,7 @@ public class MainHUDUI : MonoBehaviour
         }
     }
 
-    private string FormatMoney(int value)
+    private string FormatMoney(long value)
     {
         return value.ToString("N0") + "$";
     }

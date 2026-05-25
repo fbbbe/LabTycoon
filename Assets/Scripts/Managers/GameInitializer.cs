@@ -18,9 +18,6 @@ using UnityEngine;
 /// </summary>
 public class GameInitializer : MonoBehaviour
 {
-    [Header("초기 돈")]
-    [Tooltip("게임 시작 시 지급할 돈입니다.")]
-    public int startingMoney = 100000;
 
     [Header("초기 Workstation")]
     [Tooltip("책상+의자 세트 프리팹입니다. Workstation.prefab을 넣습니다.")]
@@ -85,23 +82,8 @@ public class GameInitializer : MonoBehaviour
 
         initialized = true;
 
-        SetInitialMoney();
         CreateInitialWorkstationWithLaptop();
         SpawnInitialUndergraduate();
-    }
-
-    /// <summary>
-    /// 초기 돈을 설정한다.
-    /// </summary>
-    private void SetInitialMoney()
-    {
-        if (ResourceManager.Instance == null)
-        {
-            Debug.LogError("GameInitializer: ResourceManager.Instance가 없습니다.");
-            return;
-        }
-
-        ResourceManager.Instance.money = startingMoney;
     }
 
     /// <summary>

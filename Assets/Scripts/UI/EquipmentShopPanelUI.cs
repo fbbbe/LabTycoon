@@ -233,99 +233,6 @@ public class EquipmentShopPanelUI : MonoBehaviour
     }
 
     /// <summary>
-    /// 구매 버튼을 눌렀을 때 실행된다.
-    /// 
-    /// 주의:
-    /// 여기서 돈 차감/효과 적용을 하지 않는다.
-    /// 돈 차감과 효과 적용은 배치가 끝난 뒤 해야 한다.
-    /// </summary>
-    private void BuySelectedEquipment()
-    {
-        if (selectedEquipment == null)
-        {
-            Debug.Log("선택된 장비가 없습니다.");
-            return;
-        }
-
-        if (ResourceManager.Instance == null)
-        {
-            Debug.LogError("ResourceManager.Instance가 없습니다.");
-            return;
-        }
-
-        if (ResourceManager.Instance.money < selectedEquipment.price)
-        {
-            Debug.Log("돈이 부족합니다.");
-            return;
-        }
-
-        switch (selectedEquipment.installType)
-        {
-            case EquipmentInstallType.TilePlaceable:
-                StartTilePlacement();
-                break;
-
-            case EquipmentInstallType.DeskEquipment:
-                StartDeskEquipmentPlacement();
-                break;
-        }
-    }
-
-    /// <summary>
-    /// 타일 위에 직접 배치되는 장비 구매 처리.
-    /// 
-    /// 구매 버튼 클릭 시:
-    /// - 상점창 닫기
-    /// - 배치 모드 진입
-    /// 
-    /// 돈 차감과 효과 적용은 배치 완료 시점에 해야 한다.
-    /// </summary>
-    private void StartTilePlacement()
-    {
-        GameObject prefab = selectedEquipment.LoadPlaceablePrefab();
-
-        if (prefab == null)
-        {
-            return;
-        }
-
-        if (PlacementManager.Instance == null)
-        {
-            Debug.LogError("PlacementManager.Instance가 없습니다.");
-            return;
-        }
-
-        ClosePanel();
-
-        // 지금 PlacementManager는 prefab과 price를 받는 구조다.
-        // 다음 단계에서 EquipmentData 전체를 넘기도록 수정해야 한다.
-        PlacementManager.Instance.StartPlacement(prefab, selectedEquipment.price);
-    }
-
-    /// <summary>
-    /// 책상 위 장비 구매 처리.
-    /// 
-    /// 아직 Workstation 선택 모드는 다음 단계에서 구현한다.
-    /// </summary>
-    private void StartDeskEquipmentPlacement()
-    {
-        if (selectedEquipment.deskEquipmentData == null)
-        {
-            Debug.LogError(selectedEquipment.equipmentName + "의 deskEquipmentData가 없습니다.");
-            return;
-        }
-
-        ClosePanel();
-
-        Debug.Log("책상 위 장비 선택 모드 시작 예정: " + selectedEquipment.equipmentName);
-
-        // TODO:
-        // 다음 단계에서 Workstation 선택 모드를 만들고,
-        // 빈 장비 슬롯이 있는 Workstation을 클릭하면
-        // 돈 차감 + 장비 설치 + 효과 적용을 하도록 구현한다.
-    }
-
-    /// <summary>
     /// 상점 패널을 닫는다.
     /// </summary>
     public void ClosePanel()
@@ -364,6 +271,6 @@ public class EquipmentShopPanelUI : MonoBehaviour
 
         ShopPurchaseManager.Instance.StartPurchase(selectedEquipment);
 
-        gameObject.SetActive(false);
+        ClosePanel();
     }
 }
