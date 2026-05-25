@@ -70,24 +70,23 @@ public class ResearcherHirePanelUI : MonoBehaviour
         Hire(StaffType.PhD);
     }
 
-    /// <summary>
-    /// 연구생 고용 버튼을 눌렀을 때 실행되는 공통 처리 함수.
-    /// </summary>
     private void Hire(StaffType staffType)
     {
         if (StaffHireManager.Instance == null)
         {
-            Debug.LogError("StaffHireManager.Instance가 없습니다. Managers 오브젝트에 StaffHireManager를 추가했는지 확인하세요.");
+            Debug.LogError("StaffHireManager.Instance가 없습니다.");
             return;
         }
 
-        bool hireSuccess = StaffHireManager.Instance.HireStaff(staffType);
+        bool started = StaffHireManager.Instance.StartHirePlacement(staffType);
 
-        if (hireSuccess)
+        if (started == false)
         {
-            Close();
+            return;
         }
 
-        Debug.Log("연구생 고용 버튼 클릭: " + staffType);
+        Close();
+
+        Debug.Log("연구생 고용 배치 요청: " + staffType);
     }
 }

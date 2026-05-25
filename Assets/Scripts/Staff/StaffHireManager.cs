@@ -1,23 +1,16 @@
 using UnityEngine;
 
 /// <summary>
-/// 연구생 고용 처리를 담당한다.
-///
-/// 흐름:
-/// - 연구생 고용창에서 버튼 클릭
-/// - StaffDatabase에서 연구생 데이터 조회
-/// - 돈 확인
-/// - 돈 차감
-/// - 문 앞 StaffSpawnPoint에 연구생 prefab 생성
-/// - StaffWorker 값을 고용 데이터 기준으로 초기화
+/// 연구생 고용 요청과 고용 확정을 담당한다.
+/// 
+/// 고용 버튼을 누른 순간에는 돈을 차감하지 않는다.
+/// Workstation 선택이 완료된 순간 돈을 차감하고 Staff를 생성한다.
 /// </summary>
 public class StaffHireManager : MonoBehaviour
 {
     public static StaffHireManager Instance;
 
-    [Header("연구생 스폰 위치")]
-    [Tooltip("문 앞에 만든 StaffSpawnPoint 오브젝트를 연결한다.")]
-    public Transform staffSpawnPoint;
+    private StaffHireData pendingHireData;
 
     private void Awake()
     {
@@ -31,14 +24,18 @@ public class StaffHireManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 연구생을 고용한다.
-    /// ResearcherHirePanelUI에서 StaffType을 넘겨 호출한다.
+    /// 연구생 고용 버튼을 눌렀을 때 호출된다.
+    /// 바로 고용하지 않고 인력 배치 모드로 들어간다.
+    /// 
+    /// 반환값:
+    /// - true: 인력 배치 모드 진입 성공
+    /// - false: 돈 부족, 자리 없음, 데이터 없음 등으로 실패
     /// </summary>
-    public bool HireStaff(StaffType staffType)
+    public bool StartHirePlacement(StaffType staffType)
     {
         if (StaffDatabase.Instance == null)
         {
-            Debug.LogError("StaffDatabase.Instance가 없습니다. Managers 오브젝트에 StaffDatabase를 추가했는지 확인하세요.");
+            Debug.LogError("StaffDatabase.Instance가 없습니다.");
             return false;
         }
 
@@ -52,7 +49,7 @@ public class StaffHireManager : MonoBehaviour
 
         if (hireData == null)
         {
-            Debug.LogError("고용할 연구생 데이터를 찾지 못했습니다: " + staffType);
+            Debug.LogError("고용 데이터를 찾지 못했습니다: " + staffType);
             return false;
         }
 
@@ -62,47 +59,97 @@ public class StaffHireManager : MonoBehaviour
             return false;
         }
 
-        GameObject prefab = Resources.Load<GameObject>(hireData.prefabResourcePath);
+        if (StaffPlacementManager.Instance == null)
+        {
+            Debug.LogError("StaffPlacementManager.Instance가 없습니다.");
+            return false;
+        }
+
+        if (StaffPlacementManager.Instance.HasAvailableWorkstationForHire() == false)
+        {
+            Debug.Log("고용 가능한 Workstation이 없습니다. 컴퓨터 장비가 설치된 빈 Workstation이 필요합니다.");
+            return false;
+        }
+
+        // 중요:
+        // StartHirePlacementMode 내부에서 기존 배치 모드를 정리하면서
+        // pendingHireData가 지워질 수 있으므로, 배치 모드 시작 후에 다시 저장한다.
+        StaffPlacementManager.Instance.StartHirePlacementMode(hireData);
+
+        pendingHireData = hireData;
+
+        Debug.Log("인력 배치 모드 시작: " + hireData.staffName);
+        return true;
+    }
+    /// <summary>
+    /// Workstation 선택이 완료되었을 때 호출된다.
+    /// 이 순간에 돈을 차감하고 Staff prefab을 생성한 뒤 착석시킨다.
+    /// </summary>
+    public bool ConfirmHireToWorkstation(WorkstationObject targetWorkstation)
+    {
+        if (pendingHireData == null)
+        {
+            Debug.LogError("대기 중인 고용 데이터가 없습니다.");
+            return false;
+        }
+
+        if (targetWorkstation == null)
+        {
+            Debug.LogError("선택한 Workstation이 없습니다.");
+            return false;
+        }
+
+        if (targetWorkstation.CanSeatNewStaff() == false)
+        {
+            Debug.Log("이 Workstation에는 인력을 배치할 수 없습니다.");
+            return false;
+        }
+
+        if (ResourceManager.Instance.HasEnoughMoney(pendingHireData.price) == false)
+        {
+            Debug.Log("돈이 부족해서 연구생을 고용할 수 없습니다: " + pendingHireData.staffName);
+            return false;
+        }
+
+        GameObject prefab = Resources.Load<GameObject>(pendingHireData.prefabResourcePath);
 
         if (prefab == null)
         {
-            Debug.LogError("연구생 prefab을 찾지 못했습니다: " + hireData.prefabResourcePath);
+            Debug.LogError("연구생 prefab을 찾지 못했습니다: " + pendingHireData.prefabResourcePath);
             return false;
         }
 
-        bool spendSuccess = ResourceManager.Instance.SpendMoney(hireData.price);
+        bool spendSuccess = ResourceManager.Instance.SpendMoney(pendingHireData.price);
 
         if (spendSuccess == false)
         {
-            Debug.Log("연구생 고용 비용 차감에 실패했습니다: " + hireData.staffName);
             return false;
         }
 
-        Vector3 spawnPosition = Vector3.zero;
-
-        if (staffSpawnPoint != null)
-        {
-            spawnPosition = staffSpawnPoint.position;
-        }
-        else
-        {
-            Debug.LogWarning("StaffSpawnPoint가 연결되지 않았습니다. 임시로 (0,0,0)에 생성합니다.");
-        }
-
-        GameObject staffObject = Instantiate(prefab, spawnPosition, Quaternion.identity);
-        staffObject.name = hireData.staffName;
+        GameObject staffObject = Instantiate(prefab);
+        staffObject.name = pendingHireData.staffName;
 
         StaffWorker staffWorker = staffObject.GetComponent<StaffWorker>();
 
         if (staffWorker == null)
         {
-            Debug.LogWarning("생성된 연구생 prefab에 StaffWorker가 없습니다: " + hireData.staffName);
-            return true;
+            Debug.LogError("생성된 연구생 prefab에 StaffWorker가 없습니다.");
+            Destroy(staffObject);
+            return false;
         }
 
-        staffWorker.InitializeFromHireData(hireData);
+        staffWorker.InitializeFromHireData(pendingHireData);
 
-        Debug.Log("연구생 고용 완료: " + hireData.staffName);
+        targetWorkstation.SeatStaff(staffWorker);
+
+        pendingHireData = null;
+
+        Debug.Log("연구생 고용 및 착석 완료: " + staffWorker.staffName);
         return true;
+    }
+
+    public void CancelPendingHire()
+    {
+        pendingHireData = null;
     }
 }

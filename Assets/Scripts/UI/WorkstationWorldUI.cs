@@ -173,4 +173,106 @@ public class WorkstationWorldUI : MonoBehaviour
                 break;
         }
     }
+
+    /// <summary>
+    /// 과제하기 버튼만 표시한다.
+    /// 인력이 Workstation에 착석했을 때 호출된다.
+    /// </summary>
+    public void ShowTaskButton()
+    {
+        SetButtonGroupActiveByNamesForSeatStaff(
+            true,
+            "TaskButton",
+            "Task",
+            "TaskIcon",
+            "TaskWorkButton",
+            "과제하기"
+        );
+
+        SetButtonGroupActiveByNamesForSeatStaff(
+            false,
+            "InspectionButton",
+            "Inspection",
+            "InspectionIcon",
+            "검사받기"
+        );
+
+        SetButtonGroupActiveByNamesForSeatStaff(
+            false,
+            "CleaningButton",
+            "CleanButton",
+            "Cleaning",
+            "CleaningIcon",
+            "청소하기"
+        );
+    }
+
+    private void SetButtonGroupActiveByNamesForSeatStaff(bool active, params string[] names)
+    {
+        for (int i = 0; i < names.Length; i++)
+        {
+            Transform child = FindDeepChildForSeatStaff(transform, names[i]);
+
+            if (child != null)
+            {
+                child.gameObject.SetActive(active);
+            }
+        }
+    }
+
+    private Transform FindDeepChildForSeatStaff(Transform parent, string targetName)
+    {
+        if (parent == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            Transform child = parent.GetChild(i);
+
+            if (child.name == targetName)
+            {
+                return child;
+            }
+
+            Transform found = FindDeepChildForSeatStaff(child, targetName);
+
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    public void HideAllButtons()
+    {
+        SetButtonGroupActiveByNamesForSeatStaff(
+            false,
+            "TaskButton",
+            "Task",
+            "TaskIcon",
+            "TaskWorkButton",
+            "과제하기"
+        );
+
+        SetButtonGroupActiveByNamesForSeatStaff(
+            false,
+            "InspectionButton",
+            "Inspection",
+            "InspectionIcon",
+            "검사받기"
+        );
+
+        SetButtonGroupActiveByNamesForSeatStaff(
+            false,
+            "CleaningButton",
+            "CleanButton",
+            "Cleaning",
+            "CleaningIcon",
+            "청소하기"
+        );
+    }
 }

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// 책상+의자+책상 위 장비+앉은 인력을 하나로 관리하는 복합 오브젝트.
@@ -78,6 +79,12 @@ public class WorkstationObject : MonoBehaviour
     public WorkstationWorldUI workstationWorldUI;
     public int tileBaseSortingOrder = 0;
 
+    [Header("인력 자리 이동 롱클릭")]
+    public float staffSwapHoldTime = 0.6f;
+
+    private bool isPressingForSwap;
+    private float pressStartTime;
+
     private void Awake()
     {
         AutoFindReferencesIfNeeded();
@@ -87,6 +94,30 @@ public class WorkstationObject : MonoBehaviour
     private void Start()
     {
         ApplyDirection(currentDirection);
+    }
+
+    private void Update()
+    {
+        if (isPressingForSwap == false)
+        {
+            return;
+        }
+
+        if (HasSeatedStaff() == false)
+        {
+            isPressingForSwap = false;
+            return;
+        }
+
+        if (Time.time - pressStartTime >= staffSwapHoldTime)
+        {
+            isPressingForSwap = false;
+
+            if (StaffPlacementManager.Instance != null)
+            {
+                StaffPlacementManager.Instance.StartSwapPlacementMode(seatedStaff);
+            }
+        }
     }
 
     /// <summary>
@@ -345,45 +376,62 @@ public class WorkstationObject : MonoBehaviour
         return hasStaff == false;
     }
 
-    /// <summary>
-    /// 인력을 Workstation에 앉힌다.
-    /// 
-    /// 화면상으로는 인력 오브젝트가 사라지고,
-    /// Chair Sprite가 '인력+의자 합성 이미지'로 바뀐다.
-    /// 
-    /// 하지만 seatedStaff에 실제 인력 데이터를 저장해서
-    /// 나중에 클릭 시 정보카드가 뜰 수 있게 한다.
-    /// </summary>
-    public void SeatStaff(StaffWorker staff, StaffType staffType)
+    public void SeatStaff(StaffWorker staff)
     {
         if (staff == null)
         {
-            Debug.LogError("SeatStaff: staff가 null입니다.");
             return;
         }
 
-        if (hasStaff)
+        if (CanSeatNewStaff() == false)
         {
-            Debug.Log("이미 인력이 앉아 있습니다.");
+            Debug.Log("이 Workstation에는 인력을 앉힐 수 없습니다.");
             return;
         }
 
         seatedStaff = staff;
-        seatedStaffType = staffType;
-        hasStaff = true;
+        staff.currentWorkstation = this;
+        staff.isSeated = true;
 
-        // 서 있던 인력 오브젝트는 화면에서 숨긴다.
-        // 데이터는 seatedStaff에 남아 있으므로 삭제하지 않는다.
         staff.gameObject.SetActive(false);
 
-        ApplyDirection(currentDirection);
+        ApplySeatedStaffVisual(staff);
 
-        WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
-
-        if (taskController != null)
+        if (workstationWorldUI != null)
         {
-            taskController.RefreshUI();
+            workstationWorldUI.ShowTaskButton();
         }
+        else
+        {
+            Debug.LogWarning("WorkstationWorldUI가 연결되지 않았습니다. 과제하기 버튼을 표시할 수 없습니다.");
+        }
+    }
+
+    /// <summary>
+    /// 기존 드래그 코드에서 SeatStaff를 인자 2개로 호출하는 경우를 위한 호환용 오버로드입니다.
+    /// 두 번째 인자는 현재 착석 처리에 사용하지 않고, 실제 착석 처리는 SeatStaff(staff)로 통일합니다.
+    /// </summary>
+    public void SeatStaff<T>(StaffWorker staff, T unusedParameter)
+    {
+        SeatStaff(staff);
+    }
+
+    /// <summary>
+    /// 인력이 앉았을 때 Workstation의 시각 상태를 갱신합니다.
+    /// 실제 Staff GameObject는 숨기고, Chair Sprite를 방향/인력 종류에 맞는 착석 이미지로 바꿉니다.
+    /// </summary>
+    private void ApplySeatedStaffVisual(StaffWorker staff)
+    {
+        if (staff == null)
+        {
+            return;
+        }
+
+        hasStaff = true;
+        seatedStaff = staff;
+        seatedStaffType = staff.staffType;
+
+        ApplyDirection(currentDirection);
     }
 
     /// <summary>
@@ -585,14 +633,7 @@ public class WorkstationObject : MonoBehaviour
     /// </summary>
     public bool CanSeatStaff()
     {
-        // 이미 인력이 앉아 있으면 새 인력을 앉힐 수 없다.
-        if (hasStaff)
-        {
-            return false;
-        }
-
-        // 기본적으로 비어 있으면 착석 가능.
-        return true;
+        return CanSeatNewStaff();
     }
 
     /// <summary>
@@ -630,43 +671,116 @@ public class WorkstationObject : MonoBehaviour
             DeskEquipmentPlacementManager.Instance.TryInstallToWorkstation(this);
             return;
         }
-    }
-
-    /// <summary>
-    /// 이 Workstation에 컴퓨터 장비가 설치되어 있는지 반환한다.
-    /// 낡은 노트북, 중고 컴퓨터, 기본 컴퓨터 등 책상 위 장비가 있어야 true.
-    /// </summary>
-    public bool HasDeskEquipment()
-    {
-        return currentDeskEquipmentData != null;
-    }
-
-    /// <summary>
-    /// 현재 앉아 있는 인력이 있는지 반환한다.
-    /// </summary>
-    public bool HasSeatedStaff()
-    {
-        return seatedStaff != null;
-    }
-
-    /// <summary>
-    /// 새 인력이 앉을 수 있는 Workstation인지 검사한다.
-    /// 조건:
-    /// - 컴퓨터 장비가 설치되어 있어야 함
-    /// - 현재 앉은 인력이 없어야 함
-    /// </summary>
-    public bool CanSeatNewStaff()
-    {
-        if (HasDeskEquipment() == false)
-        {
-            return false;
-        }
 
         if (HasSeatedStaff())
         {
+            isPressingForSwap = true;
+            pressStartTime = Time.time;
+        }
+
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+    }
+
+    private void OnMouseUp()
+    {
+        isPressingForSwap = false;
+    }
+
+    /// <summary>
+
+    /// 현재 앉아 있는 인력이 있는지 반환한다.
+
+    /// </summary>
+
+    public bool HasSeatedStaff()
+    {
+        return hasStaff || seatedStaff != null;
+    }
+
+    /// <summary>
+
+    /// 새 인력이 앉을 수 있는 Workstation인지 검사한다.
+
+    /// 조건:
+
+    /// - 컴퓨터 장비가 설치되어 있어야 함
+
+    /// - 현재 앉은 인력이 없어야 함
+
+    /// </summary>
+
+    public bool CanSeatNewStaff()
+
+    {
+
+        if (HasDeskEquipment() == false)
+
+        {
+
             return false;
+
+        }
+
+        if (HasSeatedStaff())
+
+        {
+
+            return false;
+
         }
 
         return true;
+
     }
+
+    /// <summary>
+    /// 자리 이동/교환용으로 인력을 이 Workstation에 연결한다.
+    /// 기존 SeatStaff()와 달리 비어 있는지 검사하지 않는다.
+    /// 호출 전에 StaffPlacementManager 쪽에서 조건 검사를 끝내야 한다.
+    /// </summary>
+    public void SetSeatedStaffForSwap(StaffWorker staff)
+    {
+        if (staff == null)
+        {
+            return;
+        }
+
+        seatedStaff = staff;
+        hasStaff = true;
+        seatedStaffType = staff.staffType;
+
+        staff.currentWorkstation = this;
+        staff.isSeated = true;
+
+        staff.gameObject.SetActive(false);
+
+        ApplyDirection(currentDirection);
+
+        if (workstationWorldUI != null)
+        {
+            workstationWorldUI.ShowTaskButton();
+        }
+    }
+
+    /// <summary>
+    /// 자리 이동/교환 중 Workstation의 착석 정보만 비운다.
+    /// Staff GameObject를 다시 켜거나 위치를 옮기지 않는다.
+    /// </summary>
+    public void ClearSeatedStaffForSwap()
+    {
+        seatedStaff = null;
+        hasStaff = false;
+
+        ApplyDirection(currentDirection);
+
+        if (workstationWorldUI != null)
+        {
+            workstationWorldUI.HideAllButtons();
+        }
+    }
+
+
 }
