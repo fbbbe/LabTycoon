@@ -26,6 +26,11 @@ public class InspectionManager : MonoBehaviour
     [Header("검사 시간")]
     public float inspectionDuration = 2f;
 
+    [Header("검사 진행 상태")]
+    public bool isInspectionRunning;
+
+    private WorkstationObject currentInspectionWorkstation;
+
     private GameObject currentProfessor;
     private GameObject currentStaffInspection;
 
@@ -40,15 +45,26 @@ public class InspectionManager : MonoBehaviour
         Instance = this;
     }
 
-    public void StartInspectionSequence(WorkstationTaskController taskController)
+    public bool StartInspectionSequence(WorkstationTaskController taskController)
     {
         if (taskController == null)
         {
             Debug.LogError("InspectionManager: taskController가 없습니다.");
-            return;
+            return false;
         }
 
+        WorkstationObject workstation = taskController.workstation;
+
+        if (CanStartInspection(workstation) == false)
+        {
+            return false;
+        }
+
+        isInspectionRunning = true;
+        currentInspectionWorkstation = workstation;
+
         StartCoroutine(InspectionRoutine(taskController));
+        return true;
     }
 
     private IEnumerator InspectionRoutine(WorkstationTaskController taskController)
@@ -58,6 +74,10 @@ public class InspectionManager : MonoBehaviour
         if (workstation == null || workstation.seatedStaff == null)
         {
             Debug.LogError("InspectionManager: 검사할 인력 또는 Workstation이 없습니다.");
+
+            isInspectionRunning = false;
+            currentInspectionWorkstation = null;
+
             yield break;
         }
 
@@ -75,6 +95,9 @@ public class InspectionManager : MonoBehaviour
         taskController.RestoreSeatedVisualAfterInspection();
 
         taskController.CompleteInspectionAfterSequence();
+
+        isInspectionRunning = false;
+        currentInspectionWorkstation = null;
     }
 
     private void SpawnProfessor()
@@ -156,5 +179,22 @@ public class InspectionManager : MonoBehaviour
             Destroy(currentStaffInspection);
             currentStaffInspection = null;
         }
+    }
+
+    public bool CanStartInspection(WorkstationObject workstation)
+    {
+        if (isInspectionRunning)
+        {
+            Debug.Log("검사 불가: 이미 다른 검사가 진행 중입니다.");
+            return false;
+        }
+
+        if (workstation == null)
+        {
+            Debug.LogError("검사 불가: Workstation이 없습니다.");
+            return false;
+        }
+
+        return true;
     }
 }

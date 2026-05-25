@@ -17,6 +17,9 @@ public class StaffHireData
     public int researchPower;
     public int initialStress;
 
+    [Header("해금 조건")]
+    public int unlockLevel;
+
     public string prefabResourcePath;
 
     public StaffHireData(
@@ -27,6 +30,8 @@ public class StaffHireData
         int researchPower,
         int initialStress,
         string prefabResourcePath
+
+
     )
     {
         this.staffName = staffName;

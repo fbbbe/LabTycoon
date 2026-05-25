@@ -263,6 +263,26 @@ public class EquipmentShopPanelUI : MonoBehaviour
             return;
         }
 
+        if (ResourceManager.Instance == null)
+        {
+            Debug.LogError("구매 실패: ResourceManager.Instance가 없습니다.");
+            return;
+        }
+
+        int currentLevel = ResourceManager.Instance.labLevel;
+
+        if (currentLevel < selectedEquipment.unlockLevel)
+        {
+            Debug.Log(
+                "구매 불가: 해금 레벨이 부족합니다. " +
+                "장비: " + selectedEquipment.equipmentName +
+                " / 필요 레벨: Lv." + selectedEquipment.unlockLevel +
+                " / 현재 레벨: Lv." + currentLevel
+            );
+
+            return;
+        }
+
         if (ShopPurchaseManager.Instance == null)
         {
             Debug.LogError("ShopPurchaseManager.Instance가 없습니다.");

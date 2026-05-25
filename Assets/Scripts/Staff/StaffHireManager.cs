@@ -53,6 +53,20 @@ public class StaffHireManager : MonoBehaviour
             return false;
         }
 
+        int currentLevel = ResourceManager.Instance.labLevel;
+
+        if (currentLevel < hireData.unlockLevel)
+        {
+            Debug.Log(
+                "고용 불가: 해금 레벨이 부족합니다. " +
+                "인력: " + hireData.staffName +
+                " / 필요 레벨: Lv." + hireData.unlockLevel +
+                " / 현재 레벨: Lv." + currentLevel
+            );
+
+            return false;
+        }
+
         if (ResourceManager.Instance.HasEnoughMoney(hireData.price) == false)
         {
             Debug.Log("돈이 부족해서 연구생을 고용할 수 없습니다: " + hireData.staffName);

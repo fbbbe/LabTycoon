@@ -31,44 +31,41 @@ public class StaffDatabase : MonoBehaviour
     {
         staffDataMap.Clear();
 
-        staffDataMap.Add(
-            StaffType.Undergraduate,
-            new StaffHireData(
-                staffName: "학사생",
-                staffType: StaffType.Undergraduate,
-                price: 30000,
-                level: 1,
-                researchPower: 10,
-                initialStress: 0,
-                prefabResourcePath: "Prefabs/Staff/UndergraduateStaff"
-            )
+        StaffHireData undergraduate = new StaffHireData(
+            staffName: "학사생",
+            staffType: StaffType.Undergraduate,
+            price: 30000,
+            level: 1,
+            researchPower: 10,
+            initialStress: 0,
+            prefabResourcePath: "Prefabs/Staff/UndergraduateStaff"
         );
+        undergraduate.unlockLevel = 1;
+        staffDataMap.Add(StaffType.Undergraduate, undergraduate);
 
-        staffDataMap.Add(
-            StaffType.Master,
-            new StaffHireData(
-                staffName: "석사생",
-                staffType: StaffType.Master,
-                price: 150000,
-                level: 1,
-                researchPower: 30,
-                initialStress: 0,
-                prefabResourcePath: "Prefabs/Staff/MasterStaff"
-            )
+        StaffHireData master = new StaffHireData(
+            staffName: "석사생",
+            staffType: StaffType.Master,
+            price: 150000,
+            level: 1,
+            researchPower: 30,
+            initialStress: 0,
+            prefabResourcePath: "Prefabs/Staff/MasterStaff"
         );
+        master.unlockLevel = 25;
+        staffDataMap.Add(StaffType.Master, master);
 
-        staffDataMap.Add(
-            StaffType.PhD,
-            new StaffHireData(
-                staffName: "박사생",
-                staffType: StaffType.PhD,
-                price: 500000,
-                level: 1,
-                researchPower: 60,
-                initialStress: 0,
-                prefabResourcePath: "Prefabs/Staff/PhDStaff"
-            )
+        StaffHireData phd = new StaffHireData(
+            staffName: "박사생",
+            staffType: StaffType.PhD,
+            price: 500000,
+            level: 1,
+            researchPower: 60,
+            initialStress: 0,
+            prefabResourcePath: "Prefabs/Staff/PhDStaff"
         );
+        phd.unlockLevel = 60;
+        staffDataMap.Add(StaffType.PhD, phd);
     }
 
     public StaffHireData GetStaffData(StaffType staffType)

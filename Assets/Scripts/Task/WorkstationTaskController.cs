@@ -22,7 +22,6 @@ public class WorkstationTaskController : MonoBehaviour
     [Header("현재 작업 상태")]
     public StaffTaskState taskState = StaffTaskState.Idle;
 
-
     private Coroutine taskCoroutine;
 
     [Header("검사 연출 중 착석 이미지 교체")]
@@ -168,19 +167,28 @@ public class WorkstationTaskController : MonoBehaviour
             return;
         }
 
-        taskState = StaffTaskState.Inspecting;
-        RefreshUI();
-
         if (InspectionManager.Instance == null)
         {
             Debug.LogError("InspectionManager.Instance가 없습니다. InspectionSystem 오브젝트에 InspectionManager를 붙였는지 확인하세요.");
             return;
         }
 
-        Debug.Log("WorkstationTaskController: 검사 연출 시작");
-        InspectionManager.Instance.StartInspectionSequence(this);
-    }
+        Debug.Log("WorkstationTaskController: 검사 연출 시작 요청");
 
+        bool inspectionStarted = InspectionManager.Instance.StartInspectionSequence(this);
+
+        if (inspectionStarted == false)
+        {
+            // 이미 다른 검사가 진행 중인 경우에는 상태와 UI를 바꾸면 안 된다.
+            // 그래야 기존 검사받기 버튼이 그대로 남는다.
+            return;
+        }
+
+        taskState = StaffTaskState.Inspecting;
+        RefreshUI();
+
+        Debug.Log("WorkstationTaskController: 검사 연출 시작");
+    }
 
     /// <summary>
     /// 교수님 검사 연출이 끝난 뒤 호출된다.
