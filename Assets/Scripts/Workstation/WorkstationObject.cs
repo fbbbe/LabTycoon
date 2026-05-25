@@ -631,4 +631,42 @@ public class WorkstationObject : MonoBehaviour
             return;
         }
     }
+
+    /// <summary>
+    /// 이 Workstation에 컴퓨터 장비가 설치되어 있는지 반환한다.
+    /// 낡은 노트북, 중고 컴퓨터, 기본 컴퓨터 등 책상 위 장비가 있어야 true.
+    /// </summary>
+    public bool HasDeskEquipment()
+    {
+        return currentDeskEquipmentData != null;
+    }
+
+    /// <summary>
+    /// 현재 앉아 있는 인력이 있는지 반환한다.
+    /// </summary>
+    public bool HasSeatedStaff()
+    {
+        return seatedStaff != null;
+    }
+
+    /// <summary>
+    /// 새 인력이 앉을 수 있는 Workstation인지 검사한다.
+    /// 조건:
+    /// - 컴퓨터 장비가 설치되어 있어야 함
+    /// - 현재 앉은 인력이 없어야 함
+    /// </summary>
+    public bool CanSeatNewStaff()
+    {
+        if (HasDeskEquipment() == false)
+        {
+            return false;
+        }
+
+        if (HasSeatedStaff())
+        {
+            return false;
+        }
+
+        return true;
+    }
 }

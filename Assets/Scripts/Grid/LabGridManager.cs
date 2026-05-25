@@ -402,23 +402,17 @@ public class LabGridManager : MonoBehaviour
         return GetNearestTile(mouseWorldPosition);
     }
 
-    // LabGridManager.cs 안에서 GetPlacementTiles(...)를 아래 코드로 교체하고,
-    // TryBuildPlacementTiles(...), GetOppositePlacementDirectionStep(...)를 같은 클래스 안에 추가하면 됩니다.
-
     /// <summary>
     /// 장비가 차지할 타일 목록을 계산한다.
-    ///
-    /// 기존 방식은 originTile을 무조건 시작점으로 보고 direction 방향으로만 이어 붙였다.
-    /// 그래서 3평 장비를 Tile_1_0에서 RU 방향으로 놓으면
-    /// Tile_1_0, Tile_0_0, Tile_-1_0을 찾으려다가 실패했다.
-    ///
-    /// 수정 방식:
-    /// 1. 방향 기준 중앙 배치 후보를 먼저 검사한다.
-    /// 2. 중앙 배치가 안 되면 기존처럼 정방향 배치를 검사한다.
-    /// 3. 그래도 안 되면 반대 방향 배치를 검사한다.
-    ///
-    /// 이렇게 하면 3평 장비는 마우스가 올라간 타일을 중심으로
-    /// 양쪽에 1칸씩 차지할 수 있다.
+    /// 
+    /// 기준 타일 originTile에서 시작해서,
+    /// 장비의 차지 평수(spaceCost)만큼 현재 방향(direction)으로 이어지는 타일을 가져온다.
+    /// 
+    /// 방향 기준:
+    /// RD: x 증가 방향, 오른쪽 아래
+    /// LD: y 증가 방향, 왼쪽 아래
+    /// RU: x 감소 방향, 오른쪽 위
+    /// LU: y 감소 방향, 왼쪽 위
     /// </summary>
     public List<LabTile> GetPlacementTiles(LabTile originTile, int spaceCost, PlacementDirection direction)
     {
@@ -431,120 +425,25 @@ public class LabGridManager : MonoBehaviour
 
         int finalSpaceCost = Mathf.Max(1, spaceCost);
         Vector2Int step = GetPlacementDirectionStep(direction);
-        Vector2Int oppositeStep = GetOppositePlacementDirectionStep(direction);
 
-        // 1평 장비는 기존처럼 현재 타일 하나만 사용한다.
-        if (finalSpaceCost == 1)
+        for (int i = 0; i < finalSpaceCost; i++)
         {
-            LabTile tile = GetTile(originTile.gridX, originTile.gridY);
+            int targetX = originTile.gridX + step.x * i;
+            int targetY = originTile.gridY + step.y * i;
 
-            if (tile != null)
+            LabTile tile = GetTile(targetX, targetY);
+
+            if (tile == null)
             {
-                result.Add(tile);
+                result.Clear();
+                return result;
             }
 
-            return result;
+            result.Add(tile);
         }
-
-        // 1순위: 현재 타일을 중심으로 배치한다.
-        // 예: 3평이면 -1, 0, +1 / 4평이면 -1, 0, +1, +2
-        int backCount = (finalSpaceCost - 1) / 2;
-        int forwardCount = finalSpaceCost - 1 - backCount;
-
-        if (TryBuildPlacementTiles(originTile, oppositeStep, backCount, step, forwardCount, result))
-        {
-            return result;
-        }
-
-        // 2순위: 기존 방식처럼 현재 타일에서 direction 방향으로 쭉 배치한다.
-        if (TryBuildPlacementTiles(originTile, Vector2Int.zero, 0, step, finalSpaceCost - 1, result))
-        {
-            return result;
-        }
-
-        // 3순위: 반대 방향으로 쭉 배치한다.
-        if (TryBuildPlacementTiles(originTile, Vector2Int.zero, 0, oppositeStep, finalSpaceCost - 1, result))
-        {
-            return result;
-        }
-
-        result.Clear();
-
-        Debug.Log(
-            "배치 실패: 필요한 타일 목록을 만들 수 없습니다. " +
-            "기준 타일: " + originTile.name +
-            " / 필요 평수: " + finalSpaceCost +
-            " / 방향: " + direction
-        );
 
         return result;
     }
-
-    /// <summary>
-    /// originTile을 기준으로 뒤쪽 backCount칸, 앞쪽 forwardCount칸을 합쳐
-    /// 배치 타일 목록을 만든다.
-    /// 하나라도 없는 타일이면 false를 반환한다.
-    /// </summary>
-    private bool TryBuildPlacementTiles(
-        LabTile originTile,
-        Vector2Int backStep,
-        int backCount,
-        Vector2Int forwardStep,
-        int forwardCount,
-        List<LabTile> result
-    )
-    {
-        result.Clear();
-
-        // 뒤쪽 타일을 먼 곳부터 가까운 곳 순서로 추가한다.
-        for (int i = backCount; i >= 1; i--)
-        {
-            int targetX = originTile.gridX + backStep.x * i;
-            int targetY = originTile.gridY + backStep.y * i;
-
-            LabTile tile = GetTile(targetX, targetY);
-
-            if (tile == null)
-            {
-                result.Clear();
-                return false;
-            }
-
-            result.Add(tile);
-        }
-
-        // 기준 타일 추가.
-        result.Add(originTile);
-
-        // 앞쪽 타일 추가.
-        for (int i = 1; i <= forwardCount; i++)
-        {
-            int targetX = originTile.gridX + forwardStep.x * i;
-            int targetY = originTile.gridY + forwardStep.y * i;
-
-            LabTile tile = GetTile(targetX, targetY);
-
-            if (tile == null)
-            {
-                result.Clear();
-                return false;
-            }
-
-            result.Add(tile);
-        }
-
-        return true;
-    }
-
-    /// <summary>
-    /// 현재 배치 방향의 반대 격자 이동값을 반환한다.
-    /// </summary>
-    private Vector2Int GetOppositePlacementDirectionStep(PlacementDirection direction)
-    {
-        Vector2Int step = GetPlacementDirectionStep(direction);
-        return new Vector2Int(-step.x, -step.y);
-    }
-
 
     /// <summary>
     /// 특정 장비를 기준 타일에 현재 방향으로 배치할 수 있는지 검사한다.
@@ -557,45 +456,13 @@ public class LabGridManager : MonoBehaviour
 
         if (placementTiles.Count == 0)
         {
-            Debug.Log(
-                "배치 실패: 필요한 타일 목록을 만들 수 없습니다. " +
-                "기준 타일: " + (originTile != null ? originTile.name : "null") +
-                " / 필요 평수: " + spaceCost +
-                " / 방향: " + direction
-            );
-
-            return false;
-        }
-
-        if (placementTiles.Count < Mathf.Max(1, spaceCost))
-        {
-            Debug.Log(
-                "배치 실패: 필요한 평수보다 타일 수가 부족합니다. " +
-                "필요: " + spaceCost +
-                " / 실제: " + placementTiles.Count
-            );
-
             return false;
         }
 
         for (int i = 0; i < placementTiles.Count; i++)
         {
-            LabTile tile = placementTiles[i];
-
-            if (tile == null)
+            if (placementTiles[i] == null || placementTiles[i].CanPlaceObject() == false)
             {
-                Debug.Log("배치 실패: 필요한 타일 중 null이 있습니다. index: " + i);
-                return false;
-            }
-
-            if (tile.CanPlaceObject() == false)
-            {
-                Debug.Log(
-                    "배치 실패: 이미 점유된 타일이 포함되어 있습니다. " +
-                    "타일: " + tile.name +
-                    " / index: " + i
-                );
-
                 return false;
             }
         }
@@ -868,6 +735,4 @@ public class LabGridManager : MonoBehaviour
 
         return GetSortingOrderByTile(tile.gridX, tile.gridY);
     }
-
-
 }
