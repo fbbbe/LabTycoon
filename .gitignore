@@ -1,3 +1,18 @@
+# =========================
+# macOS
+# =========================
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# =========================
+# VS Code
+# =========================
+.vscode/
+
+# =========================
+# Unity generated folders
+# =========================
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
@@ -6,13 +21,13 @@
 [Ll]ogs/
 [Uu]ser[Ss]ettings/
 
-.vs/
-.vscode/
-.idea/
-
+# =========================
+# Unity generated files
+# =========================
 *.csproj
 *.sln
 *.user
+*.userprefs
 *.pidb
 *.booproj
 *.svd
@@ -21,12 +36,24 @@
 *.opendb
 *.VC.db
 
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# =========================
+# Rider / JetBrains
+# =========================
+.idea/
 
+# =========================
+# Visual Studio / Rider cache
+# =========================
+.vs/
+ExportedObj/
+.consulo/
+
+# =========================
+# Unity crash reports
+# =========================
 sysinfo.txt
+
+# =========================
+# Unity memory captures
+# =========================
+[Mm]emoryCaptures/
