@@ -82,6 +82,9 @@ public class WorkstationObject : MonoBehaviour
     [Header("인력 자리 이동 롱클릭")]
     public float staffSwapHoldTime = 0.6f;
 
+    [Header("인력 클릭")]
+    public float staffClickMaxHoldTime = 0.25f;
+
     private bool isPressingForSwap;
     private float pressStartTime;
 
@@ -399,7 +402,17 @@ public class WorkstationObject : MonoBehaviour
 
         if (workstationWorldUI != null)
         {
-            workstationWorldUI.ShowTaskButton();
+            WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
+
+            if (taskController != null)
+            {
+                workstationWorldUI.Refresh(taskController.taskState, this);
+            }
+            else
+            {
+                workstationWorldUI.ShowTaskButton();
+                workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
+            }
         }
         else
         {
@@ -451,6 +464,20 @@ public class WorkstationObject : MonoBehaviour
         hasStaff = false;
 
         ApplyDirection(currentDirection);
+
+        if (workstationWorldUI != null)
+        {
+            WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
+
+            if (taskController != null)
+            {
+                workstationWorldUI.Refresh(taskController.taskState, this);
+            }
+            else
+            {
+                workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
+            }
+        }
     }
 
     /// <summary>
@@ -665,6 +692,16 @@ public class WorkstationObject : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (UIBlocker.Instance != null && UIBlocker.Instance.IsBlockingWorldInput())
+        {
+            return;
+        }
+
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return;
+        }
+
         if (DeskEquipmentPlacementManager.Instance != null &&
             DeskEquipmentPlacementManager.Instance.isSelectingWorkstation)
         {
@@ -677,16 +714,71 @@ public class WorkstationObject : MonoBehaviour
             isPressingForSwap = true;
             pressStartTime = Time.time;
         }
-
-        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
-        {
-            return;
-        }
     }
 
     private void OnMouseUp()
     {
+        if (UIBlocker.Instance != null && UIBlocker.Instance.IsBlockingWorldInput())
+        {
+            isPressingForSwap = false;
+            return;
+        }
+
+        bool wasPressing = isPressingForSwap;
+        float pressedTime = Time.time - pressStartTime;
+
         isPressingForSwap = false;
+
+        if (wasPressing == false)
+        {
+            return;
+        }
+
+        if (HasSeatedStaff() == false)
+        {
+            return;
+        }
+
+        if (pressedTime <= staffClickMaxHoldTime)
+        {
+            TryOpenStaffStatusPanel();
+        }
+    }
+
+    /// <summary>
+    /// 앉아 있는 인력을 클릭했을 때 인력 스탯창을 연다.
+    ///
+    /// StaffStatusPanel이 처음부터 비활성화되어 있으면 Awake가 실행되지 않아
+    /// StaffStatusPanelUI.Instance가 null일 수 있다.
+    /// 그래서 Instance를 먼저 사용하고, 없으면 씬에 존재하는 비활성 오브젝트까지 직접 찾아서 연다.
+    /// </summary>
+    private void TryOpenStaffStatusPanel()
+    {
+        if (seatedStaff == null)
+        {
+            Debug.LogWarning("인력 스탯창 열기 실패: seatedStaff가 없습니다.");
+            return;
+        }
+
+        StaffStatusPanelUI panelUI = StaffStatusPanelUI.Instance;
+
+        if (panelUI == null)
+        {
+            StaffStatusPanelUI[] panels = Resources.FindObjectsOfTypeAll<StaffStatusPanelUI>();
+
+            if (panels != null && panels.Length > 0)
+            {
+                panelUI = panels[0];
+            }
+        }
+
+        if (panelUI == null)
+        {
+            Debug.LogWarning("StaffStatusPanelUI.Instance가 없습니다. Canvas에 StaffStatusPanelUI를 추가하세요.");
+            return;
+        }
+
+        panelUI.Open(seatedStaff);
     }
 
     /// <summary>
@@ -761,7 +853,17 @@ public class WorkstationObject : MonoBehaviour
 
         if (workstationWorldUI != null)
         {
-            workstationWorldUI.ShowTaskButton();
+            WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
+
+            if (taskController != null)
+            {
+                workstationWorldUI.Refresh(taskController.taskState, this);
+            }
+            else
+            {
+                workstationWorldUI.ShowTaskButton();
+                workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
+            }
         }
     }
 
@@ -779,8 +881,17 @@ public class WorkstationObject : MonoBehaviour
         if (workstationWorldUI != null)
         {
             workstationWorldUI.HideAllButtons();
+            workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
         }
     }
 
 
+    /// <summary>
+    /// 현재 Workstation 방향을 외부 UI 코드에서 읽기 위한 함수입니다.
+    /// 스트레스 숫자, 과제 버튼 등 방향별 위치 보정에 사용합니다.
+    /// </summary>
+    public PlacementDirection GetCurrentDirection()
+    {
+        return currentDirection;
+    }
 }

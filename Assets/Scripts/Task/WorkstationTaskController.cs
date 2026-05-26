@@ -37,7 +37,16 @@ public class WorkstationTaskController : MonoBehaviour
 
         if (worldUI == null)
         {
-            worldUI = GetComponentInChildren<WorkstationWorldUI>();
+            worldUI = GetComponentInChildren<WorkstationWorldUI>(true);
+        }
+
+        if (worldUI != null)
+        {
+            worldUI.taskController = this;
+        }
+        else
+        {
+            Debug.LogWarning("WorkstationTaskController: 자식에서 WorkstationWorldUI를 찾지 못했습니다. Workstation 프리팹의 WorldUI 오브젝트를 World UI 필드에 직접 연결하세요.");
         }
 
         if (inspectionVisualSwitcher == null)
@@ -53,6 +62,11 @@ public class WorkstationTaskController : MonoBehaviour
 
     private void Start()
     {
+        if (worldUI != null)
+        {
+            worldUI.taskController = this;
+        }
+
         RefreshUI();
     }
 
@@ -83,6 +97,18 @@ public class WorkstationTaskController : MonoBehaviour
             return;
         }
 
+        // 과제 시작 직전에 인력 종류/레벨에 맞는 과제 데이터로 교체한다.
+        currentTask = TaskGradeDatabase.CreateTaskDataForStaff(staff);
+
+        if (staff.researchPower < currentTask.requiredResearchPower)
+        {
+            Debug.Log(
+                "연구력이 부족해서 과제를 수행할 수 없습니다. " +
+                "현재 연구력: " + staff.researchPower +
+                " / 필요 연구력: " + currentTask.requiredResearchPower
+            );
+            return;
+        }
         if (staff.researchPower < currentTask.requiredResearchPower)
         {
             Debug.Log("연구력이 부족해서 과제를 수행할 수 없습니다.");
@@ -131,8 +157,14 @@ public class WorkstationTaskController : MonoBehaviour
     /// </summary>
     public void RefreshUI()
     {
+        if (worldUI == null)
+        {
+            worldUI = GetComponentInChildren<WorkstationWorldUI>(true);
+        }
+
         if (worldUI != null)
         {
+            worldUI.taskController = this;
             worldUI.Refresh(taskState, workstation);
         }
     }
@@ -225,6 +257,11 @@ public class WorkstationTaskController : MonoBehaviour
 
         staff.AddStress(finalStress);
 
+        if (staff.runtimeData != null)
+        {
+            staff.runtimeData.AddCompletedTaskCount(1);
+            staff.completedTaskCount = staff.runtimeData.completedTaskCount;
+        }
         Debug.Log(
             "검사 완료: 돈 +" + finalMoneyReward +
             ", 연구성과 +" + finalResearchResult +
