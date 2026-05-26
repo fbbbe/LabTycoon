@@ -191,6 +191,10 @@ public class WorkstationWorldUI : MonoBehaviour
 
     private void OnClickTaskButton()
     {
+        if (UIBlocker.Instance != null && UIBlocker.Instance.IsBlockingWorldInput())
+        {
+            return;
+        }
         if (ResolveTaskController() == false)
         {
             return;
@@ -202,6 +206,11 @@ public class WorkstationWorldUI : MonoBehaviour
 
     private void OnClickInspectionButton()
     {
+
+        if (UIBlocker.Instance != null && UIBlocker.Instance.IsBlockingWorldInput())
+        {
+            return;
+        }
         if (ResolveTaskController() == false)
         {
             return;
@@ -214,6 +223,11 @@ public class WorkstationWorldUI : MonoBehaviour
     private void OnClickCleaningButton()
     {
         if (ResolveTaskController() == false)
+        {
+            return;
+        }
+
+        if (UIBlocker.Instance != null && UIBlocker.Instance.IsBlockingWorldInput())
         {
             return;
         }
