@@ -399,7 +399,17 @@ public class WorkstationObject : MonoBehaviour
 
         if (workstationWorldUI != null)
         {
-            workstationWorldUI.ShowTaskButton();
+            WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
+
+            if (taskController != null)
+            {
+                workstationWorldUI.Refresh(taskController.taskState, this);
+            }
+            else
+            {
+                workstationWorldUI.ShowTaskButton();
+                workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
+            }
         }
         else
         {
@@ -451,6 +461,20 @@ public class WorkstationObject : MonoBehaviour
         hasStaff = false;
 
         ApplyDirection(currentDirection);
+
+        if (workstationWorldUI != null)
+        {
+            WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
+
+            if (taskController != null)
+            {
+                workstationWorldUI.Refresh(taskController.taskState, this);
+            }
+            else
+            {
+                workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
+            }
+        }
     }
 
     /// <summary>
@@ -761,7 +785,17 @@ public class WorkstationObject : MonoBehaviour
 
         if (workstationWorldUI != null)
         {
-            workstationWorldUI.ShowTaskButton();
+            WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
+
+            if (taskController != null)
+            {
+                workstationWorldUI.Refresh(taskController.taskState, this);
+            }
+            else
+            {
+                workstationWorldUI.ShowTaskButton();
+                workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
+            }
         }
     }
 
@@ -779,8 +813,17 @@ public class WorkstationObject : MonoBehaviour
         if (workstationWorldUI != null)
         {
             workstationWorldUI.HideAllButtons();
+            workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
         }
     }
 
 
+    /// <summary>
+    /// 현재 Workstation 방향을 외부 UI 코드에서 읽기 위한 함수입니다.
+    /// 스트레스 숫자, 과제 버튼 등 방향별 위치 보정에 사용합니다.
+    /// </summary>
+    public PlacementDirection GetCurrentDirection()
+    {
+        return currentDirection;
+    }
 }

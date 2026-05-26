@@ -37,7 +37,16 @@ public class WorkstationTaskController : MonoBehaviour
 
         if (worldUI == null)
         {
-            worldUI = GetComponentInChildren<WorkstationWorldUI>();
+            worldUI = GetComponentInChildren<WorkstationWorldUI>(true);
+        }
+
+        if (worldUI != null)
+        {
+            worldUI.taskController = this;
+        }
+        else
+        {
+            Debug.LogWarning("WorkstationTaskController: 자식에서 WorkstationWorldUI를 찾지 못했습니다. Workstation 프리팹의 WorldUI 오브젝트를 World UI 필드에 직접 연결하세요.");
         }
 
         if (inspectionVisualSwitcher == null)
@@ -53,6 +62,11 @@ public class WorkstationTaskController : MonoBehaviour
 
     private void Start()
     {
+        if (worldUI != null)
+        {
+            worldUI.taskController = this;
+        }
+
         RefreshUI();
     }
 
@@ -131,8 +145,14 @@ public class WorkstationTaskController : MonoBehaviour
     /// </summary>
     public void RefreshUI()
     {
+        if (worldUI == null)
+        {
+            worldUI = GetComponentInChildren<WorkstationWorldUI>(true);
+        }
+
         if (worldUI != null)
         {
+            worldUI.taskController = this;
             worldUI.Refresh(taskState, workstation);
         }
     }

@@ -261,6 +261,142 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4393180307238696409}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3497237466725285948
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 887035861394000296}
+  - component: {fileID: 8711889987900374537}
+  - component: {fileID: 2647582438518318661}
+  m_Layer: 0
+  m_Name: StressText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &887035861394000296
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3497237466725285948}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3766529062917304122}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 180, y: -147.4}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &8711889987900374537
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3497237466725285948}
+  m_CullTransparentMesh: 1
+--- !u!114 &2647582438518318661
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3497237466725285948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: 
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 30
+  m_fontSizeBase: 30
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &4092458636829134861
 GameObject:
   m_ObjectHideFlags: 0
@@ -395,142 +531,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   alphaThreshold: 0.1
---- !u!1 &4118317986126873311
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8256359675947623614}
-  - component: {fileID: 1635684246332965140}
-  - component: {fileID: 3638663765668852175}
-  m_Layer: 0
-  m_Name: StressText
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &8256359675947623614
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4118317986126873311}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3766529062917304122}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.44000003}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 69.2, y: 22.9}
-  m_SizeDelta: {x: 200, y: 44.067154}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &1635684246332965140
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4118317986126873311}
-  m_CullTransparentMesh: 1
---- !u!114 &3638663765668852175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4118317986126873311}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_text: 0
-  m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
-  m_fontColor32:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
-  m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
-  m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
-  m_tintAllSprites: 0
-  m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: -1183493901
-  m_overrideHtmlColors: 0
-  m_faceColor:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
-  m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 1
-  m_VerticalAlignment: 256
-  m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
-  m_lineSpacing: 0
-  m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
-  m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
-  m_linkedTextComponent: {fileID: 0}
-  parentLinkedComponent: {fileID: 0}
-  m_enableKerning: 0
-  m_ActiveFontFeatures: 6e72656b
-  m_enableExtraPadding: 0
-  checkPaddingRequired: 0
-  m_isRichText: 1
-  m_EmojiFallbackSupport: 1
-  m_parseCtrlCharacters: 1
-  m_isOrthographic: 1
-  m_isCullingEnabled: 0
-  m_horizontalMapping: 0
-  m_verticalMapping: 0
-  m_uvLineOffset: 0
-  m_geometrySortingOrder: 0
-  m_IsTextObjectScaleStatic: 0
-  m_VertexBufferAutoSizeReduction: 0
-  m_useMaxVisibleDescender: 1
-  m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
-  m_isUsingLegacyAnimationComponent: 0
-  m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
-  m_baseMaterial: {fileID: 0}
-  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!1 &4364247922803957266
 GameObject:
   m_ObjectHideFlags: 0
@@ -921,7 +921,7 @@ RectTransform:
   - {fileID: 387941109533360214}
   - {fileID: 2423235388888744621}
   - {fileID: 4810796154589768605}
-  - {fileID: 8256359675947623614}
+  - {fileID: 887035861394000296}
   m_Father: {fileID: 4393180307238696409}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1008,11 +1008,16 @@ MonoBehaviour:
   inspectionButton: {fileID: 485968549039421386}
   cleaningButton: {fileID: 2239129896492090966}
   localOffset: {x: 0, y: 1.2, z: 0}
+  taskController: {fileID: 8026707425307095953}
   rightDownOffset: {x: -0.49, y: 1.21, z: 0}
   rightUpOffset: {x: -0.439, y: 0.839, z: 0}
   leftDownOffset: {x: 0.443, y: 1.211, z: 0}
   leftUpOffset: {x: 0.4, y: 0.81, z: 0}
-  stressText: {fileID: 0}
+  stressText: {fileID: 2647582438518318661}
+  stressOffsetRightDown: {x: 87.8, y: -138.8, z: 0}
+  stressOffsetRightUp: {x: 87.8, y: -138.8, z: 0}
+  stressOffsetLeftDown: {x: 87.8, y: -138.8, z: 0}
+  stressOffsetLeftUp: {x: 87.8, y: -138.8, z: 0}
 --- !u!1 &8210067236827296908
 GameObject:
   m_ObjectHideFlags: 0
@@ -1024,9 +1029,9 @@ GameObject:
   - component: {fileID: 4393180307238696409}
   - component: {fileID: 7967096046522452846}
   - component: {fileID: 3314991730626256451}
-  - component: {fileID: 1580960482512899466}
   - component: {fileID: 7349558463137233546}
   - component: {fileID: 3282675411573722307}
+  - component: {fileID: 8026707425307095953}
   m_Layer: 0
   m_Name: Workstation
   m_TagString: Untagged
@@ -1074,7 +1079,7 @@ MonoBehaviour:
     emptyChairSprite: {fileID: 21300000, guid: d5f1f2c247df44071b50aa86b8cdd8f3, type: 3}
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 9b6e82f66afd3408f9cfe9e7bd3a53c3, type: 3}
     masterSeatedChairSprite: {fileID: 21300000, guid: ff0bff4d14a7d49cf8364139c6d89e43, type: 3}
-    phdSeatedChairSprite: {fileID: 21300000, guid: 9b6e82f66afd3408f9cfe9e7bd3a53c3, type: 3}
+    phdSeatedChairSprite: {fileID: 21300000, guid: 77805ebd26cb94e519d66964150fd052, type: 3}
     deskLocalPosition: {x: 0, y: 0, z: 0}
     chairLocalPosition: {x: 0, y: 0, z: 0}
     equipmentSlotLocalPosition: {x: 0, y: 0, z: 0}
@@ -1087,7 +1092,7 @@ MonoBehaviour:
     emptyChairSprite: {fileID: 21300000, guid: ecddd1fbb47614b089a48002c41fcaeb, type: 3}
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 5db1f82f1405046be8a6ac9a848e20ea, type: 3}
     masterSeatedChairSprite: {fileID: 21300000, guid: fcfe58bd4631a4348bc1c89072a5f966, type: 3}
-    phdSeatedChairSprite: {fileID: 21300000, guid: 5db1f82f1405046be8a6ac9a848e20ea, type: 3}
+    phdSeatedChairSprite: {fileID: 21300000, guid: 6a57982505f4a4ed4825db3bbd4f5472, type: 3}
     deskLocalPosition: {x: 0, y: 0, z: 0}
     chairLocalPosition: {x: 0, y: 0, z: 0}
     equipmentSlotLocalPosition: {x: 0, y: 0, z: 0}
@@ -1100,7 +1105,7 @@ MonoBehaviour:
     emptyChairSprite: {fileID: 21300000, guid: b8ff9f5b10f5b45bf84be43ed5228761, type: 3}
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 99d7559a2ca8b41e29349847b31b358b, type: 3}
     masterSeatedChairSprite: {fileID: 21300000, guid: 6f2a074241a3c45b88523fca997aec99, type: 3}
-    phdSeatedChairSprite: {fileID: 21300000, guid: 99d7559a2ca8b41e29349847b31b358b, type: 3}
+    phdSeatedChairSprite: {fileID: 21300000, guid: ed911ca3eb87e488692ebc4432e8841d, type: 3}
     deskLocalPosition: {x: 0, y: 0, z: 0}
     chairLocalPosition: {x: 0, y: 0, z: 0}
     equipmentSlotLocalPosition: {x: 0, y: 0, z: 0}
@@ -1113,7 +1118,7 @@ MonoBehaviour:
     emptyChairSprite: {fileID: 21300000, guid: 8a81c33d8612d460ea9b7cd1fc5c3362, type: 3}
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 8e317e37a520f4b1a8e6573fe82a85e1, type: 3}
     masterSeatedChairSprite: {fileID: 21300000, guid: dfab137b8b1eb42c8b3e0e5efed455c0, type: 3}
-    phdSeatedChairSprite: {fileID: 21300000, guid: 8e317e37a520f4b1a8e6573fe82a85e1, type: 3}
+    phdSeatedChairSprite: {fileID: 21300000, guid: 0033350a2f64749a583f1dcef97e6396, type: 3}
     deskLocalPosition: {x: 0, y: 0, z: 0}
     chairLocalPosition: {x: 0, y: 0, z: 0}
     equipmentSlotLocalPosition: {x: 0, y: 0, z: 0}
@@ -1152,31 +1157,6 @@ MonoBehaviour:
   isPlaced: 0
   sizeX: 1
   sizeY: 1
---- !u!114 &1580960482512899466
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8210067236827296908}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ad819f6d8d0de492da58c6c7c9ade824, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  workstation: {fileID: 0}
-  worldUI: {fileID: 0}
-  currentTask:
-    taskName: "F\uAE09 \uACFC\uC81C"
-    workTime: 7
-    baseMoneyReward: 3000
-    baseResearchResult: 15
-    baseTaskStress: 2
-    requiredResearchPower: 10
-    baseCleaningTime: 3
-    baseCleaningStress: 1
-  taskState: 0
-  inspectionVisualSwitcher: {fileID: 7349558463137233546}
 --- !u!114 &7349558463137233546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1246,3 +1226,28 @@ PolygonCollider2D:
       - {x: 0.58778536, y: -0.80901694}
       - {x: 0.9510565, y: 0.30901712}
   m_UseDelaunayMesh: 0
+--- !u!114 &8026707425307095953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8210067236827296908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad819f6d8d0de492da58c6c7c9ade824, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  workstation: {fileID: 7967096046522452846}
+  worldUI: {fileID: 4020038637853727190}
+  currentTask:
+    taskName: "F\uAE09 \uACFC\uC81C"
+    workTime: 7
+    baseMoneyReward: 3000
+    baseResearchResult: 15
+    baseTaskStress: 2
+    requiredResearchPower: 10
+    baseCleaningTime: 3
+    baseCleaningStress: 1
+  taskState: 0
+  inspectionVisualSwitcher: {fileID: 0}
