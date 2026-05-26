@@ -2131,85 +2131,6 @@ MonoBehaviour:
   useCameraLimit: 1
   minPosition: {x: -10, y: -10}
   maxPosition: {x: 10, y: 10}
---- !u!1 &533132686
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 533132687}
-  - component: {fileID: 533132689}
-  - component: {fileID: 533132688}
-  m_Layer: 5
-  m_Name: ResearcherHirePanel
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &533132687
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 533132686}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.88509, y: 0.88509, z: 0.88509}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 2071872731}
-  - {fileID: 1572334707}
-  - {fileID: 1350980945}
-  - {fileID: 831175370}
-  m_Father: {fileID: 748033705}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &533132688
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 533132686}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: af192153e692143ddbf6e9ec6f723b13, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
---- !u!222 &533132689
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 533132686}
-  m_CullTransparentMesh: 1
 --- !u!1 &607215594
 GameObject:
   m_ObjectHideFlags: 0
@@ -2350,6 +2271,9 @@ GameObject:
   - component: {fileID: 622286387}
   - component: {fileID: 622286388}
   - component: {fileID: 622286389}
+  - component: {fileID: 622286391}
+  - component: {fileID: 622286390}
+  - component: {fileID: 622286392}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -2381,10 +2305,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6c3ba9b7b9fe4affa911a67aa0304de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingMoney: 100000
+  startingMoney: 99999999999999
   startingResearchResult: 0
-  startingLabLevel: 1
-  money: 2147483647
+  startingLabLevel: 100
+  money: 0
   researchResult: 0
   labLevel: 0
 --- !u!114 &622286382
@@ -2443,7 +2367,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1125ca035b4b14a249e6a9c53fe04411, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingMoney: 100000
   workstationPrefab: {fileID: 8210067236827296908, guid: b82556940edb340bb848b9cd9cd9d081, type: 3}
   workstationTileX: 1
   workstationTileY: 1
@@ -2518,6 +2441,45 @@ MonoBehaviour:
   isSelectingTile: 0
   currentDirection: 0
   previewObject: {fileID: 0}
+--- !u!114 &622286390
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622286376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7db726d208b34ff3bc666276c858361, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &622286391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622286376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dfaa93c9cb954fff973bf9f5b7b7426, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &622286392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622286376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ebe6116a99fe140ca8030f4a58127bf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  previewAlpha: 0.55
+  previewSortingOrder: 10000
+  previewZPosition: -5
 --- !u!1 &658502749
 GameObject:
   m_ObjectHideFlags: 0
@@ -2923,7 +2885,7 @@ RectTransform:
   - {fileID: 607215595}
   - {fileID: 1570535977}
   - {fileID: 2094613662}
-  - {fileID: 533132687}
+  - {fileID: 1152407666}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -3245,7 +3207,7 @@ GameObject:
   - component: {fileID: 831175372}
   - component: {fileID: 831175371}
   m_Layer: 5
-  m_Name: HireDoctorButton
+  m_Name: HirePhDButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3258,17 +3220,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 831175369}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.08298876, y: 0.08298876, z: 0.08286507}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 533132687}
+  m_Father: {fileID: 1152407666}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 110.9103, y: -89.364}
-  m_SizeDelta: {x: 97.4208, y: 23.527}
+  m_AnchoredPosition: {x: 35.4, y: -24.551}
+  m_SizeDelta: {x: 359.23868, y: 67.62263}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &831175371
 MonoBehaviour:
@@ -4586,13 +4548,13 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 533132686}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 1152407667}
+        m_TargetAssemblyTypeName: ResearcherHirePanelUI, Assembly-CSharp
+        m_MethodName: Open
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: 
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4649,6 +4611,103 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   alphaThreshold: 0.1
+--- !u!1 &1152407665
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1152407666}
+  - component: {fileID: 1152407669}
+  - component: {fileID: 1152407668}
+  - component: {fileID: 1152407667}
+  m_Layer: 5
+  m_Name: ResearcherHirePanel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!224 &1152407666
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152407665}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 7.833335, y: 7.833335, z: 7.8450265}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2071872731}
+  - {fileID: 1572334707}
+  - {fileID: 1350980945}
+  - {fileID: 831175370}
+  m_Father: {fileID: 748033705}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 114.3636, y: 70.1276}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1152407667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152407665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccc645ad0b9354894a68dbb0c9063395, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  panelRoot: {fileID: 1152407665}
+  closeButton: {fileID: 2071872732}
+  hireUndergraduateButton: {fileID: 1572334708}
+  hireMasterButton: {fileID: 1350980946}
+  hirePhDButton: {fileID: 831175371}
+--- !u!114 &1152407668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152407665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: af192153e692143ddbf6e9ec6f723b13, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1152407669
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152407665}
+  m_CullTransparentMesh: 1
 --- !u!1 &1206363284
 GameObject:
   m_ObjectHideFlags: 0
@@ -5328,17 +5387,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1350980944}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.08298876, y: 0.08298876, z: 0.08286507}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 533132687}
+  m_Father: {fileID: 1152407666}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -3.5792, y: -89.5636}
-  m_SizeDelta: {x: 93.4417, y: 23.1271}
+  m_AnchoredPosition: {x: -1.09896, y: -24.55073}
+  m_SizeDelta: {x: 360.4446, y: 70.16328}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1350980946
 MonoBehaviour:
@@ -5635,8 +5694,8 @@ Transform:
   m_GameObject: {fileID: 1459484264}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.1, y: -0.5, z: 0}
-  m_LocalScale: {x: 1.9581522, y: 1.9581522, z: 0.3916304}
+  m_LocalPosition: {x: 0.9395, y: -0.346, z: 0}
+  m_LocalScale: {x: 2.881613, y: 1.9982942, z: 0.3916304}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -5990,7 +6049,7 @@ GameObject:
   - component: {fileID: 1572334709}
   - component: {fileID: 1572334708}
   m_Layer: 5
-  m_Name: HireBachelorButton
+  m_Name: HireUndergraduateButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6003,17 +6062,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1572334706}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.08298876, y: 0.08298876, z: 0.08286507}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 533132687}
+  m_Father: {fileID: 1152407666}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -113.767944, y: -88.96409}
-  m_SizeDelta: {x: 91.8641, y: 21.3282}
+  m_AnchoredPosition: {x: -37.050316, y: -24.65073}
+  m_SizeDelta: {x: 350.0594, y: 71.12035}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1572334708
 MonoBehaviour:
@@ -8396,17 +8455,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2071872730}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.08298876, y: 0.08298876, z: 0.08286507}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 533132687}
+  m_Father: {fileID: 1152407666}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 163.11035, y: 114.1}
-  m_SizeDelta: {x: 17.0207, y: 16.1124}
+  m_AnchoredPosition: {x: 52.4, y: 31.4}
+  m_SizeDelta: {x: 53.1926, y: 47.41494}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2071872732
 MonoBehaviour:
@@ -8451,7 +8510,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2071872733}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1152407667}
+        m_TargetAssemblyTypeName: ResearcherHirePanelUI, Assembly-CSharp
+        m_MethodName: Close
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2071872733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8892,6 +8963,7 @@ MonoBehaviour:
   professorSpawnPoint: {fileID: 970387798}
   staffInspectionPoint: {fileID: 69623810}
   inspectionDuration: 5
+  isInspectionRunning: 0
 --- !u!1 &2093679591
 GameObject:
   m_ObjectHideFlags: 0

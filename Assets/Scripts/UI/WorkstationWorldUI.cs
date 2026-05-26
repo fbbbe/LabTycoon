@@ -68,7 +68,6 @@ public class WorkstationWorldUI : MonoBehaviour
     {
         HideAll();
     }
-
     /// <summary>
     /// 현재 상태에 따라 버튼을 갱신한다.
     /// </summary>
