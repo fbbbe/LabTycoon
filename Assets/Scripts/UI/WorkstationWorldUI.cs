@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// Workstation 위에 뜨는 월드 UI.
@@ -36,6 +37,10 @@ public class WorkstationWorldUI : MonoBehaviour
     [Tooltip("왼쪽 위 방향일 때 버튼 위치")]
     public Vector3 leftUpOffset = new Vector3(0f, 1.1f, 0f);
 
+    [Header("스트레스 숫자 UI")]
+    public TextMeshProUGUI stressText;
+
+
     private void Awake()
     {
         taskController = GetComponentInParent<WorkstationTaskController>();
@@ -63,7 +68,6 @@ public class WorkstationWorldUI : MonoBehaviour
     {
         HideAll();
     }
-
     /// <summary>
     /// 현재 상태에 따라 버튼을 갱신한다.
     /// </summary>
@@ -105,6 +109,8 @@ public class WorkstationWorldUI : MonoBehaviour
                 }
                 break;
         }
+
+        RefreshStressText(workstation);
     }
 
     private void HideAll()
@@ -274,5 +280,51 @@ public class WorkstationWorldUI : MonoBehaviour
             "CleaningIcon",
             "청소하기"
         );
+    }
+
+    public void RefreshStressText(WorkstationObject workstation)
+    {
+        if (stressText == null)
+        {
+            return;
+        }
+
+        if (workstation == null || workstation.seatedStaff == null)
+        {
+            stressText.gameObject.SetActive(false);
+            return;
+        }
+
+        StaffWorker staff = workstation.seatedStaff;
+
+        int stressValue = staff.currentStress;
+
+        if (staff.runtimeData != null)
+        {
+            stressValue = staff.runtimeData.currentStress;
+        }
+
+        stressText.gameObject.SetActive(true);
+        stressText.text = stressValue.ToString();
+    }
+
+    private Color GetStressColor(int stressValue)
+    {
+        if (stressValue <= 70)
+        {
+            return Color.green;
+        }
+
+        if (stressValue <= 80)
+        {
+            return Color.yellow;
+        }
+
+        if (stressValue <= 90)
+        {
+            return new Color(1f, 0.5f, 0f);
+        }
+
+        return Color.red;
     }
 }
