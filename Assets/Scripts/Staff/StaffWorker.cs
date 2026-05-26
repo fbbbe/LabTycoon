@@ -19,19 +19,50 @@ public class StaffWorker : MonoBehaviour
     [Header("인력 능력치")]
     public int staffLevel = 1;
 
+    /// <summary>
+    /// 기존 코드에서 level이라는 이름으로 접근하는 경우를 위한 호환 프로퍼티입니다.
+    /// 실제 저장 값은 staffLevel을 사용합니다.
+    /// </summary>
+    public int level
+    {
+        get { return staffLevel; }
+        set { staffLevel = value; }
+    }
+
     [Tooltip("이 인력의 연구력입니다. 과제 수행 가능 조건에 사용됩니다.")]
     public int researchPower = 10;
 
     [Header("스트레스")]
     public int stress = 0;
 
+    /// <summary>
+    /// 기존 코드에서 currentStress라는 이름으로 접근하는 경우를 위한 호환 프로퍼티입니다.
+    /// 실제 저장 값은 stress를 사용합니다.
+    /// </summary>
+    public int currentStress
+    {
+        get { return stress; }
+        set { stress = Mathf.Clamp(value, 0, 100); }
+    }
+
     [Header("착석 상태")]
     public WorkstationObject currentWorkstation;
     public bool isSeated = false;
 
+    [Header("개별 인력 데이터")]
+    public StaffRuntimeData runtimeData;
+
+    [Header("성장 정보")]
+    public int completedTaskCount;
+
     public bool CanAct()
     {
-        return stress < 100;
+        if (runtimeData != null)
+        {
+            return runtimeData.CanAct();
+        }
+
+        return currentStress < 100;
     }
 
     public void SetSeated(WorkstationObject workstation)
@@ -48,35 +79,42 @@ public class StaffWorker : MonoBehaviour
 
     public void AddStress(int amount)
     {
-        stress += amount;
-
-        if (stress > 100)
+        if (runtimeData == null)
         {
-            stress = 100;
+            runtimeData = new StaffRuntimeData();
         }
+
+        runtimeData.AddStress(amount);
+
+        currentStress = runtimeData.currentStress;
     }
 
     public void ReduceStress(int amount)
     {
-        stress -= amount;
-
-        if (stress < 0)
+        if (runtimeData == null)
         {
-            stress = 0;
+            runtimeData = new StaffRuntimeData();
         }
+
+        runtimeData.ReduceStress(amount);
+
+        currentStress = runtimeData.currentStress;
     }
 
-    public void InitializeFromHireData(StaffHireData data)
+    public void InitializeFromHireData(StaffHireData hireData)
     {
-        if (data == null)
+        if (hireData == null)
         {
+            Debug.LogError("StaffWorker 초기화 실패: hireData가 null입니다.");
             return;
         }
 
-        staffName = data.staffName;
-        staffType = data.staffType;
-        staffLevel = data.level;
-        researchPower = data.researchPower;
-        stress = data.initialStress;
+        runtimeData = new StaffRuntimeData(hireData);
+
+        staffName = runtimeData.staffName;
+        staffType = runtimeData.staffType;
+        staffLevel = runtimeData.level;
+        researchPower = runtimeData.researchPower;
+        stress = runtimeData.currentStress;
     }
 }

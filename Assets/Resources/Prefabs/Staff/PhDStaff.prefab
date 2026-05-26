@@ -12,8 +12,9 @@ GameObject:
   - component: {fileID: 5042559762296389808}
   - component: {fileID: 6195303580846204758}
   - component: {fileID: 4104719589955303611}
+  - component: {fileID: -504709744729002600}
   m_Layer: 0
-  m_Name: PhDStudent
+  m_Name: PhDStaff
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -101,10 +102,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a92b38313364599b046dd64cc7e029, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  staffName: "\uD559\uC0AC\uC0DD"
-  staffType: 0
+  staffName: "\uBC15\uC0AC\uC0DD"
+  staffType: 2
   staffLevel: 1
-  researchPower: 10
+  researchPower: 60
   stress: 0
   currentWorkstation: {fileID: 0}
   isSeated: 0
@@ -227,3 +228,18 @@ PolygonCollider2D:
       - {x: -0.04, y: -1.5}
       - {x: 0.01, y: -1.41}
   m_UseDelaunayMesh: 0
+--- !u!114 &-504709744729002600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5177792375573657098}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7de501da689b4290be41a5443c380b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  seatDetectDistance: 1.2
+  draggingSortingOrder: 30000
+  normalSortingOrder: 10

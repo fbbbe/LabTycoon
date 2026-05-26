@@ -225,6 +225,11 @@ public class WorkstationTaskController : MonoBehaviour
 
         staff.AddStress(finalStress);
 
+        if (staff.runtimeData != null)
+        {
+            staff.runtimeData.AddCompletedTaskCount(1);
+            staff.completedTaskCount = staff.runtimeData.completedTaskCount;
+        }
         Debug.Log(
             "검사 완료: 돈 +" + finalMoneyReward +
             ", 연구성과 +" + finalResearchResult +
