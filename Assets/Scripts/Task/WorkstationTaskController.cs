@@ -97,6 +97,18 @@ public class WorkstationTaskController : MonoBehaviour
             return;
         }
 
+        // 과제 시작 직전에 인력 종류/레벨에 맞는 과제 데이터로 교체한다.
+        currentTask = TaskGradeDatabase.CreateTaskDataForStaff(staff);
+
+        if (staff.researchPower < currentTask.requiredResearchPower)
+        {
+            Debug.Log(
+                "연구력이 부족해서 과제를 수행할 수 없습니다. " +
+                "현재 연구력: " + staff.researchPower +
+                " / 필요 연구력: " + currentTask.requiredResearchPower
+            );
+            return;
+        }
         if (staff.researchPower < currentTask.requiredResearchPower)
         {
             Debug.Log("연구력이 부족해서 과제를 수행할 수 없습니다.");
