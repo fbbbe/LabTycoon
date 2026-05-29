@@ -753,6 +753,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeca97f376b8348e7b5c8fce1fbf720b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  environmentThemes: []
+  startLabLevelForTheme: 1
+  doorWallRightSprite: {fileID: 0}
+  doorWallRightIndex: 0
   wallLeftSprite: {fileID: 21300000, guid: 4cb7bfc34e6eb4247a9a58a2f4a1ff79, type: 3}
   wallRightSprite: {fileID: 21300000, guid: b9f41419650a143c8ac961b96d3f896c, type: 3}
   wallScale: 1
@@ -772,6 +776,7 @@ MonoBehaviour:
   baseTileOrder: -9
   gridOverlayOrder: -5
   tileParent: {fileID: 0}
+  inspectionTile: {fileID: 0}
 --- !u!4 &88920397
 Transform:
   m_ObjectHideFlags: 0
@@ -2274,6 +2279,8 @@ GameObject:
   - component: {fileID: 622286391}
   - component: {fileID: 622286390}
   - component: {fileID: 622286392}
+  - component: {fileID: 622286394}
+  - component: {fileID: 622286393}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -2480,6 +2487,36 @@ MonoBehaviour:
   previewAlpha: 0.55
   previewSortingOrder: 10000
   previewZPosition: -5
+--- !u!114 &622286393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622286376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b8d93771a3f26f45a9fb7cd7b81abf2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &622286394
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 622286376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f87964f155086a24d873ad13885825f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moneyHUD: {fileID: 1206363284}
+  researchResultHUD: {fileID: 711957824}
+  buildButton: {fileID: 1500294248}
+  staffButton: {fileID: 1145785594}
+  shopButton: {fileID: 1919426815}
+  labInfoHUD: {fileID: 2045549257}
 --- !u!1 &658502749
 GameObject:
   m_ObjectHideFlags: 0
@@ -5917,7 +5954,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1500294251}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 622286394}
+        m_TargetAssemblyTypeName: BuildingEditManager, Assembly-CSharp
+        m_MethodName: StartEditMode
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1500294251
 MonoBehaviour:
   m_ObjectHideFlags: 0
