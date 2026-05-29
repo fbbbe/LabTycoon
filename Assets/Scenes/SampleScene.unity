@@ -763,7 +763,7 @@ MonoBehaviour:
   - minLabLevel: 11
     maxLabLevel: 90
     tileSprite: {fileID: 21300000, guid: c05eef22a8d044908b7df95f47dc379f, type: 3}
-    wallLeftSprite: {fileID: 21300000, guid: db4a6d9abebb74cd69aa4ad41378b900, type: 3}
+    wallLeftSprite: {fileID: 21300000, guid: 215c6280ed5fe4eb4887bb53a0492b1f, type: 3}
     wallRightSprite: {fileID: 21300000, guid: d1b5fd74e1e994002aba5e733bc3ddc8, type: 3}
     doorWallRightSprite: {fileID: 21300000, guid: 606aaf0a4fcbd4b2cacc7f272b356a37, type: 3}
   - minLabLevel: 91
@@ -4198,7 +4198,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingMoney: 99999999999999
   startingResearchResult: 0
-  startingLabLevel: 9
+  startingLabLevel: 15
   money: 0
   researchResult: 0
   labLevel: 0
