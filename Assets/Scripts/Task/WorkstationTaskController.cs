@@ -257,6 +257,11 @@ public class WorkstationTaskController : MonoBehaviour
 
         staff.AddStress(finalStress);
 
+        if (StaffRestController.Instance != null)
+        {
+            StaffRestController.Instance.CheckStressOverload(staff);
+        }
+
         if (staff.runtimeData != null)
         {
             staff.runtimeData.AddCompletedTaskCount(1);
@@ -373,6 +378,11 @@ public class WorkstationTaskController : MonoBehaviour
         );
 
         staff.AddStress(finalCleaningStress);
+
+        if (StaffRestController.Instance != null)
+        {
+            StaffRestController.Instance.CheckStressOverload(staff);
+        }
 
         Debug.Log("청소 완료: 스트레스 +" + finalCleaningStress);
 

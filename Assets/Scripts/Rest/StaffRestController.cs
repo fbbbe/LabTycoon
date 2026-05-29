@@ -17,7 +17,15 @@ public class StaffRestController : MonoBehaviour
     [Header("휴식 행동 데이터 8개")]
     public RestActionData[] restActions = new RestActionData[8];
 
+    [Header("스트레스 초과 행동 불가 설정")]
+    [Tooltip("스트레스 100 이상 도달 시 행동 불가가 유지되는 시간입니다.")]
+    public float stressOverloadDuration = 60f;
+
+    [Tooltip("행동 불가 시간이 끝난 뒤 초기화할 스트레스 값입니다.")]
+    public int stressResetValueAfterOverload = 50;
+
     private readonly HashSet<StaffWorker> restingStaffSet = new HashSet<StaffWorker>();
+    private readonly HashSet<StaffWorker> stressOverloadStaffSet = new HashSet<StaffWorker>();
 
     private void Awake()
     {
@@ -68,6 +76,48 @@ public class StaffRestController : MonoBehaviour
         return staff != null && restingStaffSet.Contains(staff);
     }
 
+    /// <summary>
+    /// 스트레스 100 이상으로 자동 행동 불가 상태인지 확인한다.
+    /// </summary>
+    public bool IsStaffStressOverloaded(StaffWorker staff)
+    {
+        return staff != null && stressOverloadStaffSet.Contains(staff);
+    }
+
+    /// <summary>
+    /// 휴식 중이거나 스트레스 초과 상태인지 확인한다.
+    /// 버튼 클릭 차단 자체는 RestIconImage가 위를 덮어서 Unity UI에서 처리하지만,
+    /// 다른 시스템에서 상태 확인이 필요할 때 사용할 수 있게 public으로 둔다.
+    /// </summary>
+    public bool IsStaffActionBlocked(StaffWorker staff)
+    {
+        return IsStaffResting(staff) || IsStaffStressOverloaded(staff);
+    }
+
+    /// <summary>
+    /// 스트레스가 변경된 직후 호출한다.
+    /// 현재 스트레스가 100 이상이면 자동으로 60초 행동 불가 상태에 들어간다.
+    /// </summary>
+    public void CheckStressOverload(StaffWorker staff)
+    {
+        if (staff == null)
+        {
+            return;
+        }
+
+        if (IsStaffStressOverloaded(staff))
+        {
+            return;
+        }
+
+        int currentStress = GetCurrentStress(staff);
+
+        if (currentStress >= 100)
+        {
+            StartCoroutine(StressOverloadRoutine(staff));
+        }
+    }
+
     public void StartRestAction(StaffWorker selectedStaff, int actionIndex, Sprite restIcon)
     {
         if (actionIndex < 0 || actionIndex >= restActions.Length)
@@ -97,6 +147,12 @@ public class StaffRestController : MonoBehaviour
             if (IsStaffResting(targetStaffList[i]))
             {
                 Debug.Log("이미 휴식 중인 인력이 포함되어 있습니다: " + targetStaffList[i].name);
+                return;
+            }
+
+            if (IsStaffStressOverloaded(targetStaffList[i]))
+            {
+                Debug.Log("스트레스 초과로 행동 불가 상태인 인력이 포함되어 있습니다: " + targetStaffList[i].name);
                 return;
             }
         }
@@ -145,6 +201,32 @@ public class StaffRestController : MonoBehaviour
         RefreshStaffStatus(staff);
 
         Debug.Log(actionData.actionName + " 완료: " + staff.name + " / 스트레스 -" + actionData.stressDecrease);
+    }
+
+    /// <summary>
+    /// 스트레스가 100 이상이 되었을 때 자동으로 들어가는 행동 불가 상태입니다.
+    /// 휴식 아이콘 표시 시스템을 그대로 재사용해서 기존 행동 버튼 위를 스트레스 초과 아이콘으로 덮습니다.
+    /// </summary>
+    private IEnumerator StressOverloadRoutine(StaffWorker staff)
+    {
+        if (staff == null)
+        {
+            yield break;
+        }
+
+        stressOverloadStaffSet.Add(staff);
+        ShowStressOverloadIcon(staff);
+
+        Debug.Log("스트레스 100 이상 도달: 행동 불가 상태 진입 - " + staff.name);
+
+        yield return new WaitForSeconds(stressOverloadDuration);
+
+        SetCurrentStress(staff, stressResetValueAfterOverload);
+        HideStressOverloadIcon(staff);
+        stressOverloadStaffSet.Remove(staff);
+        RefreshStaffStatus(staff);
+
+        Debug.Log("스트레스 초과 행동 불가 해제: " + staff.name + " / 스트레스 " + stressResetValueAfterOverload + "으로 초기화");
     }
 
     private void ClosePanels()
@@ -230,6 +312,47 @@ public class StaffRestController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Workstation 프리팹의 WorldUI 안에 이미 연결되어 있는 스트레스 초과 이미지를 표시한다.
+    /// 이 컨트롤러에서는 Sprite를 따로 들고 있지 않는다.
+    /// </summary>
+    private void ShowStressOverloadIcon(StaffWorker staff)
+    {
+        WorkstationObject workstation = FindWorkstationByStaff(staff);
+
+        if (workstation == null)
+        {
+            return;
+        }
+
+        WorkstationWorldUI worldUI = workstation.GetComponentInChildren<WorkstationWorldUI>(true);
+
+        if (worldUI != null)
+        {
+            worldUI.ShowStressOverloadIcon(null);
+        }
+    }
+
+    /// <summary>
+    /// Workstation 프리팹의 WorldUI 안에 있는 스트레스 초과 이미지를 숨긴다.
+    /// </summary>
+    private void HideStressOverloadIcon(StaffWorker staff)
+    {
+        WorkstationObject workstation = FindWorkstationByStaff(staff);
+
+        if (workstation == null)
+        {
+            return;
+        }
+
+        WorkstationWorldUI worldUI = workstation.GetComponentInChildren<WorkstationWorldUI>(true);
+
+        if (worldUI != null)
+        {
+            worldUI.HideStressOverloadIcon();
+        }
+    }
+
     private void RefreshStaffStatus(StaffWorker staff)
     {
         WorkstationObject workstation = FindWorkstationByStaff(staff);
@@ -250,7 +373,20 @@ public class StaffRestController : MonoBehaviour
         }
     }
 
-    private void ApplyStressDecrease(StaffWorker staff, int amount)
+    private int GetCurrentStress(StaffWorker staff)
+    {
+        if (staff == null)
+        {
+            return 0;
+        }
+
+        object runtimeData = GetFieldOrPropertyValue(staff, "runtimeData");
+        object target = runtimeData != null ? runtimeData : staff;
+
+        return GetIntValue(target, "currentStress", GetIntValue(staff, "currentStress", 0));
+    }
+
+    private void SetCurrentStress(StaffWorker staff, int value)
     {
         if (staff == null)
         {
@@ -260,9 +396,8 @@ public class StaffRestController : MonoBehaviour
         object runtimeData = GetFieldOrPropertyValue(staff, "runtimeData");
         object target = runtimeData != null ? runtimeData : staff;
 
-        int currentStress = GetIntValue(target, "currentStress", GetIntValue(staff, "currentStress", 0));
         int maxStress = GetIntValue(target, "maxStress", 100);
-        int newStress = Mathf.Clamp(currentStress - amount, 0, maxStress);
+        int newStress = Mathf.Clamp(value, 0, maxStress);
 
         SetIntValue(target, "currentStress", newStress);
 
@@ -270,6 +405,16 @@ public class StaffRestController : MonoBehaviour
         {
             SetIntValue(staff, "currentStress", newStress);
         }
+    }
+
+    private void ApplyStressDecrease(StaffWorker staff, int amount)
+    {
+        if (staff == null)
+        {
+            return;
+        }
+        int currentStress = GetCurrentStress(staff);
+        SetCurrentStress(staff, currentStress - amount);
     }
 
     private bool TrySpendMoney(long cost)

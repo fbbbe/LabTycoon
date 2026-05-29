@@ -50,6 +50,10 @@ public class WorkstationWorldUI : MonoBehaviour
     [Header("휴식 아이콘")]
     public Image restIconImage;
 
+    [Header("스트레스 초과 아이콘")]
+    [Tooltip("스트레스 100 이상으로 행동 불가 상태일 때 기존 행동 버튼 위를 덮는 이미지입니다.")]
+    public Image stressOverloadIconImage;
+
 
     private void Awake()
     {
@@ -79,6 +83,12 @@ public class WorkstationWorldUI : MonoBehaviour
         {
             restIconImage.gameObject.SetActive(false);
             restIconImage.raycastTarget = true;
+        }
+
+        if (stressOverloadIconImage != null)
+        {
+            stressOverloadIconImage.gameObject.SetActive(false);
+            stressOverloadIconImage.raycastTarget = true;
         }
     }
 
@@ -551,6 +561,41 @@ public class WorkstationWorldUI : MonoBehaviour
         }
 
         restIconImage.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// 스트레스 100 이상으로 행동 불가 상태일 때 기존 과제/검사/청소 버튼 위를 덮는 아이콘을 표시한다.
+    /// 휴식 아이콘과 별도의 Image를 사용한다.
+    /// </summary>
+    public void ShowStressOverloadIcon(Sprite icon)
+    {
+        if (stressOverloadIconImage == null)
+        {
+            Debug.LogWarning("WorkstationWorldUI: Stress Overload Icon Image가 연결되지 않았습니다.");
+            return;
+        }
+
+        if (icon != null)
+        {
+            stressOverloadIconImage.sprite = icon;
+        }
+
+        stressOverloadIconImage.raycastTarget = true;
+        stressOverloadIconImage.gameObject.SetActive(true);
+        stressOverloadIconImage.transform.SetAsLastSibling();
+    }
+
+    /// <summary>
+    /// 스트레스 초과 행동 불가 상태가 끝나면 스트레스 초과 아이콘을 숨긴다.
+    /// </summary>
+    public void HideStressOverloadIcon()
+    {
+        if (stressOverloadIconImage == null)
+        {
+            return;
+        }
+
+        stressOverloadIconImage.gameObject.SetActive(false);
     }
 
     /// <summary>

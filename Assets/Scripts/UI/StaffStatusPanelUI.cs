@@ -242,6 +242,13 @@ public class StaffStatusPanelUI : MonoBehaviour
         }
 
         RestActionPanelUI.Instance.Open(selectedStaff);
+
+        if (StaffRestController.Instance != null &&
+    StaffRestController.Instance.IsStaffActionBlocked(selectedStaff))
+        {
+            Debug.Log("행동 불가 상태인 인력은 스트레스 감소 행동을 선택할 수 없습니다.");
+            return;
+        }
     }
 
     private void OnClickLevelUpButton()
