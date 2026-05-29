@@ -15,6 +15,7 @@ public class BuildingEditManager : MonoBehaviour
     public GameObject shopButton;
 
     public GameObject labInfoHUD;
+    public GameObject labButton;
 
     private void Awake()
     {
@@ -61,6 +62,9 @@ public class BuildingEditManager : MonoBehaviour
 
         if (labInfoHUD != null)
             labInfoHUD.SetActive(false);
+        
+        if (labButton != null)
+            labButton.SetActive(false);
 
         if (LabGridManager.Instance != null)
         {
@@ -91,6 +95,9 @@ public class BuildingEditManager : MonoBehaviour
 
         if (labInfoHUD != null)
             labInfoHUD.SetActive(true);
+
+        if (labButton != null)
+            labButton.SetActive(true);
 
         if (LabGridManager.Instance != null)
         {

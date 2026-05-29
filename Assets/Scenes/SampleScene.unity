@@ -4395,12 +4395,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f87964f155086a24d873ad13885825f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moneyHUD: {fileID: 1871343458}
+  moneyHUD: {fileID: 1206363284}
   researchResultHUD: {fileID: 711957824}
   buildButton: {fileID: 1500294248}
   staffButton: {fileID: 1145785594}
   shopButton: {fileID: 1919426815}
   labInfoHUD: {fileID: 2045549257}
+  labButton: {fileID: 1229182297}
 --- !u!1 &627223055
 GameObject:
   m_ObjectHideFlags: 0
