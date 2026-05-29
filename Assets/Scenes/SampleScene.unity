@@ -753,7 +753,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eeca97f376b8348e7b5c8fce1fbf720b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  environmentThemes: []
+  environmentThemes:
+  - minLabLevel: 1
+    maxLabLevel: 10
+    tileSprite: {fileID: 0}
+    wallLeftSprite: {fileID: 0}
+    wallRightSprite: {fileID: 0}
+    doorWallRightSprite: {fileID: 0}
+  - minLabLevel: 0
+    maxLabLevel: 0
+    tileSprite: {fileID: 0}
+    wallLeftSprite: {fileID: 0}
+    wallRightSprite: {fileID: 0}
+    doorWallRightSprite: {fileID: 0}
+  - minLabLevel: 0
+    maxLabLevel: 0
+    tileSprite: {fileID: 0}
+    wallLeftSprite: {fileID: 0}
+    wallRightSprite: {fileID: 0}
+    doorWallRightSprite: {fileID: 0}
   startLabLevelForTheme: 1
   doorWallRightSprite: {fileID: 0}
   doorWallRightIndex: 0
