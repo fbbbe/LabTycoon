@@ -245,7 +245,7 @@ public class StaffRestController : MonoBehaviour
     private List<StaffWorker> GetAllSeatedStaff()
     {
         List<StaffWorker> result = new List<StaffWorker>();
-        WorkstationObject[] workstations = FindObjectsOfType<WorkstationObject>();
+        WorkstationObject[] workstations = FindObjectsByType<WorkstationObject>(FindObjectsSortMode.None);
 
         for (int i = 0; i < workstations.Length; i++)
         {
@@ -265,7 +265,7 @@ public class StaffRestController : MonoBehaviour
             return null;
         }
 
-        WorkstationObject[] workstations = FindObjectsOfType<WorkstationObject>();
+        WorkstationObject[] workstations = FindObjectsByType<WorkstationObject>(FindObjectsSortMode.None);
 
         for (int i = 0; i < workstations.Length; i++)
         {

@@ -262,6 +262,8 @@ public class WorkstationTaskController : MonoBehaviour
             StaffRestController.Instance.CheckStressOverload(staff);
         }
 
+
+
         if (staff.runtimeData != null)
         {
             staff.runtimeData.AddCompletedTaskCount(1);
