@@ -447,6 +447,19 @@ public class TileEquipmentPlacementManager : MonoBehaviour
             currentDirection
         );
 
+        if (obj.GetComponent<PlaceableObject>() == null)
+        {
+            PlaceableObject placeable = obj.AddComponent<PlaceableObject>();
+
+            placeable.placedTile = tile;
+            placeable.isPlaced = true;
+        }
+
+        if (obj.GetComponent<PolygonCollider2D>() == null)
+        {
+            obj.AddComponent<PolygonCollider2D>();
+        }
+
         return obj;
     }
 

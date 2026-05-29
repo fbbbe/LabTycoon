@@ -113,4 +113,35 @@ public class PlaceableObject : MonoBehaviour
 
         SetAlpha(1f);
     }
+
+    private void OnMouseDown()
+    {
+
+        if (EquipmentMoveManager.Instance != null &&
+            EquipmentMoveManager.Instance.IsMoving)
+        {
+            return;
+        }
+        Debug.Log("가구 클릭");
+
+        if (BuildingEditManager.Instance == null)
+        {
+            Debug.Log("BuildingEditManager 없음");
+            return;
+        }
+
+        if (!BuildingEditManager.Instance.IsEditMode)
+        {
+            Debug.Log("수정모드 아님");
+            return;
+        }
+
+        if (EquipmentMoveManager.Instance == null)
+        {
+            Debug.Log("EquipmentMoveManager 없음");
+            return;
+        }
+
+        EquipmentMoveManager.Instance.StartMove(this);
+    }
 }
