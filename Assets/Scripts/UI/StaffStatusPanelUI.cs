@@ -235,6 +235,13 @@ public class StaffStatusPanelUI : MonoBehaviour
             return;
         }
 
+        if (StaffRestController.Instance != null &&
+            StaffRestController.Instance.IsStaffActionBlocked(selectedStaff))
+        {
+            Debug.Log("행동 불가 상태인 인력은 스트레스 감소 행동을 선택할 수 없습니다.");
+            return;
+        }
+
         if (RestActionPanelUI.Instance == null)
         {
             Debug.LogWarning("RestActionPanelUI.Instance가 없습니다. Canvas에 RestActionPanelUI를 추가하세요.");
@@ -242,13 +249,6 @@ public class StaffStatusPanelUI : MonoBehaviour
         }
 
         RestActionPanelUI.Instance.Open(selectedStaff);
-
-        if (StaffRestController.Instance != null &&
-    StaffRestController.Instance.IsStaffActionBlocked(selectedStaff))
-        {
-            Debug.Log("행동 불가 상태인 인력은 스트레스 감소 행동을 선택할 수 없습니다.");
-            return;
-        }
     }
 
     private void OnClickLevelUpButton()
@@ -258,9 +258,20 @@ public class StaffStatusPanelUI : MonoBehaviour
             return;
         }
 
-        Debug.Log("레벨업 버튼 클릭: " + selectedStaff.staffName);
+        if (StaffRestController.Instance != null &&
+            StaffRestController.Instance.IsStaffActionBlocked(selectedStaff))
+        {
+            Debug.Log("행동 불가 상태인 인력은 레벨업할 수 없습니다.");
+            return;
+        }
 
-        // 다음 단계에서 레벨업 조건/비용/과제 수행 횟수 검사 구현.
+        if (StaffGrowthPanelUI.Instance == null)
+        {
+            Debug.LogWarning("StaffGrowthPanelUI.Instance가 없습니다. Canvas에 StaffGrowthPanelUI를 추가하세요.");
+            return;
+        }
+
+        StaffGrowthPanelUI.Instance.OpenLevelUpPanel(selectedStaff);
     }
 
     private void OnClickEvolveButton()
@@ -270,8 +281,15 @@ public class StaffStatusPanelUI : MonoBehaviour
             return;
         }
 
+        if (StaffRestController.Instance != null &&
+            StaffRestController.Instance.IsStaffActionBlocked(selectedStaff))
+        {
+            Debug.Log("행동 불가 상태인 인력은 진화할 수 없습니다.");
+            return;
+        }
+
         Debug.Log("진화 버튼 클릭: " + selectedStaff.staffName);
 
-        // 다음 단계에서 학사 → 석사, 석사 → 박사 진화 조건 구현.
+        // 진화 패널은 다음 단계에서 StaffGrowthPanelUI에 연결한다.
     }
 }
