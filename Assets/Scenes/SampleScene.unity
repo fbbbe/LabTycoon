@@ -13726,7 +13726,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3080434584540096965, guid: 7249b5d3e5ff84a46bb1feb22a734abb, type: 3}
       propertyPath: startingLabLevel
-      value: 10
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 3514281661324240052, guid: 7249b5d3e5ff84a46bb1feb22a734abb, type: 3}
       propertyPath: m_Name

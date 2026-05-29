@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 1271309573080284226}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -114,7 +114,7 @@ Transform:
   m_GameObject: {fileID: 1364209323590667591}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -224,7 +224,7 @@ Transform:
   m_GameObject: {fileID: 2135617825535167587}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -255,7 +255,7 @@ Transform:
   m_GameObject: {fileID: 2429025862056269159}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -557,7 +557,7 @@ Transform:
   m_GameObject: {fileID: 4364247922803957266}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1159,10 +1159,10 @@ MonoBehaviour:
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 9b6e82f66afd3408f9cfe9e7bd3a53c3, type: 3}
     masterSeatedChairSprite: {fileID: 21300000, guid: ff0bff4d14a7d49cf8364139c6d89e43, type: 3}
     phdSeatedChairSprite: {fileID: 21300000, guid: 77805ebd26cb94e519d66964150fd052, type: 3}
-    deskLocalPosition: {x: 0, y: 0, z: 0}
-    chairLocalPosition: {x: 0, y: 0, z: 0}
-    equipmentSlotLocalPosition: {x: 0, y: 0, z: 0}
-    seatPointLocalPosition: {x: 0, y: 0, z: 0}
+    deskLocalPosition: {x: 0, y: 0.2, z: 0}
+    chairLocalPosition: {x: 0, y: 0.2, z: 0}
+    equipmentSlotLocalPosition: {x: 0, y: 0.2, z: 0}
+    seatPointLocalPosition: {x: 0, y: 0.2, z: 0}
     deskSortingOrder: 5
     chairSortingOrder: 0
     deskEquipmentSortingOrder: 6
@@ -1172,10 +1172,10 @@ MonoBehaviour:
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 5db1f82f1405046be8a6ac9a848e20ea, type: 3}
     masterSeatedChairSprite: {fileID: 21300000, guid: fcfe58bd4631a4348bc1c89072a5f966, type: 3}
     phdSeatedChairSprite: {fileID: 21300000, guid: 6a57982505f4a4ed4825db3bbd4f5472, type: 3}
-    deskLocalPosition: {x: 0, y: 0, z: 0}
-    chairLocalPosition: {x: 0, y: 0, z: 0}
-    equipmentSlotLocalPosition: {x: 0, y: 0, z: 0}
-    seatPointLocalPosition: {x: 0, y: 0, z: 0}
+    deskLocalPosition: {x: 0, y: 0.2, z: 0}
+    chairLocalPosition: {x: 0, y: 0.2, z: 0}
+    equipmentSlotLocalPosition: {x: 0, y: 0.2, z: 0}
+    seatPointLocalPosition: {x: 0, y: 0.2, z: 0}
     deskSortingOrder: 3
     chairSortingOrder: 5
     deskEquipmentSortingOrder: 4
@@ -1185,10 +1185,10 @@ MonoBehaviour:
     undergraduateSeatedChairSprite: {fileID: 21300000, guid: 99d7559a2ca8b41e29349847b31b358b, type: 3}
     masterSeatedChairSprite: {fileID: 21300000, guid: 6f2a074241a3c45b88523fca997aec99, type: 3}
     phdSeatedChairSprite: {fileID: 21300000, guid: ed911ca3eb87e488692ebc4432e8841d, type: 3}
-    deskLocalPosition: {x: 0, y: 0, z: 0}
-    chairLocalPosition: {x: 0, y: 0, z: 0}
-    equipmentSlotLocalPosition: {x: 0, y: 0, z: 0}
-    seatPointLocalPosition: {x: 0, y: 0, z: 0}
+    deskLocalPosition: {x: 0, y: 0.2, z: 0}
+    chairLocalPosition: {x: 0, y: 0.2, z: 0}
+    equipmentSlotLocalPosition: {x: 0, y: 0.2, z: 0}
+    seatPointLocalPosition: {x: 0, y: 0.2, z: 0}
     deskSortingOrder: 5
     chairSortingOrder: 0
     deskEquipmentSortingOrder: 6
