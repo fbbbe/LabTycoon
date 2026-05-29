@@ -8,8 +8,7 @@ public class EquipmentMoveManager : MonoBehaviour
     private TilePlaceableEquipmentObject movingTileEquipment;
     private WorkstationObject movingWorkstation;
 
-    private LabTile currentTile;
-    private bool canPlace = false;
+    private LabTile currentTile; private bool canPlace = false;
 
     public bool IsMoving
     {
