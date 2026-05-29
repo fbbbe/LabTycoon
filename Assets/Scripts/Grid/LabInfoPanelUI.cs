@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +8,16 @@ public class LabInfoPanelUI : MonoBehaviour
 
     [Header("연구실 정보 패널")]
     public GameObject panelRoot;
+
+    [Header("기본 정보 텍스트")]
+    public TextMeshProUGUI labNameText;
+    public TextMeshProUGUI labGradeText;
+    public TextMeshProUGUI labAreaText;
+    public TextMeshProUGUI requiredLevelText;
+    public TextMeshProUGUI expansionCostText;
+
+    [Header("연구실 이름")]
+    public string labName = "연구실";
 
     [Header("버튼")]
     public Button expandButton;
@@ -39,6 +50,8 @@ public class LabInfoPanelUI : MonoBehaviour
 
     public void Open()
     {
+        Refresh();
+
         if (panelRoot != null)
         {
             panelRoot.SetActive(true);
@@ -50,6 +63,65 @@ public class LabInfoPanelUI : MonoBehaviour
         if (panelRoot != null)
         {
             panelRoot.SetActive(false);
+        }
+    }
+
+    public void Refresh()
+    {
+        int currentLabLevel = GetCurrentLabLevel();
+        int currentArea = GetCurrentArea();
+
+        LabExpansionData nextExpansionData = null;
+
+        if (LabExpansionManager.Instance != null)
+        {
+            nextExpansionData = LabExpansionManager.Instance.GetNextExpansionData();
+        }
+
+        if (labNameText != null)
+        {
+            labNameText.text = labName;
+        }
+
+        if (labGradeText != null)
+        {
+            labGradeText.text = GetLabGradeName(currentLabLevel);
+        }
+
+        if (labAreaText != null)
+        {
+            labAreaText.text = currentArea + "평";
+        }
+
+        if (requiredLevelText != null)
+        {
+            if (nextExpansionData == null)
+            {
+                requiredLevelText.text = "0";
+            }
+            else
+            {
+                int remainingLevel = nextExpansionData.requiredLabLevel - currentLabLevel;
+
+                if (remainingLevel < 0)
+                {
+                    remainingLevel = 0;
+                }
+
+                requiredLevelText.text = remainingLevel.ToString();
+            }
+        }
+
+        if (expansionCostText != null)
+        {
+            if (nextExpansionData == null)
+            {
+                expansionCostText.text = "최대 확장";
+            }
+            else
+            {
+                expansionCostText.text = nextExpansionData.cost.ToString("N0") + "$";
+            }
         }
     }
 
@@ -65,7 +137,67 @@ public class LabInfoPanelUI : MonoBehaviour
 
         if (success)
         {
-            Close();
+            Refresh();
         }
+    }
+
+    private int GetCurrentLabLevel()
+    {
+        if (ResourceManager.Instance == null)
+        {
+            return 1;
+        }
+
+        return ResourceManager.Instance.labLevel;
+    }
+
+    private int GetCurrentArea()
+    {
+        if (LabExpansionManager.Instance != null)
+        {
+            return LabExpansionManager.Instance.GetCurrentArea();
+        }
+
+        if (LabGridManager.Instance != null)
+        {
+            return LabGridManager.Instance.GetCurrentArea();
+        }
+
+        return 9;
+    }
+
+    private string GetLabGradeName(int labLevel)
+    {
+        if (labLevel >= 1 && labLevel <= 10)
+        {
+            return "반지하 연구실";
+        }
+
+        if (labLevel >= 11 && labLevel <= 25)
+        {
+            return "지상";
+        }
+
+        if (labLevel >= 26 && labLevel <= 40)
+        {
+            return "지상 연구실";
+        }
+
+        if (labLevel >= 41 && labLevel <= 60)
+        {
+            return "일반 연구실";
+        }
+
+        if (labLevel >= 61 && labLevel <= 75)
+        {
+            return "대형 연구실";
+        }
+
+        if (labLevel >= 76 && labLevel <= 90)
+        {
+            return "연구 센터";
+        }
+
+        return "공중 연구실";
     }
 }

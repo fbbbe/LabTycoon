@@ -890,92 +890,121 @@ public class LabGridManager : MonoBehaviour
         return startLabLevelForTheme;
     }
 
+
     /// <summary>
-    /// 현재 연구실 평수를 반환한다.
+    /// 현재 생성되어 있는 LabTile 개수를 기준으로 연구실 평수를 반환한다.
     /// Tile 1개 = 1평 기준이다.
     /// </summary>
     public int GetCurrentArea()
     {
-        if (tiles == null)
-        {
-            return width * height;
-        }
-
         return allTiles.Count;
     }
 
     /// <summary>
-    /// 연구실을 지정한 크기까지 확장한다.
-    /// 기존 타일은 유지하고, 새로 필요한 좌표의 타일만 추가 생성한다.
+    /// 지정된 grid 좌표 목록에 타일을 추가한다.
+    /// 기존 타일은 유지하고, 없는 좌표에만 새 타일을 생성한다.
     /// </summary>
-    public void ExpandGridToSize(int newWidth, int newHeight)
+    public void ExpandGridByCoordinates(Vector2Int[] gridPositions)
     {
-        if (newWidth <= width && newHeight <= height)
+        if (gridPositions == null || gridPositions.Length == 0)
         {
-            Debug.Log("연구실 확장 불가: 현재 크기보다 크지 않습니다.");
+            Debug.LogWarning("LabGridManager: 추가할 타일 좌표가 없습니다.");
             return;
         }
 
-        if (newWidth < width || newHeight < height)
+        int maxX = width - 1;
+        int maxY = height - 1;
+
+        for (int i = 0; i < gridPositions.Length; i++)
         {
-            Debug.LogWarning("연구실 축소는 지원하지 않습니다.");
-            return;
+            Vector2Int position = gridPositions[i];
+
+            if (position.x < 0 || position.y < 0)
+            {
+                Debug.LogWarning("LabGridManager: 음수 좌표는 사용할 수 없습니다. " + position);
+                continue;
+            }
+
+            if (position.x > maxX)
+            {
+                maxX = position.x;
+            }
+
+            if (position.y > maxY)
+            {
+                maxY = position.y;
+            }
         }
 
-        if (tiles == null)
-        {
-            GenerateInitialLab();
-            GenerateInitialWalls();
-            return;
-        }
+        EnsureTileArraySize(maxX + 1, maxY + 1);
 
         if (inspectionTile != null)
         {
             inspectionTile.tileRole = LabTileRole.Normal;
         }
 
-        LabTile[,] oldTiles = tiles;
-        int oldWidth = width;
-        int oldHeight = height;
+        int createdCount = 0;
 
-        LabTile[,] newTiles = new LabTile[newWidth, newHeight];
-
-        for (int y = 0; y < oldHeight; y++)
+        for (int i = 0; i < gridPositions.Length; i++)
         {
-            for (int x = 0; x < oldWidth; x++)
+            Vector2Int position = gridPositions[i];
+
+            if (position.x < 0 || position.y < 0)
             {
-                newTiles[x, y] = oldTiles[x, y];
+                continue;
             }
+
+            if (tiles[position.x, position.y] != null)
+            {
+                continue;
+            }
+
+            CreateTile(position.x, position.y);
+            createdCount++;
         }
 
-        tiles = newTiles;
-        width = newWidth;
-        height = newHeight;
-
-        for (int y = 0; y < newHeight; y++)
-        {
-            for (int x = 0; x < newWidth; x++)
-            {
-                if (tiles[x, y] == null)
-                {
-                    CreateTile(x, y);
-                }
-            }
-        }
-
-        RebuildWalls();
+        RebuildWallsAfterExpansion();
         MarkInspectionTile();
         ApplyEnvironmentFromCurrentLabLevel();
         HidePlacementGrid();
 
-        Debug.Log("연구실 확장 완료: " + GetCurrentArea() + "평 / 크기 " + width + " x " + height);
+        Debug.Log("연구실 타일 추가 완료: +" + createdCount + "개 / 현재 " + GetCurrentArea() + "평");
     }
 
-    /// <summary>
-    /// 확장 후 벽지는 전체 연구실 크기를 기준으로 다시 생성한다.
-    /// 타일은 유지하고 벽 오브젝트만 삭제 후 재생성한다.
-    /// </summary>
-    private void RebuildWalls()
+    private void EnsureTileArraySize(int newWidth, int newHeight)
+    {
+        if (tiles == null)
+        {
+            width = Mathf.Max(width, newWidth);
+            height = Mathf.Max(height, newHeight);
+            tiles = new LabTile[width, height];
+            return;
+        }
+
+        if (newWidth <= width && newHeight <= height)
+        {
+            return;
+        }
+
+        int finalWidth = Mathf.Max(width, newWidth);
+        int finalHeight = Mathf.Max(height, newHeight);
+
+        LabTile[,] newTiles = new LabTile[finalWidth, finalHeight];
+
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                newTiles[x, y] = tiles[x, y];
+            }
+        }
+
+        tiles = newTiles;
+        width = finalWidth;
+        height = finalHeight;
+    }
+
+    private void RebuildWallsAfterExpansion()
     {
         ClearGeneratedWalls();
         GenerateInitialWalls();

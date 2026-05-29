@@ -1,19 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-/// <summary>
-/// 연구실 확장 단계 데이터입니다.
-///
-/// 이 방식은 코드가 타일 위치를 계산해서 새로 만드는 방식이 아닙니다.
-/// Unity Hierarchy 안에 사용자가 직접 배치해 둔 확장 구간 오브젝트를
-/// 조건 충족 시 Active ON 하는 방식입니다.
-///
-/// 예시:
-/// - 기본 9평은 처음부터 켜져 있음
-/// - 9평 -> 18평 확장 시 stageRoot에 연결된 "추가 9평 오브젝트"만 켬
-/// - 18평 -> 27평 확장 시 다음 "추가 9평 오브젝트"를 켬
-/// </summary>
 [Serializable]
 public class LabExpansionData
 {
@@ -25,9 +14,9 @@ public class LabExpansionData
     public int requiredLabLevel;
     public long cost;
 
-    [Header("Unity에서 직접 배치한 추가 구간")]
-    [Tooltip("이 확장 단계에서 새로 켤 타일/벽지 묶음 오브젝트입니다. 사용자가 Unity에서 직접 배치합니다.")]
-    public GameObject stageRoot;
+    [Header("추가할 타일 좌표")]
+    [Tooltip("확장 시 새로 생성할 LabTile grid 좌표 목록입니다. 내부 좌표는 0부터 시작합니다.")]
+    public Vector2Int[] tilesToAdd;
 }
 
 public class LabExpansionManager : MonoBehaviour
@@ -38,14 +27,11 @@ public class LabExpansionManager : MonoBehaviour
     public LabExpansionData[] expansionStages;
 
     [Header("현재 확장 상태")]
-    [Tooltip("현재 완료된 확장 단계 인덱스입니다. -1이면 기본 9평 상태입니다.")]
+    [Tooltip("-1이면 기본 9평 상태입니다.")]
     public int currentExpansionIndex = -1;
 
     [Tooltip("기본 연구실 평수입니다.")]
     public int baseArea = 9;
-
-    [Tooltip("게임 시작 시 아직 확장되지 않은 stageRoot들을 자동으로 꺼둘지 여부입니다.")]
-    public bool disableLockedStagesOnStart = true;
 
     private void Awake()
     {
@@ -57,28 +43,111 @@ public class LabExpansionManager : MonoBehaviour
 
         Instance = this;
 
-        if (expansionStages == null || expansionStages.Length == 0)
-        {
-            CreateDefaultExpansionStages();
-        }
-
-        ApplyStageActiveStates();
+        CreateDefaultExpansionStages();
     }
 
     private void CreateDefaultExpansionStages()
     {
         expansionStages = new LabExpansionData[]
         {
-            CreateStage(9, 18, 10, 150000),
-            CreateStage(18, 27, 20, 600000),
-            CreateStage(27, 36, 30, 1500000),
-            CreateStage(36, 45, 40, 4000000),
-            CreateStage(45, 54, 50, 9000000),
-            CreateStage(54, 63, 60, 20000000),
-            CreateStage(63, 72, 70, 45000000),
-            CreateStage(72, 90, 80, 90000000),
-            CreateStage(90, 108, 90, 180000000),
-            CreateStage(108, 135, 100, 400000000)
+            // 9평 -> 18평
+            CreateStage(
+                9,
+                18,
+                10,
+                150000,
+                Rect1Based(1, 3, 4, 6)
+            ),
+
+            // 18평 -> 27평
+            CreateStage(
+                18,
+                27,
+                20,
+                600000,
+                Rect1Based(4, 6, 4, 6)
+            ),
+
+            // 27평 -> 36평
+            CreateStage(
+                27,
+                36,
+                30,
+                1500000,
+                Rect1Based(4, 6, 1, 3)
+            ),
+
+            // 36평 -> 45평
+            CreateStage(
+                36,
+                45,
+                40,
+                4000000,
+                Rect1Based(1, 3, 7, 9)
+            ),
+
+            // 45평 -> 54평
+            CreateStage(
+                45,
+                54,
+                50,
+                9000000,
+                Rect1Based(4, 6, 7, 9)
+            ),
+
+            // 54평 -> 63평
+            CreateStage(
+                54,
+                63,
+                60,
+                20000000,
+                Rect1Based(7, 9, 7, 9)
+            ),
+
+            // 63평 -> 72평
+            CreateStage(
+                63,
+                72,
+                70,
+                45000000,
+                Rect1Based(7, 9, 4, 6)
+            ),
+
+            // 72평 -> 90평
+            // 네가 준 좌표 중 7~9,1~3 9개 + 1~3,10~12 9개를 먼저 추가
+            CreateStage(
+                72,
+                90,
+                80,
+                90000000,
+                Combine(
+                    Rect1Based(7, 9, 1, 3),
+                    Rect1Based(1, 3, 10, 12)
+                )
+            ),
+
+            // 90평 -> 117평
+            // 남은 4~9,10~12 18개 + 10~12,10~12 9개
+            CreateStage(
+                90,
+                117,
+                90,
+                180000000,
+                Combine(
+                    Rect1Based(4, 9, 10, 12),
+                    Rect1Based(10, 12, 10, 12)
+                )
+            ),
+
+            // 117평 -> 144평
+            // 10~12,1~9 27개
+            CreateStage(
+                117,
+                144,
+                100,
+                400000000,
+                Rect1Based(10, 12, 1, 9)
+            )
         };
     }
 
@@ -86,7 +155,8 @@ public class LabExpansionManager : MonoBehaviour
         int currentArea,
         int nextArea,
         int requiredLabLevel,
-        long cost
+        long cost,
+        Vector2Int[] tilesToAdd
     )
     {
         LabExpansionData data = new LabExpansionData();
@@ -94,9 +164,46 @@ public class LabExpansionManager : MonoBehaviour
         data.nextArea = nextArea;
         data.requiredLabLevel = requiredLabLevel;
         data.cost = cost;
-        data.stageRoot = null;
+        data.tilesToAdd = tilesToAdd;
 
         return data;
+    }
+
+    private Vector2Int[] Rect1Based(int xMin, int xMax, int yMin, int yMax)
+    {
+        List<Vector2Int> positions = new List<Vector2Int>();
+
+        for (int x = xMin; x <= xMax; x++)
+        {
+            for (int y = yMin; y <= yMax; y++)
+            {
+                // 사용자가 준 좌표는 1부터 시작.
+                // LabGridManager 내부 좌표는 0부터 시작하므로 -1 처리.
+                positions.Add(new Vector2Int(x - 1, y - 1));
+            }
+        }
+
+        return positions.ToArray();
+    }
+
+    private Vector2Int[] Combine(params Vector2Int[][] groups)
+    {
+        List<Vector2Int> result = new List<Vector2Int>();
+
+        for (int i = 0; i < groups.Length; i++)
+        {
+            if (groups[i] == null)
+            {
+                continue;
+            }
+
+            for (int j = 0; j < groups[i].Length; j++)
+            {
+                result.Add(groups[i][j]);
+            }
+        }
+
+        return result.ToArray();
     }
 
     public int GetCurrentArea()
@@ -141,6 +248,12 @@ public class LabExpansionManager : MonoBehaviour
 
     public bool TryExpandLab()
     {
+        if (LabGridManager.Instance == null)
+        {
+            Debug.LogWarning("LabExpansionManager: LabGridManager.Instance가 없습니다.");
+            return false;
+        }
+
         LabExpansionData data = GetNextExpansionData();
 
         if (data == null)
@@ -154,9 +267,9 @@ public class LabExpansionManager : MonoBehaviour
         if (actualCurrentArea != data.currentArea)
         {
             Debug.LogWarning(
-                "연구실 확장 데이터 불일치: 현재 평수 " + actualCurrentArea +
-                " / 다음 확장 데이터의 시작 평수 " + data.currentArea +
-                "입니다. currentExpansionIndex 또는 expansionStages 순서를 확인하세요."
+                "연구실 확장 데이터 불일치: 현재 평수 " +
+                actualCurrentArea + " / 다음 확장 데이터 시작 평수 " +
+                data.currentArea
             );
         }
 
@@ -177,19 +290,15 @@ public class LabExpansionManager : MonoBehaviour
             return false;
         }
 
-        if (data.stageRoot == null)
+        if (data.tilesToAdd == null || data.tilesToAdd.Length == 0)
         {
-            Debug.LogWarning(
-                "연구실 확장 실패: " + data.currentArea + "평 -> " + data.nextArea +
-                "평 단계의 Stage Root가 비어 있습니다. Unity에서 직접 배치한 추가 타일/벽지 묶음을 연결하세요."
-            );
+            Debug.LogWarning("연구실 확장 실패: 추가할 타일 좌표가 없습니다.");
             return false;
         }
 
-        data.stageRoot.SetActive(true);
-        currentExpansionIndex++;
+        LabGridManager.Instance.ExpandGridByCoordinates(data.tilesToAdd);
 
-        RefreshGridAfterManualExpansion();
+        currentExpansionIndex++;
 
         Debug.Log(
             "연구실 확장 성공: " +
@@ -197,45 +306,6 @@ public class LabExpansionManager : MonoBehaviour
         );
 
         return true;
-    }
-
-    private void ApplyStageActiveStates()
-    {
-        if (disableLockedStagesOnStart == false)
-        {
-            return;
-        }
-
-        if (expansionStages == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < expansionStages.Length; i++)
-        {
-            LabExpansionData data = expansionStages[i];
-
-            if (data == null || data.stageRoot == null)
-            {
-                continue;
-            }
-
-            data.stageRoot.SetActive(i <= currentExpansionIndex);
-        }
-    }
-
-    private void RefreshGridAfterManualExpansion()
-    {
-        if (LabGridManager.Instance == null)
-        {
-            return;
-        }
-
-        LabGridManager.Instance.SendMessage("RefreshTilesFromScene", SendMessageOptions.DontRequireReceiver);
-        LabGridManager.Instance.SendMessage("RebuildTileCacheFromScene", SendMessageOptions.DontRequireReceiver);
-        LabGridManager.Instance.SendMessage("RefreshLabTilesFromScene", SendMessageOptions.DontRequireReceiver);
-        LabGridManager.Instance.SendMessage("ApplyEnvironmentFromCurrentLabLevel", SendMessageOptions.DontRequireReceiver);
-        LabGridManager.Instance.SendMessage("HidePlacementGrid", SendMessageOptions.DontRequireReceiver);
     }
 
     private int GetCurrentLabLevel()
