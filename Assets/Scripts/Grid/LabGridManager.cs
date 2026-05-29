@@ -101,7 +101,7 @@ public class LabGridManager : MonoBehaviour
 
     [Header("아이소메트릭 타일 간격")]
     [Tooltip("자동 계산을 사용할지 여부입니다. 일단 false 추천. 직접 눈으로 맞추는 게 더 확실합니다.")]
-    public bool autoCalculateTileSpacing = false;
+    public bool autoCalculateTileSpacing = true;
 
     [Tooltip("타일 중심 간 X 간격입니다. 타일이 좌우로 벌어지거나 겹치면 이 값을 조절합니다.")]
     public float manualTileHalfWidth = 1f;
@@ -229,6 +229,7 @@ public class LabGridManager : MonoBehaviour
     {
         Vector3 tileWorldPosition = GridToWorldPosition(x, y);
 
+
         GameObject tileObject = new GameObject("Tile_" + x + "_" + y);
         tileObject.transform.SetParent(tileParent);
         tileObject.transform.position = tileWorldPosition;
@@ -256,6 +257,7 @@ public class LabGridManager : MonoBehaviour
         labTile.baseRenderer = baseRenderer;
         labTile.gridOverlayRenderer = gridOverlayRenderer;
         labTile.Initialize(x, y);
+
         labTile.SetGridOverlayVisible(false);
 
         tiles[x, y] = labTile;

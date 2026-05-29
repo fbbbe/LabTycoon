@@ -92,4 +92,41 @@ public class TilePlaceableEquipmentObject : MonoBehaviour
                 return PlacementDirection.RD;
         }
     }
+
+    private void OnMouseDown()
+    {
+        if (EquipmentMoveManager.Instance != null &&
+            EquipmentMoveManager.Instance.IsMoving)
+        {
+            return;
+        }
+
+        Debug.Log("가구 클릭");
+
+        if (BuildingEditManager.Instance == null)
+        {
+            return;
+        }
+
+        if (!BuildingEditManager.Instance.IsEditMode)
+        {
+            return;
+        }
+
+        if (EquipmentMoveManager.Instance == null)
+        {
+            return;
+        }
+
+        PlaceableObject placeable = GetComponent<PlaceableObject>();
+
+        if (placeable == null)
+        {
+            placeable = gameObject.AddComponent<PlaceableObject>();
+            placeable.placedTile = placedTile;
+            placeable.isPlaced = true;
+        }
+
+        EquipmentMoveManager.Instance.StartMove(placeable);
+    }
 }
