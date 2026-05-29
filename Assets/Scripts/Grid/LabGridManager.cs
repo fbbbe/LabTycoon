@@ -2,22 +2,58 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
+/// 연구실 레벨 구간에 따라 적용할 바닥/벽/문 벽지 세트입니다.
+///
+/// 핵심 원칙:
+/// - 벽 오브젝트를 새로 만들거나 위치를 다시 계산하지 않는다.
+/// - 기존에 생성된 벽 SpriteRenderer의 sprite만 교체한다.
+/// - 맨 위 타일의 오른쪽 벽지만 doorWallRightSprite로 교체한다.
+/// </summary>
+[System.Serializable]
+public class LabEnvironmentTheme
+{
+    [Header("적용 레벨 구간")]
+    public int minLabLevel = 1;
+    public int maxLabLevel = 10;
+
+    [Header("테마 Sprite")]
+    public Sprite tileSprite;
+    public Sprite wallLeftSprite;
+    public Sprite wallRightSprite;
+    public Sprite doorWallRightSprite;
+}
+
+/// <summary>
 /// 연구실 바닥 타일 전체를 관리하는 스크립트.
-/// 
+///
 /// 현재 게임 규칙:
 /// - Tile.png 하나 = 1평
 /// - 게임 시작 시 기본 연구실 = 9평
 /// - 9평 = 3 x 3 타일
-/// 
+///
 /// 이 스크립트의 역할:
 /// 1. 게임이 시작되면 Tile.png를 9개 생성해서 연구실 바닥을 만든다.
 /// 2. 각 타일마다 LabTile.cs를 붙여서 좌표와 점유 상태를 관리한다.
 /// 3. 배치 모드일 때만 Tile_Grid.png를 타일 위에 표시한다.
-/// 4. 나중에 장비를 배치할 때 가장 가까운 타일 중심 좌표를 제공한다.
+/// 4. 연구실 레벨에 따라 바닥 타일/일반 벽지/문 포함 벽지 Sprite만 교체한다.
 /// </summary>
 public class LabGridManager : MonoBehaviour
 {
     public static LabGridManager Instance;
+
+    [Header("연구실 레벨별 환경 테마")]
+    [Tooltip("1~10, 11~90, 91~100 같은 레벨 구간별 바닥/벽/문 벽지 세트입니다.")]
+    public LabEnvironmentTheme[] environmentThemes;
+
+    [Tooltip("게임 시작 시 적용할 기본 연구실 레벨입니다. ResourceManager와 연결하기 전까지는 이 값을 사용합니다.")]
+    public int startLabLevelForTheme = 1;
+
+    [Header("문 포함 벽지 PNG 설정")]
+    [Tooltip("기존 오른쪽 벽지 중 하나를 이 Sprite로 대체합니다. 새 오브젝트를 만들지 않습니다.")]
+    public Sprite doorWallRightSprite;
+
+    [Tooltip("문 포함 벽지로 대체할 기존 오른쪽 벽지 인덱스입니다. 3x3 기준 0, 1, 2 중 하나입니다.")]
+    public int doorWallRightIndex = 0;
 
     [Header("벽지 PNG 설정")]
     [Tooltip("왼쪽 상단 벽에 사용할 PNG입니다. Wall_Left.png를 넣습니다.")]
@@ -91,14 +127,27 @@ public class LabGridManager : MonoBehaviour
     // 생성된 타일들을 좌표로 관리하기 위한 2차원 배열.
     private LabTile[,] tiles;
 
+    // foreach로 전체 타일을 안정적으로 순회하기 위한 리스트.
+    private readonly List<LabTile> allTiles = new List<LabTile>();
+
+    // 생성된 벽 SpriteRenderer 목록. 연구실 레벨에 따라 벽지를 교체할 때 사용한다.
+    private readonly List<SpriteRenderer> leftWallRenderers = new List<SpriteRenderer>();
+    private readonly List<SpriteRenderer> rightWallRenderers = new List<SpriteRenderer>();
+
+    // 맨 위 타일 오른쪽 윗면 벽지 Renderer.
+    // 이 Renderer의 sprite만 문 포함 벽지로 교체한다.
+    private SpriteRenderer doorWallRightRenderer;
+
+    [Header("검사 연출 전용 타일")]
+    [Tooltip("맨 위 타일입니다. 검사 연출용으로 예약되며 장비를 배치할 수 없습니다.")]
+    public LabTile inspectionTile;
+
     // 실제 계산에 사용할 타일 중심 간격.
     private float tileHalfWidth;
     private float tileHalfHeight;
 
     private void Awake()
     {
-        // 싱글톤 설정.
-        // 다른 스크립트에서 LabGridManager.Instance로 접근할 수 있게 한다.
         if (Instance != null)
         {
             Destroy(gameObject);
@@ -110,53 +159,32 @@ public class LabGridManager : MonoBehaviour
 
     private void Start()
     {
-        // 타일 간격을 계산한다.
         CalculateTileSpacing();
-
-        // 게임 시작 시 기본 9평 연구실 바닥을 생성한다.
         GenerateInitialLab();
-
-        // 바닥 타일이 생성된 뒤, 그 타일 좌표를 기준으로 벽지를 생성한다.
+        MarkInspectionTile();
         GenerateInitialWalls();
 
-        // 게임 시작 상태는 배치 모드가 아니므로 격자 테두리는 숨긴다.
+        ApplyEnvironmentFromCurrentLabLevel();
+        Invoke(nameof(ApplyEnvironmentFromCurrentLabLevel), 0.05f);
+
         HidePlacementGrid();
     }
 
-    /// <summary>
-    /// 타일 사이 간격을 계산한다.
-    /// 
-    /// autoCalculateTileSpacing이 true면 Sprite 크기를 기준으로 자동 계산한다.
-    /// 그런데 PNG 여백이나 아이소메트릭 형태에 따라 자동 계산이 어긋날 수 있어서,
-    /// 지금 프로젝트에서는 수동값을 추천한다.
-    /// </summary>
     private void CalculateTileSpacing()
     {
         if (autoCalculateTileSpacing && tileSprite != null)
         {
-            // Sprite의 Unity 월드 기준 크기를 가져온다.
             Vector2 spriteSize = tileSprite.bounds.size;
-
-            // 아이소메트릭 타일은 보통 중심 간격이 이미지 크기의 절반 정도다.
             tileHalfWidth = spriteSize.x * tileScale * 0.5f;
             tileHalfHeight = spriteSize.y * tileScale * 0.5f;
         }
         else
         {
-            // 수동으로 입력한 값을 사용한다.
             tileHalfWidth = manualTileHalfWidth;
             tileHalfHeight = manualTileHalfHeight;
         }
     }
 
-    /// <summary>
-    /// 게임 시작 시 기본 연구실을 생성한다.
-    /// 
-    /// 현재 기본값:
-    /// width = 3
-    /// height = 3
-    /// 따라서 Tile.png 9개가 생성된다.
-    /// </summary>
     public void GenerateInitialLab()
     {
         if (tileSprite == null)
@@ -171,14 +199,12 @@ public class LabGridManager : MonoBehaviour
             return;
         }
 
-        // 이미 생성된 타일이 있으면 중복 생성하지 않는다.
         if (tiles != null)
         {
             Debug.LogWarning("LabGridManager: 이미 타일이 생성되어 있습니다.");
             return;
         }
 
-        // 생성된 타일을 정리해서 담아둘 부모 오브젝트를 만든다.
         if (tileParent == null)
         {
             GameObject parentObject = new GameObject("GeneratedLabTiles");
@@ -188,8 +214,8 @@ public class LabGridManager : MonoBehaviour
         }
 
         tiles = new LabTile[width, height];
+        allTiles.Clear();
 
-        // 3 x 3 타일 생성.
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -199,28 +225,16 @@ public class LabGridManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 1평짜리 타일 하나를 생성한다.
-    /// 
-    /// 생성되는 구조:
-    /// Tile_0_0
-    /// ├── BaseTile     : Tile.png 표시
-    /// └── GridOverlay  : Tile_Grid.png 표시, 평소에는 숨김
-    /// </summary>
     private void CreateTile(int x, int y)
     {
-        // 격자 좌표를 실제 Unity 월드 좌표로 변환한다.
         Vector3 tileWorldPosition = GridToWorldPosition(x, y);
 
-        // 타일 루트 오브젝트 생성.
         GameObject tileObject = new GameObject("Tile_" + x + "_" + y);
         tileObject.transform.SetParent(tileParent);
         tileObject.transform.position = tileWorldPosition;
 
-        // 타일 상태를 관리하는 LabTile.cs 추가.
         LabTile labTile = tileObject.AddComponent<LabTile>();
 
-        // 기본 바닥 이미지 오브젝트 생성.
         GameObject baseTileObject = new GameObject("BaseTile");
         baseTileObject.transform.SetParent(tileObject.transform);
         baseTileObject.transform.localPosition = Vector3.zero;
@@ -230,7 +244,6 @@ public class LabGridManager : MonoBehaviour
         baseRenderer.sprite = tileSprite;
         baseRenderer.sortingOrder = baseTileOrder;
 
-        // 배치 모드용 흰색 테두리 오버레이 생성.
         GameObject gridOverlayObject = new GameObject("GridOverlay");
         gridOverlayObject.transform.SetParent(tileObject.transform);
         gridOverlayObject.transform.localPosition = Vector3.zero;
@@ -240,31 +253,15 @@ public class LabGridManager : MonoBehaviour
         gridOverlayRenderer.sprite = gridOverlaySprite;
         gridOverlayRenderer.sortingOrder = gridOverlayOrder;
 
-        // LabTile.cs에 렌더러 연결.
         labTile.baseRenderer = baseRenderer;
         labTile.gridOverlayRenderer = gridOverlayRenderer;
-
-        // 좌표 초기화.
         labTile.Initialize(x, y);
-
-        // 처음에는 반드시 GridOverlay를 숨긴다.
-        // 즉 게임 시작 시 Tile.png만 보이고 Tile_Grid.png는 보이지 않아야 한다.
         labTile.SetGridOverlayVisible(false);
 
-        // 배열에 저장.
         tiles[x, y] = labTile;
+        allTiles.Add(labTile);
     }
 
-    /// <summary>
-    /// 격자 좌표를 Unity 월드 좌표로 바꾼다.
-    /// 
-    /// 아이소메트릭 타일 배치 공식:
-    /// worldX = (x - y) 곱하기 tileHalfWidth
-    /// worldY = -(x + y) 곱하기 tileHalfHeight
-    /// 
-    /// x가 증가하면 오른쪽 아래로,
-    /// y가 증가하면 왼쪽 아래로 타일이 이어진다.
-    /// </summary>
     public Vector3 GridToWorldPosition(int x, int y)
     {
         float worldX = (x - y) * tileHalfWidth;
@@ -273,32 +270,16 @@ public class LabGridManager : MonoBehaviour
         return originPosition + new Vector3(worldX, worldY, 0f);
     }
 
-    /// <summary>
-    /// 배치 모드용 격자 테두리를 보여준다.
-    /// 
-    /// 장비 구매 후 배치 모드에 들어갈 때 호출할 함수다.
-    /// </summary>
     public void ShowPlacementGrid()
     {
         SetPlacementGridVisible(true);
     }
 
-    /// <summary>
-    /// 배치 모드용 격자 테두리를 숨긴다.
-    /// 
-    /// 게임 시작 상태, 배치 완료, 배치 취소 시 호출한다.
-    /// </summary>
     public void HidePlacementGrid()
     {
         SetPlacementGridVisible(false);
     }
 
-    /// <summary>
-    /// 모든 타일의 GridOverlay 표시 여부를 바꾼다.
-    /// 
-    /// true  = Tile_Grid.png 보임
-    /// false = Tile_Grid.png 숨김
-    /// </summary>
     private void SetPlacementGridVisible(bool visible)
     {
         if (tiles == null)
@@ -315,11 +296,6 @@ public class LabGridManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 월드 좌표에서 가장 가까운 타일을 찾는다.
-    /// 
-    /// 나중에 장비 미리보기를 마우스 위치에 따라 움직일 때 사용한다.
-    /// </summary>
     public LabTile GetNearestTile(Vector3 worldPosition)
     {
         if (tiles == null)
@@ -349,11 +325,6 @@ public class LabGridManager : MonoBehaviour
         return nearestTile;
     }
 
-    /// <summary>
-    /// 특정 위치에서 가장 가까운 타일 중심 좌표를 반환한다.
-    /// 
-    /// 장비를 이 위치에 놓으면 타일 중심에 딱 맞게 배치된다.
-    /// </summary>
     public Vector3 GetNearestTileCenterPosition(Vector3 worldPosition)
     {
         LabTile nearestTile = GetNearestTile(worldPosition);
@@ -366,10 +337,6 @@ public class LabGridManager : MonoBehaviour
         return nearestTile.GetCenterPosition();
     }
 
-    /// <summary>
-    /// 특정 타일에 장비를 놓을 수 있는지 검사한다.
-    /// 현재는 이미 점유된 타일인지 아닌지만 확인한다.
-    /// </summary>
     public bool CanPlaceOnTile(LabTile tile)
     {
         if (tile == null)
@@ -380,12 +347,6 @@ public class LabGridManager : MonoBehaviour
         return tile.CanPlaceObject();
     }
 
-    /// <summary>
-    /// 현재 마우스 위치에서 가장 가까운 연구실 타일을 반환한다.
-    /// 
-    /// 배치 모드에서는 타일 오브젝트를 직접 클릭하지 않고,
-    /// 마우스 월드 좌표를 가장 가까운 격자 칸으로 스냅하기 위해 이 함수를 사용한다.
-    /// </summary>
     public LabTile GetNearestTileFromMousePosition()
     {
         Camera mainCamera = Camera.main;
@@ -402,18 +363,6 @@ public class LabGridManager : MonoBehaviour
         return GetNearestTile(mouseWorldPosition);
     }
 
-    /// <summary>
-    /// 장비가 차지할 타일 목록을 계산한다.
-    /// 
-    /// 기준 타일 originTile에서 시작해서,
-    /// 장비의 차지 평수(spaceCost)만큼 현재 방향(direction)으로 이어지는 타일을 가져온다.
-    /// 
-    /// 방향 기준:
-    /// RD: x 증가 방향, 오른쪽 아래
-    /// LD: y 증가 방향, 왼쪽 아래
-    /// RU: x 감소 방향, 오른쪽 위
-    /// LU: y 감소 방향, 왼쪽 위
-    /// </summary>
     public List<LabTile> GetPlacementTiles(LabTile originTile, int spaceCost, PlacementDirection direction)
     {
         List<LabTile> result = new List<LabTile>();
@@ -445,11 +394,6 @@ public class LabGridManager : MonoBehaviour
         return result;
     }
 
-    /// <summary>
-    /// 특정 장비를 기준 타일에 현재 방향으로 배치할 수 있는지 검사한다.
-    /// 
-    /// 장비가 여러 평을 차지하면, 차지할 모든 타일이 존재하고 비어 있어야 한다.
-    /// </summary>
     public bool CanPlaceEquipment(LabTile originTile, int spaceCost, PlacementDirection direction)
     {
         List<LabTile> placementTiles = GetPlacementTiles(originTile, spaceCost, direction);
@@ -470,9 +414,6 @@ public class LabGridManager : MonoBehaviour
         return true;
     }
 
-    /// <summary>
-    /// 특정 장비가 차지하는 모든 타일을 점유 상태로 표시한다.
-    /// </summary>
     public void MarkEquipmentTilesOccupied(LabTile originTile, int spaceCost, PlacementDirection direction)
     {
         List<LabTile> placementTiles = GetPlacementTiles(originTile, spaceCost, direction);
@@ -486,9 +427,6 @@ public class LabGridManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 배치 방향을 격자 좌표 증가 방향으로 변환한다.
-    /// </summary>
     private Vector2Int GetPlacementDirectionStep(PlacementDirection direction)
     {
         switch (direction)
@@ -510,9 +448,6 @@ public class LabGridManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 장비 배치가 확정된 타일을 사용 중으로 표시한다.
-    /// </summary>
     public void MarkTileOccupied(LabTile tile)
     {
         if (tile == null)
@@ -523,25 +458,13 @@ public class LabGridManager : MonoBehaviour
         tile.SetOccupied(true);
     }
 
-    /// <summary>
-    /// 격자 좌표로 특정 타일을 가져온다.
-    /// 
-    /// 예:
-    /// GetTile(1, 1)
-    /// → 3x3 연구실의 가운데 타일을 가져온다.
-    /// 
-    /// 이 함수는 게임 시작 시 낡은 노트북을 특정 위치에 배치하거나,
-    /// 나중에 저장 데이터를 불러와 장비를 복원할 때 사용한다.
-    /// </summary>
     public LabTile GetTile(int x, int y)
     {
-        // 아직 타일 배열이 생성되지 않았다면 null 반환
         if (tiles == null)
         {
             return null;
         }
 
-        // 범위 밖 좌표면 null 반환
         if (x < 0 || y < 0 || x >= width || y >= height)
         {
             return null;
@@ -549,18 +472,10 @@ public class LabGridManager : MonoBehaviour
 
         return tiles[x, y];
     }
+
     /// <summary>
-    /// 게임 시작 시 연구실 벽지를 생성한다.
-    /// 
-    /// 현재 규칙:
-    /// - 왼쪽 벽지는 x = 0 라인의 타일 윗왼쪽 변에 붙인다.
-    /// - 오른쪽 벽지는 y = 0 라인의 타일 윗오른쪽 변에 붙인다.
-    /// - 벽지 PNG는 타일보다 커도 된다.
-    /// - 중요한 것은 벽지의 밑면이 타일의 윗변과 맞는 것이다.
-    /// 
-    /// 벽지 위치는:
-    /// 타일 윗변 기준점 + wallLeftOffset / wallRightOffset
-    /// 으로 조정한다.
+    /// 게임 시작 시 벽지를 한 번만 생성한다.
+    /// 이후 레벨 테마가 바뀌어도 벽 오브젝트는 다시 만들지 않고 Sprite만 교체한다.
     /// </summary>
     public void GenerateInitialWalls()
     {
@@ -582,6 +497,11 @@ public class LabGridManager : MonoBehaviour
             return;
         }
 
+        if (doorWallRightSprite == null)
+        {
+            doorWallRightSprite = wallRightSprite;
+        }
+
         if (wallParent == null)
         {
             GameObject parentObject = new GameObject("GeneratedLabWalls");
@@ -590,72 +510,77 @@ public class LabGridManager : MonoBehaviour
             wallParent = parentObject.transform;
         }
 
-        // 왼쪽 상단 벽 생성
-        // x = 0 라인: (0,0), (0,1), (0,2)
+        leftWallRenderers.Clear();
+        rightWallRenderers.Clear();
+        doorWallRightRenderer = null;
+
         for (int y = 0; y < height; y++)
         {
             LabTile tile = GetTile(0, y);
 
             if (tile != null)
             {
-                // 타일의 왼쪽 윗변 기준점에 Wall_Left 전용 위치 보정을 더한다.
                 Vector3 wallPosition = GetTileTopLeftEdgeCenter(tile) + wallLeftOffset;
 
-                CreateWall(
+                SpriteRenderer wallRenderer = CreateWall(
                     "Wall_Left_" + y,
                     wallLeftSprite,
                     wallPosition
                 );
+
+                if (wallRenderer != null)
+                {
+                    leftWallRenderers.Add(wallRenderer);
+                }
             }
         }
 
-        // 오른쪽 상단 벽 생성
-        // y = 0 라인: (0,0), (1,0), (2,0)
         for (int x = 0; x < width; x++)
         {
             LabTile tile = GetTile(x, 0);
 
             if (tile != null)
             {
-                // 타일의 오른쪽 윗변 기준점에 Wall_Right 전용 위치 보정을 더한다.
                 Vector3 wallPosition = GetTileTopRightEdgeCenter(tile) + wallRightOffset;
 
-                CreateWall(
+                SpriteRenderer wallRenderer = CreateWall(
                     "Wall_Right_" + x,
                     wallRightSprite,
                     wallPosition
                 );
+
+                if (wallRenderer != null)
+                {
+                    // 기존 오른쪽 벽지 중 doorWallRightIndex에 해당하는 벽지만 문 포함 벽지로 대체한다.
+                    // 새 문 벽지를 추가로 생성하지 않는다.
+                    if (x == doorWallRightIndex)
+                    {
+                        doorWallRightRenderer = wallRenderer;
+                        doorWallRightRenderer.sprite = doorWallRightSprite != null ? doorWallRightSprite : wallRightSprite;
+                    }
+                    else
+                    {
+                        rightWallRenderers.Add(wallRenderer);
+                    }
+                }
             }
         }
     }
 
-    /// <summary>
-    /// 벽지 오브젝트 하나를 생성한다.
-    /// 
-    /// wallSprite는 Wall_Left.png 또는 Wall_Right.png이고,
-    /// worldPosition은 타일 끝선을 기준으로 계산된 위치다.
-    /// </summary>
-    private void CreateWall(string wallName, Sprite wallSprite, Vector3 worldPosition)
+    private SpriteRenderer CreateWall(string wallName, Sprite wallSprite, Vector3 worldPosition)
     {
         GameObject wallObject = new GameObject(wallName);
         wallObject.transform.SetParent(wallParent);
         wallObject.transform.position = worldPosition;
-
-        // 벽지 크기.
-        // 벽지 PNG 밑면이 타일 길이와 맞게 제작되어 있다면 1로 둔다.
         wallObject.transform.localScale = Vector3.one * wallScale;
 
         SpriteRenderer spriteRenderer = wallObject.AddComponent<SpriteRenderer>();
         spriteRenderer.sprite = wallSprite;
         spriteRenderer.sortingOrder = wallOrder;
+
+        return spriteRenderer;
     }
-    /// <summary>
-    /// 특정 타일의 왼쪽 윗변 중앙 위치를 반환한다.
-    /// 
-    /// Wall_Left.png를 붙일 기준점이다.
-    /// 여기서 반환되는 위치는 "타일 중심"이 아니라
-    /// 타일 왼쪽 위 모서리 방향의 변 중앙이다.
-    /// </summary>
+
     public Vector3 GetTileTopLeftEdgeCenter(LabTile tile)
     {
         if (tile == null)
@@ -674,11 +599,6 @@ public class LabGridManager : MonoBehaviour
         return tileCenter + edgeOffset;
     }
 
-    /// <summary>
-    /// 특정 타일의 오른쪽 윗변 중앙 위치를 반환한다.
-    /// 
-    /// Wall_Right.png를 붙일 기준점이다.
-    /// </summary>
     public Vector3 GetTileTopRightEdgeCenter(LabTile tile)
     {
         if (tile == null)
@@ -697,25 +617,6 @@ public class LabGridManager : MonoBehaviour
         return tileCenter + edgeOffset;
     }
 
-    /// <summary>
-    /// 타일 좌표를 기준으로 SpriteRenderer의 Sorting Order를 계산한다.
-    /// 
-    /// Unity 2D에서는 sortingOrder 값이 클수록 화면 앞에 보인다.
-    /// 
-    /// 현재 정렬 규칙:
-    /// 1. y값이 작은 타일에 있는 물체가 더 앞에 온다.
-    /// 2. y값이 같다면 x값이 작은 타일에 있는 물체가 더 앞에 온다.
-    /// 3. x와 y 기준이 충돌하면 y값 기준을 우선한다.
-    /// 
-    /// 예:
-    /// (0, 0) → 가장 앞쪽 우선
-    /// (1, 0) → 그다음
-    /// (0, 1) → y가 더 크므로 뒤쪽
-    /// 
-    /// y에 100을 곱하는 이유:
-    /// x 차이보다 y 차이를 훨씬 크게 반영하기 위해서다.
-    /// 즉, y 기준이 x 기준보다 우선된다.
-    /// </summary>
     public int GetSortingOrderByTile(int tileX, int tileY)
     {
         int baseOrder = 1000;
@@ -723,9 +624,6 @@ public class LabGridManager : MonoBehaviour
         return baseOrder - tileY * 100 - tileX;
     }
 
-    /// <summary>
-    /// LabTile을 직접 받아서 Sorting Order를 계산한다.
-    /// </summary>
     public int GetSortingOrderByTile(LabTile tile)
     {
         if (tile == null)
@@ -734,5 +632,177 @@ public class LabGridManager : MonoBehaviour
         }
 
         return GetSortingOrderByTile(tile.gridX, tile.gridY);
+    }
+
+    private LabTile FindTopTile()
+    {
+        LabTile topTile = null;
+        float highestWorldY = float.MinValue;
+
+        for (int i = 0; i < allTiles.Count; i++)
+        {
+            LabTile tile = allTiles[i];
+
+            if (tile == null)
+            {
+                continue;
+            }
+
+            float tileWorldY = tile.GetCenterPosition().y;
+
+            if (topTile == null || tileWorldY > highestWorldY)
+            {
+                topTile = tile;
+                highestWorldY = tileWorldY;
+            }
+        }
+
+        return topTile;
+    }
+
+    private void MarkInspectionTile()
+    {
+        inspectionTile = FindTopTile();
+
+        if (inspectionTile == null)
+        {
+            Debug.LogWarning("LabGridManager: 검사 연출용 타일을 찾지 못했습니다.");
+            return;
+        }
+
+        inspectionTile.tileRole = LabTileRole.InspectionZone;
+        inspectionTile.SetOccupied(false);
+
+        Debug.Log("검사 연출용 타일 지정: " + inspectionTile.name);
+    }
+
+    public LabEnvironmentTheme GetThemeByLabLevel(int labLevel)
+    {
+        if (environmentThemes == null || environmentThemes.Length == 0)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < environmentThemes.Length; i++)
+        {
+            LabEnvironmentTheme theme = environmentThemes[i];
+
+            if (theme == null)
+            {
+                continue;
+            }
+
+            if (labLevel >= theme.minLabLevel && labLevel <= theme.maxLabLevel)
+            {
+                return theme;
+            }
+        }
+
+        return environmentThemes[environmentThemes.Length - 1];
+    }
+
+    public void ApplyEnvironmentByLabLevel(int labLevel)
+    {
+        LabEnvironmentTheme theme = GetThemeByLabLevel(labLevel);
+
+        if (theme == null)
+        {
+            return;
+        }
+
+        if (theme.tileSprite != null)
+        {
+            tileSprite = theme.tileSprite;
+            ApplyTileSprites(theme.tileSprite);
+        }
+
+        if (theme.wallLeftSprite != null)
+        {
+            wallLeftSprite = theme.wallLeftSprite;
+        }
+
+        if (theme.wallRightSprite != null)
+        {
+            wallRightSprite = theme.wallRightSprite;
+        }
+
+        if (theme.doorWallRightSprite != null)
+        {
+            doorWallRightSprite = theme.doorWallRightSprite;
+        }
+
+        ApplyWallSprites(wallLeftSprite, wallRightSprite, doorWallRightSprite);
+    }
+
+    private void ApplyTileSprites(Sprite newTileSprite)
+    {
+        if (newTileSprite == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < allTiles.Count; i++)
+        {
+            LabTile tile = allTiles[i];
+
+            if (tile != null && tile.baseRenderer != null)
+            {
+                tile.baseRenderer.sprite = newTileSprite;
+            }
+        }
+    }
+
+    private void ApplyWallSprites(Sprite newLeftWallSprite, Sprite newRightWallSprite, Sprite newDoorWallRightSprite)
+    {
+        for (int i = 0; i < leftWallRenderers.Count; i++)
+        {
+            if (leftWallRenderers[i] != null && newLeftWallSprite != null)
+            {
+                leftWallRenderers[i].sprite = newLeftWallSprite;
+            }
+        }
+
+        for (int i = 0; i < rightWallRenderers.Count; i++)
+        {
+            if (rightWallRenderers[i] != null && newRightWallSprite != null)
+            {
+                rightWallRenderers[i].sprite = newRightWallSprite;
+            }
+        }
+
+        if (doorWallRightRenderer != null)
+        {
+            // 기존 오른쪽 벽지 하나의 Sprite만 문 포함 벽지로 대체한다.
+            // 위치, 스케일, 오브젝트 개수는 건드리지 않는다.
+            if (newDoorWallRightSprite != null)
+            {
+                doorWallRightRenderer.sprite = newDoorWallRightSprite;
+            }
+            else if (newRightWallSprite != null)
+            {
+                doorWallRightRenderer.sprite = newRightWallSprite;
+            }
+        }
+        else
+        {
+            Debug.LogWarning("LabGridManager: 문 벽지로 대체할 오른쪽 벽 Renderer가 없습니다. Door Wall Right Index 값을 확인하세요.");
+        }
+    }
+
+    public void ApplyEnvironmentFromCurrentLabLevel()
+    {
+        int currentLabLevel = GetCurrentLabLevelForTheme();
+        ApplyEnvironmentByLabLevel(currentLabLevel);
+        Debug.Log("연구실 환경 테마 적용: Lv." + currentLabLevel);
+    }
+
+    private int GetCurrentLabLevelForTheme()
+    {
+        if (ResourceManager.Instance != null)
+        {
+            return ResourceManager.Instance.labLevel;
+        }
+
+        return startLabLevelForTheme;
     }
 }

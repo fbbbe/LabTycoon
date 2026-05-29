@@ -47,6 +47,9 @@ public class WorkstationWorldUI : MonoBehaviour
     public Vector3 stressOffsetLeftDown = new Vector3(0f, 1.35f, 0f);
     public Vector3 stressOffsetLeftUp = new Vector3(0f, 1.35f, 0f);
 
+    [Header("휴식 아이콘")]
+    public Image restIconImage;
+
 
     private void Awake()
     {
@@ -70,6 +73,12 @@ public class WorkstationWorldUI : MonoBehaviour
         {
             cleaningButton.onClick.RemoveAllListeners();
             cleaningButton.onClick.AddListener(OnClickCleaningButton);
+        }
+
+        if (restIconImage != null)
+        {
+            restIconImage.gameObject.SetActive(false);
+            restIconImage.raycastTarget = true;
         }
     }
 
@@ -200,6 +209,12 @@ public class WorkstationWorldUI : MonoBehaviour
             return;
         }
 
+        if (IsCurrentStaffResting())
+        {
+            Debug.Log("휴식 중인 인력은 과제를 수행할 수 없습니다.");
+            return;
+        }
+
         Debug.Log("과제하기 버튼 클릭됨");
         taskController.StartTask();
     }
@@ -216,6 +231,12 @@ public class WorkstationWorldUI : MonoBehaviour
             return;
         }
 
+        if (IsCurrentStaffResting())
+        {
+            Debug.Log("휴식 중인 인력은 검사를 받을 수 없습니다.");
+            return;
+        }
+
         Debug.Log("검사받기 버튼 클릭됨");
         taskController.StartInspection();
     }
@@ -224,6 +245,12 @@ public class WorkstationWorldUI : MonoBehaviour
     {
         if (ResolveTaskController() == false)
         {
+            return;
+        }
+
+        if (IsCurrentStaffResting())
+        {
+            Debug.Log("휴식 중인 인력은 청소를 할 수 없습니다.");
             return;
         }
 
@@ -488,5 +515,83 @@ public class WorkstationWorldUI : MonoBehaviour
         }
 
         rectTransform.localPosition = offset;
+    }
+
+    /// <summary>
+    /// 휴식 중일 때 기존 과제/검사/청소 버튼 위를 덮는 휴식 아이콘을 표시한다.
+    /// 기존 버튼을 삭제하지 않고 아이콘만 위에 올려서 가린다.
+    /// </summary>
+    public void ShowRestIcon(Sprite icon)
+    {
+        if (restIconImage == null)
+        {
+            Debug.LogWarning("WorkstationWorldUI: Rest Icon Image가 연결되지 않았습니다.");
+            return;
+        }
+
+        if (icon != null)
+        {
+            restIconImage.sprite = icon;
+        }
+
+        restIconImage.raycastTarget = true;
+        restIconImage.gameObject.SetActive(true);
+        restIconImage.transform.SetAsLastSibling();
+    }
+
+    /// <summary>
+    /// 휴식이 끝나면 휴식 아이콘을 숨긴다.
+    /// 기존 과제/검사/청소 버튼 상태는 WorkstationTaskController의 Refresh 흐름이 유지한다.
+    /// </summary>
+    public void HideRestIcon()
+    {
+        if (restIconImage == null)
+        {
+            return;
+        }
+
+        restIconImage.gameObject.SetActive(false);
+    }
+
+    /// <summary>
+    /// StaffRestController처럼 WorkstationObject를 모르는 외부 코드가 스트레스 숫자 갱신을 요청할 때 사용한다.
+    /// 현재 연결된 taskController의 workstation을 기준으로 갱신한다.
+    /// </summary>
+    public void RefreshStressText()
+    {
+        if (ResolveTaskController() == false)
+        {
+            return;
+        }
+
+        if (taskController == null || taskController.workstation == null)
+        {
+            return;
+        }
+
+        RefreshStressText(taskController.taskState, taskController.workstation);
+    }
+
+    /// <summary>
+    /// 현재 Workstation에 앉은 인력이 휴식 중인지 확인한다.
+    /// </summary>
+    private bool IsCurrentStaffResting()
+    {
+        if (ResolveTaskController() == false)
+        {
+            return false;
+        }
+
+        if (taskController == null || taskController.workstation == null || taskController.workstation.seatedStaff == null)
+        {
+            return false;
+        }
+
+        if (StaffRestController.Instance == null)
+        {
+            return false;
+        }
+
+        return StaffRestController.Instance.IsStaffResting(taskController.workstation.seatedStaff);
     }
 }

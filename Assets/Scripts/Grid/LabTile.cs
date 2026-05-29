@@ -1,6 +1,17 @@
 using UnityEngine;
 
 /// <summary>
+/// 연구실 타일의 역할입니다.
+/// Normal은 일반 배치 가능 타일이고,
+/// InspectionZone은 과제 검사 연출 전용 타일이라 장비 배치가 불가능합니다.
+/// </summary>
+public enum LabTileRole
+{
+    Normal,
+    InspectionZone
+}
+
+/// <summary>
 /// 연구실 바닥 타일 하나를 담당하는 스크립트.
 /// 
 /// Tile.png 하나가 1평이므로,
@@ -23,6 +34,9 @@ public class LabTile : MonoBehaviour
     [Tooltip("배치 모드에서만 보이는 Tile_Grid.png 렌더러입니다.")]
     public SpriteRenderer gridOverlayRenderer;
 
+    [Header("타일 역할")]
+    public LabTileRole tileRole = LabTileRole.Normal;
+
     /// <summary>
     /// 타일 좌표를 초기화한다.
     /// </summary>
@@ -31,6 +45,7 @@ public class LabTile : MonoBehaviour
         gridX = x;
         gridY = y;
         isOccupied = false;
+        tileRole = LabTileRole.Normal;
     }
 
     /// <summary>
@@ -55,9 +70,15 @@ public class LabTile : MonoBehaviour
 
     /// <summary>
     /// 이 타일에 장비를 배치할 수 있는지 확인한다.
+    /// 검사 연출 전용 타일이거나 이미 점유된 타일이면 배치할 수 없다.
     /// </summary>
     public bool CanPlaceObject()
     {
+        if (tileRole != LabTileRole.Normal)
+        {
+            return false;
+        }
+
         return isOccupied == false;
     }
 
@@ -72,9 +93,20 @@ public class LabTile : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (UIBlocker.Instance != null && UIBlocker.Instance.IsBlockingWorldInput())
+        {
+            return;
+        }
+
         if (TileEquipmentPlacementManager.Instance != null &&
             TileEquipmentPlacementManager.Instance.isSelectingTile)
         {
+            if (CanPlaceObject() == false)
+            {
+                Debug.Log("배치 불가: 이 타일에는 장비를 배치할 수 없습니다. 타일 역할: " + tileRole + " / 점유 상태: " + isOccupied);
+                return;
+            }
+
             TileEquipmentPlacementManager.Instance.TryPlaceToTile(this);
             return;
         }

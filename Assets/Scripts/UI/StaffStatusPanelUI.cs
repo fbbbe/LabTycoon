@@ -235,10 +235,13 @@ public class StaffStatusPanelUI : MonoBehaviour
             return;
         }
 
-        Debug.Log("스트레스 감소시키기 버튼 클릭: " + selectedStaff.staffName);
+        if (RestActionPanelUI.Instance == null)
+        {
+            Debug.LogWarning("RestActionPanelUI.Instance가 없습니다. Canvas에 RestActionPanelUI를 추가하세요.");
+            return;
+        }
 
-        // 나중에 스트레스 감소 창 열기로 연결.
-        // 예: StressRestPanelUI.Instance.Open(selectedStaff);
+        RestActionPanelUI.Instance.Open(selectedStaff);
     }
 
     private void OnClickLevelUpButton()
