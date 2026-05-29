@@ -286,32 +286,39 @@ public class WorkstationObject : MonoBehaviour
     /// 이걸 쓰면 RD/RU/LD/LU마다 책상과 의자 위치를 따로 저장할 수 있다.
     /// </summary>
     private void ApplyLocalPositions(WorkstationDirectionSetting setting)
+{
+    Vector3 visualOffset = new Vector3(0f, 0.2f, 0f);
+
+    if (deskRenderer != null)
     {
-        if (deskRenderer != null)
-        {
-            deskRenderer.transform.localPosition = setting.deskLocalPosition;
-        }
-
-        if (chairRenderer != null)
-        {
-            chairRenderer.transform.localPosition = setting.chairLocalPosition;
-        }
-
-        if (equipmentSlot != null)
-        {
-            equipmentSlot.localPosition = setting.equipmentSlotLocalPosition;
-        }
-
-        if (seatPoint != null)
-        {
-            seatPoint.localPosition = setting.seatPointLocalPosition;
-        }
-
-        if (deskEquipmentRenderer != null)
-        {
-            deskEquipmentRenderer.transform.localPosition = setting.equipmentSlotLocalPosition;
-        }
+        deskRenderer.transform.localPosition =
+            setting.deskLocalPosition + visualOffset;
     }
+
+    if (chairRenderer != null)
+    {
+        chairRenderer.transform.localPosition =
+            setting.chairLocalPosition + visualOffset;
+    }
+
+    if (equipmentSlot != null)
+    {
+        equipmentSlot.localPosition =
+            setting.equipmentSlotLocalPosition + visualOffset;
+    }
+
+    if (seatPoint != null)
+    {
+        seatPoint.localPosition =
+            setting.seatPointLocalPosition + visualOffset;
+    }
+
+    if (deskEquipmentRenderer != null)
+    {
+        deskEquipmentRenderer.transform.localPosition =
+            setting.equipmentSlotLocalPosition + visualOffset;
+    }
+}
 
     /// <summary>
     /// 방향별 앞뒤 순서를 적용한다.
@@ -740,8 +747,16 @@ public class WorkstationObject : MonoBehaviour
             return;
         }
 
-        // 장비 위치를 현재 방향 설정의 EquipmentSlot 위치로 맞춘다.
-        deskEquipmentObject.transform.localPosition = setting.equipmentSlotLocalPosition;
+        if (equipmentSlot != null)
+        {
+            deskEquipmentObject.transform.localPosition =
+                equipmentSlot.localPosition;
+        }
+        else
+        {
+            deskEquipmentObject.transform.localPosition =
+                setting.equipmentSlotLocalPosition;
+        }
 
         if (deskEquipmentObject.spriteRenderer != null)
         {
@@ -749,7 +764,6 @@ public class WorkstationObject : MonoBehaviour
                 GetFinalSortingOrder(setting.deskEquipmentSortingOrder);
         }
 
-        // 장비 데이터가 설치되어 있다면 현재 Workstation 방향에 맞는 Sprite를 적용한다.
         deskEquipmentObject.ApplyDirection(currentDirection);
     }
 

@@ -151,7 +151,8 @@ public class TileEquipmentPlacementManager : MonoBehaviour
 
         if (previewObject != null)
         {
-            previewObject.transform.position = currentPreviewTile.GetCenterPosition();
+            previewObject.transform.position =
+            currentPreviewTile.GetCenterPosition();
         }
 
         bool canPlace = CanPlaceOnCurrentPreviewTile();
@@ -397,10 +398,10 @@ public class TileEquipmentPlacementManager : MonoBehaviour
         }
 
         GameObject obj = Instantiate(
-    prefab,
-    tile.GetCenterPosition(),
-    Quaternion.identity
-);
+            prefab,
+            tile.GetCenterPosition(),
+            Quaternion.identity
+        );
 
         obj.name = pendingTileEquipment.equipmentName;
 
