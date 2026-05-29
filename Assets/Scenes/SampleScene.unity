@@ -5094,7 +5094,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingMoney: 99999999999999
   startingResearchResult: 0
-  startingLabLevel: 10
+  startingLabLevel: 100
   money: 0
   researchResult: 0
   labLevel: 0
