@@ -65,7 +65,7 @@ public class LabGridManager : MonoBehaviour
 
     [Header("아이소메트릭 타일 간격")]
     [Tooltip("자동 계산을 사용할지 여부입니다. 일단 false 추천. 직접 눈으로 맞추는 게 더 확실합니다.")]
-    public bool autoCalculateTileSpacing = false;
+    public bool autoCalculateTileSpacing = true;
 
     [Tooltip("타일 중심 간 X 간격입니다. 타일이 좌우로 벌어지거나 겹치면 이 값을 조절합니다.")]
     public float manualTileHalfWidth = 1f;
@@ -212,6 +212,9 @@ public class LabGridManager : MonoBehaviour
         // 격자 좌표를 실제 Unity 월드 좌표로 변환한다.
         Vector3 tileWorldPosition = GridToWorldPosition(x, y);
 
+        
+
+
         // 타일 루트 오브젝트 생성.
         GameObject tileObject = new GameObject("Tile_" + x + "_" + y);
         tileObject.transform.SetParent(tileParent);
@@ -246,6 +249,11 @@ public class LabGridManager : MonoBehaviour
 
         // 좌표 초기화.
         labTile.Initialize(x, y);
+
+        if (x == 0 && y == 0)
+        {
+            labTile.SetOccupied(true);
+        }
 
         // 처음에는 반드시 GridOverlay를 숨긴다.
         // 즉 게임 시작 시 Tile.png만 보이고 Tile_Grid.png는 보이지 않아야 한다.
