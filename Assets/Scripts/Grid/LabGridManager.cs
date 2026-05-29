@@ -889,4 +889,121 @@ public class LabGridManager : MonoBehaviour
 
         return startLabLevelForTheme;
     }
+
+    /// <summary>
+    /// 현재 연구실 평수를 반환한다.
+    /// Tile 1개 = 1평 기준이다.
+    /// </summary>
+    public int GetCurrentArea()
+    {
+        if (tiles == null)
+        {
+            return width * height;
+        }
+
+        return allTiles.Count;
+    }
+
+    /// <summary>
+    /// 연구실을 지정한 크기까지 확장한다.
+    /// 기존 타일은 유지하고, 새로 필요한 좌표의 타일만 추가 생성한다.
+    /// </summary>
+    public void ExpandGridToSize(int newWidth, int newHeight)
+    {
+        if (newWidth <= width && newHeight <= height)
+        {
+            Debug.Log("연구실 확장 불가: 현재 크기보다 크지 않습니다.");
+            return;
+        }
+
+        if (newWidth < width || newHeight < height)
+        {
+            Debug.LogWarning("연구실 축소는 지원하지 않습니다.");
+            return;
+        }
+
+        if (tiles == null)
+        {
+            GenerateInitialLab();
+            GenerateInitialWalls();
+            return;
+        }
+
+        if (inspectionTile != null)
+        {
+            inspectionTile.tileRole = LabTileRole.Normal;
+        }
+
+        LabTile[,] oldTiles = tiles;
+        int oldWidth = width;
+        int oldHeight = height;
+
+        LabTile[,] newTiles = new LabTile[newWidth, newHeight];
+
+        for (int y = 0; y < oldHeight; y++)
+        {
+            for (int x = 0; x < oldWidth; x++)
+            {
+                newTiles[x, y] = oldTiles[x, y];
+            }
+        }
+
+        tiles = newTiles;
+        width = newWidth;
+        height = newHeight;
+
+        for (int y = 0; y < newHeight; y++)
+        {
+            for (int x = 0; x < newWidth; x++)
+            {
+                if (tiles[x, y] == null)
+                {
+                    CreateTile(x, y);
+                }
+            }
+        }
+
+        RebuildWalls();
+        MarkInspectionTile();
+        ApplyEnvironmentFromCurrentLabLevel();
+        HidePlacementGrid();
+
+        Debug.Log("연구실 확장 완료: " + GetCurrentArea() + "평 / 크기 " + width + " x " + height);
+    }
+
+    /// <summary>
+    /// 확장 후 벽지는 전체 연구실 크기를 기준으로 다시 생성한다.
+    /// 타일은 유지하고 벽 오브젝트만 삭제 후 재생성한다.
+    /// </summary>
+    private void RebuildWalls()
+    {
+        ClearGeneratedWalls();
+        GenerateInitialWalls();
+    }
+
+    private void ClearGeneratedWalls()
+    {
+        leftWallRenderers.Clear();
+        rightWallRenderers.Clear();
+        doorWallRightRenderer = null;
+
+        if (wallParent == null)
+        {
+            return;
+        }
+
+        for (int i = wallParent.childCount - 1; i >= 0; i--)
+        {
+            Transform child = wallParent.GetChild(i);
+
+            if (Application.isPlaying)
+            {
+                Destroy(child.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(child.gameObject);
+            }
+        }
+    }
 }
