@@ -433,7 +433,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.000014901, y: 34.7}
   m_SizeDelta: {x: 233.20312, y: 187.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5449860285923132431
@@ -654,7 +654,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.000014901, y: 34.7}
   m_SizeDelta: {x: 233.20312, y: 187.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1696677993345877569
@@ -788,7 +788,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -0.000014901, y: 34.7}
   m_SizeDelta: {x: 233.20312, y: 187.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2902725440539178202
@@ -1016,10 +1016,10 @@ MonoBehaviour:
   leftDownOffset: {x: 0.443, y: 1.211, z: 0}
   leftUpOffset: {x: 0.4, y: 0.81, z: 0}
   stressText: {fileID: 2647582438518318661}
-  stressOffsetRightDown: {x: 87.8, y: -138.8, z: 0}
-  stressOffsetRightUp: {x: 87.8, y: -138.8, z: 0}
-  stressOffsetLeftDown: {x: 87.8, y: -138.8, z: 0}
-  stressOffsetLeftUp: {x: 87.8, y: -138.8, z: 0}
+  stressOffsetRightDown: {x: 87.8, y: -130, z: 0}
+  stressOffsetRightUp: {x: 87.8, y: -130, z: 0}
+  stressOffsetLeftDown: {x: 87.8, y: -130, z: 0}
+  stressOffsetLeftUp: {x: 87.8, y: -130, z: 0}
   restIconImage: {fileID: 1930626557910067544}
   stressOverloadIconImage: {fileID: 8852399591259557164}
 --- !u!1 &7223803271490003372
@@ -1056,7 +1056,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -12.1}
+  m_AnchoredPosition: {x: -0.000014901, y: 34.7}
   m_SizeDelta: {x: 233.2031, y: 187.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3877548898568023865
@@ -1300,11 +1300,17 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 0, y: 1}
-      - {x: -0.95105654, y: 0.30901697}
-      - {x: -0.5877852, y: -0.80901706}
-      - {x: 0.58778536, y: -0.80901694}
-      - {x: 0.9510565, y: 0.30901712}
+    - - {x: 0.8060237, y: 0.7432567}
+      - {x: -0.14808519, y: 0.9959977}
+      - {x: -0.63541776, y: 1.4977939}
+      - {x: -1.0146711, y: 0.89186466}
+      - {x: -0.8550013, y: 0.21696402}
+      - {x: -0.60131353, y: 0.03979969}
+      - {x: -0.33290064, y: -0.14064786}
+      - {x: -0.091704905, y: -0.26680845}
+      - {x: 0.105868205, y: -0.5843927}
+      - {x: 0.84916514, y: -0.20133013}
+      - {x: 1.3072612, y: 0.40107018}
   m_UseDelaunayMesh: 0
 --- !u!114 &8026707425307095953
 MonoBehaviour:
@@ -1365,7 +1371,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1.6, y: -4}
+  m_AnchoredPosition: {x: -0.000014901, y: 34.7}
   m_SizeDelta: {x: 233.20312, y: 187.5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6885742485829908302
