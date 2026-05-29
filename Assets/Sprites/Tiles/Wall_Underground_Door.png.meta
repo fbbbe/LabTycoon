@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: d1b5fd74e1e994002aba5e733bc3ddc8
+guid: 9a26aa0c481be4e6aa98d5230fced524
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6559201998954620630
-    second: Wall_Ground_R_0
+      213: -9148047979788494901
+    second: Wall_Underground_Door_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -126,7 +126,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wall_Ground_R_0
+      name: Wall_Underground_Door_0
       rect:
         serializedVersion: 2
         x: 6
@@ -141,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a29174ab88809f4a0800000000000000
-      internalID: -6559201998954620630
+      spriteID: bc71a70b4da9b0180800000000000000
+      internalID: -9148047979788494901
       vertices: []
       indices: 
       edges: []
@@ -161,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Wall_Ground_R_0: -6559201998954620630
+      Wall_Underground_Door_0: -9148047979788494901
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
