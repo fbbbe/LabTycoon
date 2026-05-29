@@ -7,6 +7,8 @@ public class EquipmentMoveManager : MonoBehaviour
     private PlaceableObject movingObject;
     private TilePlaceableEquipmentObject movingTileEquipment;
     private WorkstationObject movingWorkstation;
+    private Vector3 originalPosition;
+    private LabTile originalTile;
 
     private LabTile currentTile; private bool canPlace = false;
 
@@ -27,46 +29,50 @@ public class EquipmentMoveManager : MonoBehaviour
     }
 
     private void Update()
+{
+    if (movingObject == null)
     {
-        if (movingObject == null)
-        {
-            return;
-        }
-
-        currentTile =
-            LabGridManager.Instance.GetNearestTileFromMousePosition();
-
-        if (currentTile == null)
-        {
-            return;
-        }
-
-        movingObject.transform.position =
-            currentTile.GetCenterPosition();
-
-        // 이동 중 R키 회전
-        if (Input.GetKeyDown(KeyCode.R))
-        {
-            RotateMovingObject();
-        }
-
-        // 처음 클릭 떼기 전에는 배치 금지
-        if (!canPlace)
-        {
-            if (Input.GetMouseButtonUp(0))
-            {
-                canPlace = true;
-            }
-
-            return;
-        }
-
-        // 좌클릭으로 배치 완료
-        if (Input.GetMouseButtonDown(0))
-        {
-            PlaceObject();
-        }
+        return;
     }
+
+    if (Input.GetKeyDown(KeyCode.Escape))
+    {
+        CancelMove();
+        return;
+    }
+
+    currentTile =
+        LabGridManager.Instance.GetNearestTileFromMousePosition();
+
+    if (currentTile == null)
+    {
+        return;
+    }
+
+    movingObject.transform.position =
+        currentTile.GetCenterPosition()
+        + new Vector3(0f, 0.2f, 0f);
+
+    if (Input.GetKeyDown(KeyCode.R))
+    {
+        RotateMovingObject();
+    }
+
+    if (!canPlace)
+    {
+        if (Input.GetMouseButtonUp(0))
+        {
+            canPlace = true;
+        }
+
+        return;
+    }
+
+    if (Input.GetMouseButtonDown(0))
+    {
+        PlaceObject();
+    }
+}
 
     public void StartMove(PlaceableObject obj)
     {
@@ -74,6 +80,9 @@ public class EquipmentMoveManager : MonoBehaviour
         {
             return;
         }
+
+        originalPosition = obj.transform.position;
+        originalTile = obj.placedTile;
 
         movingObject = obj;
 
@@ -93,38 +102,63 @@ public class EquipmentMoveManager : MonoBehaviour
         canPlace = false;
 
         Debug.Log("이동 시작");
+
+        SpriteRenderer[] renderers =
+            obj.GetComponentsInChildren<SpriteRenderer>();
+
+        foreach (SpriteRenderer renderer in renderers)
+        {
+            Color color = renderer.color;
+            color.a = 0.5f;
+            renderer.color = color;
+        }
     }
 
-    private void PlaceObject()
+   private void PlaceObject()
+{
+    if (movingObject == null)
     {
-        if (movingObject == null)
-        {
-            return;
-        }
-
-        if (currentTile == null)
-        {
-            return;
-        }
-
-        if (!currentTile.CanPlaceObject())
-        {
-            Debug.Log("설치 불가능한 타일");
-            return;
-        }
-
-        currentTile.SetOccupied(true);
-
-        movingObject.placedTile = currentTile;
-
-        Debug.Log("이동 완료");
-
-        movingObject = null;
-        movingTileEquipment = null;
-
-        currentTile = null;
-        canPlace = false;
+        return;
     }
+
+    if (currentTile == null)
+    {
+        return;
+    }
+
+    if (!currentTile.CanPlaceObject())
+    {
+        Debug.Log("설치 불가능한 타일");
+        return;
+    }
+
+    currentTile.SetOccupied(true);
+
+    movingObject.placedTile = currentTile;
+
+    if (movingTileEquipment != null)
+    {
+        movingObject.transform.position =
+            currentTile.GetCenterPosition()
+            + new Vector3(0f, 0.2f, 0f);
+    }
+    else
+    {
+        movingObject.transform.position =
+            currentTile.GetCenterPosition();
+    }
+
+    SetAlpha(movingObject.gameObject, 1f);
+
+    Debug.Log("이동 완료");
+
+    movingObject = null;
+    movingTileEquipment = null;
+    movingWorkstation = null;
+
+    currentTile = null;
+    canPlace = false;
+}
 
     private void RotateMovingObject()
     {
@@ -168,4 +202,44 @@ public class EquipmentMoveManager : MonoBehaviour
                 return PlacementDirection.RD;
         }
     }
+
+    private void CancelMove()
+{
+    if (movingObject == null)
+    {
+        return;
+    }
+
+    movingObject.transform.position = originalPosition;
+    movingObject.placedTile = originalTile;
+
+    if (originalTile != null)
+    {
+        originalTile.SetOccupied(true);
+    }
+
+    SetAlpha(movingObject.gameObject, 1f);
+
+    movingObject = null;
+    movingTileEquipment = null;
+    movingWorkstation = null;
+
+    currentTile = null;
+    canPlace = false;
+
+    Debug.Log("이동 취소");
+}
+
+private void SetAlpha(GameObject target, float alpha)
+{
+    SpriteRenderer[] renderers =
+        target.GetComponentsInChildren<SpriteRenderer>();
+
+    foreach (SpriteRenderer renderer in renderers)
+    {
+        Color color = renderer.color;
+        color.a = alpha;
+        renderer.color = color;
+    }
+}
 }

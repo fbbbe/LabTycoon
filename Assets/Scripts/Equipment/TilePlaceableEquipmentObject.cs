@@ -36,7 +36,8 @@ public class TilePlaceableEquipmentObject : MonoBehaviour
 
         if (tile != null)
         {
-            transform.position = tile.transform.position;
+            transform.position = tile.transform.position
+                       + new Vector3(0f, 0.2f, 0f);
         }
 
         ApplyDirection(direction);
