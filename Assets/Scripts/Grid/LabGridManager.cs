@@ -21,6 +21,7 @@ public class LabEnvironmentTheme
     public Sprite wallLeftSprite;
     public Sprite wallRightSprite;
     public Sprite doorWallRightSprite;
+    public Sprite backgroundSprite;
 }
 
 /// <summary>
@@ -47,6 +48,19 @@ public class LabGridManager : MonoBehaviour
 
     [Tooltip("게임 시작 시 적용할 기본 연구실 레벨입니다. ResourceManager와 연결하기 전까지는 이 값을 사용합니다.")]
     public int startLabLevelForTheme = 1;
+
+    [Header("게임 배경 설정")]
+    [Tooltip("타일/벽지가 아니라 카메라 뒤에 깔리는 전체 배경 SpriteRenderer입니다.")]
+    public SpriteRenderer backgroundRenderer;
+
+    [Tooltip("배경을 기준으로 맞출 카메라입니다. 비워두면 Main Camera를 자동으로 사용합니다.")]
+    public Camera backgroundTargetCamera;
+
+    [Tooltip("배경이 화면보다 살짝 더 크게 보이도록 추가 배율을 줍니다.")]
+    public float backgroundExtraScaleMultiplier = 1.05f;
+
+    [Tooltip("배경의 Sorting Order입니다. 타일보다 훨씬 뒤에 있어야 합니다.")]
+    public int backgroundOrder = -10000;
 
     [Header("문 포함 벽지 PNG 설정")]
     [Tooltip("기존 오른쪽 벽지 중 하나를 이 Sprite로 대체합니다. 새 오브젝트를 만들지 않습니다.")]
@@ -167,9 +181,15 @@ public class LabGridManager : MonoBehaviour
         ApplyEnvironmentFromCurrentLabLevel();
         Invoke(nameof(ApplyEnvironmentFromCurrentLabLevel), 0.05f);
 
+        FitBackgroundToCamera();
+
         HidePlacementGrid();
     }
 
+    private void LateUpdate()
+    {
+        FitBackgroundToCamera();
+    }
     private void CalculateTileSpacing()
     {
         if (autoCalculateTileSpacing && tileSprite != null)
@@ -733,6 +753,11 @@ public class LabGridManager : MonoBehaviour
             doorWallRightSprite = theme.doorWallRightSprite;
         }
 
+        if (theme.backgroundSprite != null)
+        {
+            ApplyBackgroundSprite(theme.backgroundSprite);
+        }
+
         ApplyWallSprites(wallLeftSprite, wallRightSprite, doorWallRightSprite);
     }
 
@@ -789,6 +814,63 @@ public class LabGridManager : MonoBehaviour
         {
             Debug.LogWarning("LabGridManager: 문 벽지로 대체할 오른쪽 벽 Renderer가 없습니다. Door Wall Right Index 값을 확인하세요.");
         }
+    }
+
+    private void ApplyBackgroundSprite(Sprite newBackgroundSprite)
+    {
+        if (backgroundRenderer == null)
+        {
+            return;
+        }
+
+        backgroundRenderer.sprite = newBackgroundSprite;
+        backgroundRenderer.sortingOrder = backgroundOrder;
+        FitBackgroundToCamera();
+    }
+
+    public void FitBackgroundToCamera()
+    {
+        if (backgroundRenderer == null || backgroundRenderer.sprite == null)
+        {
+            return;
+        }
+
+        if (backgroundTargetCamera == null)
+        {
+            backgroundTargetCamera = Camera.main;
+        }
+
+        if (backgroundTargetCamera == null)
+        {
+            return;
+        }
+
+        if (backgroundTargetCamera.orthographic == false)
+        {
+            Debug.LogWarning("LabGridManager: 배경 자동 맞춤은 Orthographic Camera 기준입니다.");
+            return;
+        }
+
+        float cameraHeight = backgroundTargetCamera.orthographicSize * 2f;
+        float cameraWidth = cameraHeight * backgroundTargetCamera.aspect;
+
+        float spriteWidth = backgroundRenderer.sprite.bounds.size.x;
+        float spriteHeight = backgroundRenderer.sprite.bounds.size.y;
+
+        if (spriteWidth <= 0f || spriteHeight <= 0f)
+        {
+            return;
+        }
+
+        float scaleX = cameraWidth / spriteWidth;
+        float scaleY = cameraHeight / spriteHeight;
+        float finalScale = Mathf.Max(scaleX, scaleY) * backgroundExtraScaleMultiplier;
+
+        backgroundRenderer.transform.localScale = new Vector3(finalScale, finalScale, 1f);
+
+        Vector3 cameraPosition = backgroundTargetCamera.transform.position;
+        backgroundRenderer.transform.position = new Vector3(cameraPosition.x, cameraPosition.y, 0f);
+        backgroundRenderer.sortingOrder = backgroundOrder;
     }
 
     public void ApplyEnvironmentFromCurrentLabLevel()
