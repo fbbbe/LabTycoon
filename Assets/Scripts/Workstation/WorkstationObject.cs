@@ -448,6 +448,69 @@ public class WorkstationObject : MonoBehaviour
     }
 
     /// <summary>
+    /// 이미 앉아 있는 인력의 StaffType이 바뀌었을 때 착석 이미지를 다시 적용한다.
+    ///
+    /// 진화 로직에서 학사 -> 석사, 석사 -> 박사로 StaffType이 바뀌어도
+    /// Workstation의 seatedStaffType 캐시값이 예전 타입으로 남아 있으면
+    /// ApplyChairOrSeatedStaff()가 기존 착석 Sprite를 계속 사용한다.
+    /// 따라서 seatedStaff.staffType을 기준으로 seatedStaffType을 다시 동기화한 뒤
+    /// 현재 방향을 다시 적용한다.
+    /// </summary>
+    public void RefreshSeatedStaffVisual()
+    {
+        if (seatedStaff == null)
+        {
+            return;
+        }
+
+        hasStaff = true;
+        seatedStaffType = seatedStaff.staffType;
+
+        ApplyDirection(currentDirection);
+
+        if (workstationWorldUI != null)
+        {
+            WorkstationTaskController taskController = GetComponent<WorkstationTaskController>();
+
+            if (taskController != null)
+            {
+                workstationWorldUI.Refresh(taskController.taskState, this);
+            }
+            else
+            {
+                workstationWorldUI.RefreshStressText(StaffTaskState.Idle, this);
+            }
+        }
+
+        Debug.Log("Workstation 착석 이미지 갱신 완료: " + seatedStaff.staffName + " / " + seatedStaffType);
+    }
+
+    /// <summary>
+    /// RefreshSeatedStaffVisual과 같은 기능을 하는 호환용 함수입니다.
+    /// 다른 코드에서 UpdateSeatedStaffVisual 이름으로 호출해도 동작하게 둡니다.
+    /// </summary>
+    public void UpdateSeatedStaffVisual()
+    {
+        RefreshSeatedStaffVisual();
+    }
+
+    /// <summary>
+    /// RefreshSeatedStaffVisual과 같은 기능을 하는 호환용 함수입니다.
+    /// </summary>
+    public void RefreshSeatedVisual()
+    {
+        RefreshSeatedStaffVisual();
+    }
+
+    /// <summary>
+    /// RefreshSeatedStaffVisual과 같은 기능을 하는 호환용 함수입니다.
+    /// </summary>
+    public void UpdateSeatedVisual()
+    {
+        RefreshSeatedStaffVisual();
+    }
+
+    /// <summary>
     /// 인력을 자리에서 빼낸다.
     /// 
     /// 나중에 휴식/이동 시스템에서 사용할 수 있다.

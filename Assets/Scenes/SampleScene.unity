@@ -2410,6 +2410,17 @@ MonoBehaviour:
   - staffType: 2
     currentLevel: 4
     panelSprite: {fileID: 21300000, guid: 69422ec332d2b42849b960bd7acc0f06, type: 3}
+  evolutionPanelRoot: {fileID: 1964826843}
+  evolutionBackgroundImage: {fileID: 1499556795}
+  evolutionConfirmButton: {fileID: 249531942}
+  evolutionCloseButton: {fileID: 475508557}
+  evolutionPanelSprites:
+  - currentStaffType: 0
+    currentLevel: 3
+    panelSprite: {fileID: 21300000, guid: 69422ec332d2b42849b960bd7acc0f06, type: 3}
+  - currentStaffType: 1
+    currentLevel: 3
+    panelSprite: {fileID: 21300000, guid: 69422ec332d2b42849b960bd7acc0f06, type: 3}
 --- !u!1 &307077158
 GameObject:
   m_ObjectHideFlags: 0
@@ -4198,7 +4209,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingMoney: 99999999999999
   startingResearchResult: 0
-  startingLabLevel: 15
+  startingLabLevel: 100
   money: 0
   researchResult: 0
   labLevel: 0

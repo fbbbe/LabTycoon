@@ -11,6 +11,14 @@ public class StaffLevelUpPanelSpriteData
     public Sprite panelSprite;
 }
 
+[Serializable]
+public class StaffEvolutionPanelSpriteData
+{
+    public StaffType currentStaffType;
+    public int currentLevel;
+    public Sprite panelSprite;
+}
+
 public class StaffGrowthPanelUI : MonoBehaviour
 {
     public static StaffGrowthPanelUI Instance;
@@ -24,9 +32,22 @@ public class StaffGrowthPanelUI : MonoBehaviour
     [Header("레벨업 PNG 매핑")]
     public StaffLevelUpPanelSpriteData[] levelUpPanelSprites;
 
+    [Header("진화 패널")]
+    public GameObject evolutionPanelRoot;
+    public Image evolutionBackgroundImage;
+    public Button evolutionConfirmButton;
+    public Button evolutionCloseButton;
+
+    [Header("진화 PNG 매핑")]
+    public StaffEvolutionPanelSpriteData[] evolutionPanelSprites;
+
     private StaffWorker selectedStaff;
+
     private StaffLevelUpData currentLevelUpData;
     private StaffHireData currentNextLevelStaffData;
+
+    private StaffEvolutionData currentEvolutionData;
+    private StaffHireData currentEvolutionTargetStaffData;
 
     private void Awake()
     {
@@ -50,7 +71,20 @@ public class StaffGrowthPanelUI : MonoBehaviour
             levelUpCloseButton.onClick.AddListener(CloseLevelUpPanel);
         }
 
+        if (evolutionConfirmButton != null)
+        {
+            evolutionConfirmButton.onClick.RemoveAllListeners();
+            evolutionConfirmButton.onClick.AddListener(OnClickConfirmEvolution);
+        }
+
+        if (evolutionCloseButton != null)
+        {
+            evolutionCloseButton.onClick.RemoveAllListeners();
+            evolutionCloseButton.onClick.AddListener(CloseEvolutionPanel);
+        }
+
         CloseLevelUpPanel();
+        CloseEvolutionPanel();
     }
 
     public void OpenLevelUpPanel(StaffWorker staff)
@@ -87,6 +121,7 @@ public class StaffGrowthPanelUI : MonoBehaviour
         }
 
         selectedStaff = staff;
+        CloseEvolutionPanelOnlyView();
 
         Sprite panelSprite = GetLevelUpPanelSprite(staffType, currentLevel);
 
@@ -101,15 +136,92 @@ public class StaffGrowthPanelUI : MonoBehaviour
         }
     }
 
+    public void OpenEvolutionPanel(StaffWorker staff)
+    {
+        if (staff == null)
+        {
+            Debug.LogWarning("StaffGrowthPanelUI: 선택된 인력이 없습니다.");
+            return;
+        }
+
+        if (StaffDatabase.Instance == null)
+        {
+            Debug.LogWarning("StaffGrowthPanelUI: StaffDatabase.Instance가 없습니다.");
+            return;
+        }
+
+        StaffType staffType = GetStaffType(staff);
+        int currentLevel = GetStaffLevel(staff);
+
+        currentEvolutionData = StaffDatabase.Instance.GetEvolutionData(staffType, currentLevel);
+
+        if (currentEvolutionData == null)
+        {
+            Debug.Log("진화 정보가 없습니다. 현재 인력: " + staffType + " Lv." + currentLevel);
+            return;
+        }
+
+        currentEvolutionTargetStaffData = StaffDatabase.Instance.GetStaffData(
+            currentEvolutionData.nextStaffType,
+            currentEvolutionData.nextLevel
+        );
+
+        if (currentEvolutionTargetStaffData == null)
+        {
+            Debug.LogWarning(
+                "진화 대상 인력 데이터가 없습니다. 대상: " +
+                currentEvolutionData.nextStaffType + " Lv." + currentEvolutionData.nextLevel
+            );
+            return;
+        }
+
+        selectedStaff = staff;
+        CloseLevelUpPanelOnlyView();
+
+        Sprite panelSprite = GetEvolutionPanelSprite(staffType, currentLevel);
+
+        if (evolutionBackgroundImage != null)
+        {
+            evolutionBackgroundImage.sprite = panelSprite;
+        }
+
+        if (evolutionPanelRoot != null)
+        {
+            evolutionPanelRoot.SetActive(true);
+        }
+    }
+
     public void CloseLevelUpPanel()
     {
         selectedStaff = null;
         currentLevelUpData = null;
         currentNextLevelStaffData = null;
 
+        CloseLevelUpPanelOnlyView();
+    }
+
+    public void CloseEvolutionPanel()
+    {
+        selectedStaff = null;
+        currentEvolutionData = null;
+        currentEvolutionTargetStaffData = null;
+
+        CloseEvolutionPanelOnlyView();
+    }
+
+    private void CloseLevelUpPanelOnlyView()
+    {
         if (levelUpPanelRoot != null)
         {
             levelUpPanelRoot.SetActive(false);
+        }
+    }
+
+    private void CloseEvolutionPanelOnlyView()
+    {
+        if (evolutionPanelRoot != null)
+        {
+            evolutionPanelRoot.SetActive(false);
         }
     }
 
@@ -145,6 +257,44 @@ public class StaffGrowthPanelUI : MonoBehaviour
         CloseLevelUpPanel();
     }
 
+    private void OnClickConfirmEvolution()
+    {
+        if (selectedStaff == null || currentEvolutionData == null || currentEvolutionTargetStaffData == null)
+        {
+            Debug.LogWarning("진화할 인력 또는 진화 데이터가 없습니다.");
+            return;
+        }
+
+        if (CanEvolve(selectedStaff, currentEvolutionData) == false)
+        {
+            return;
+        }
+
+        if (TrySpendMoney(currentEvolutionData.cost) == false)
+        {
+            Debug.Log("진화 비용이 부족합니다. 필요 금액: " + currentEvolutionData.cost);
+            return;
+        }
+
+        ApplyEvolution(selectedStaff, currentEvolutionTargetStaffData);
+        ResetCompletedTaskCount(selectedStaff);
+        RefreshEvolvedStaffVisual(selectedStaff);
+
+        if (StaffStatusPanelUI.Instance != null)
+        {
+            StaffStatusPanelUI.Instance.Refresh();
+        }
+
+        Debug.Log(
+            "진화 완료: " +
+            currentEvolutionData.currentStaffType + " Lv." + currentEvolutionData.currentLevel +
+            " -> " +
+            currentEvolutionData.nextStaffType + " Lv." + currentEvolutionData.nextLevel
+        );
+
+        CloseEvolutionPanel();
+    }
+
     private bool CanLevelUp(StaffWorker staff, StaffLevelUpData levelUpData)
     {
         int completedTaskCount = GetCompletedTaskCount(staff);
@@ -166,6 +316,27 @@ public class StaffGrowthPanelUI : MonoBehaviour
         return true;
     }
 
+    private bool CanEvolve(StaffWorker staff, StaffEvolutionData evolutionData)
+    {
+        int completedTaskCount = GetCompletedTaskCount(staff);
+
+        if (completedTaskCount < evolutionData.requiredCompletedTaskCount)
+        {
+            Debug.Log("진화 불가: 과제 수행 횟수 부족 " + completedTaskCount + " / " + evolutionData.requiredCompletedTaskCount);
+            return false;
+        }
+
+        int currentLabLevel = GetCurrentLabLevel();
+
+        if (currentLabLevel < evolutionData.requiredLabLevel)
+        {
+            Debug.Log("진화 불가: 연구실 레벨 부족 Lv." + currentLabLevel + " / 필요 Lv." + evolutionData.requiredLabLevel);
+            return false;
+        }
+
+        return true;
+    }
+
     private void ApplyLevelUp(StaffWorker staff, StaffHireData nextData)
     {
         if (staff == null || nextData == null)
@@ -181,6 +352,77 @@ public class StaffGrowthPanelUI : MonoBehaviour
             staff.runtimeData.level = nextData.level;
             staff.runtimeData.researchPower = nextData.researchPower;
         }
+    }
+
+    private void ApplyEvolution(StaffWorker staff, StaffHireData evolutionTargetData)
+    {
+        if (staff == null || evolutionTargetData == null)
+        {
+            return;
+        }
+
+        staff.staffName = evolutionTargetData.staffName;
+        staff.staffType = evolutionTargetData.staffType;
+        staff.level = evolutionTargetData.level;
+        staff.researchPower = evolutionTargetData.researchPower;
+        staff.currentStress = 0;
+
+        if (staff.runtimeData != null)
+        {
+            staff.runtimeData.staffName = evolutionTargetData.staffName;
+            staff.runtimeData.staffType = evolutionTargetData.staffType;
+            staff.runtimeData.level = evolutionTargetData.level;
+            staff.runtimeData.researchPower = evolutionTargetData.researchPower;
+            staff.runtimeData.currentStress = 0;
+        }
+    }
+
+    /// <summary>
+    /// 진화 후 StaffWorker 데이터는 바뀌지만,
+    /// Workstation에 이미 표시되어 있는 착석 이미지는 기존 Sprite를 계속 들고 있을 수 있다.
+    /// 그래서 진화한 인력이 앉아 있는 Workstation을 찾아 착석 이미지 갱신 메시지를 보낸다.
+    /// </summary>
+    private void RefreshEvolvedStaffVisual(StaffWorker staff)
+    {
+        if (staff == null)
+        {
+            return;
+        }
+
+        WorkstationObject[] workstations = FindObjectsByType<WorkstationObject>(FindObjectsSortMode.None);
+
+        for (int i = 0; i < workstations.Length; i++)
+        {
+            WorkstationObject workstation = workstations[i];
+
+            if (workstation == null)
+            {
+                continue;
+            }
+
+            if (workstation.seatedStaff != staff)
+            {
+                continue;
+            }
+
+            workstation.SendMessage("RefreshSeatedStaffVisual", SendMessageOptions.DontRequireReceiver);
+            workstation.SendMessage("UpdateSeatedStaffVisual", SendMessageOptions.DontRequireReceiver);
+            workstation.SendMessage("ApplySeatedStaffVisual", SendMessageOptions.DontRequireReceiver);
+            workstation.SendMessage("RefreshSeatedVisual", SendMessageOptions.DontRequireReceiver);
+            workstation.SendMessage("UpdateSeatedVisual", SendMessageOptions.DontRequireReceiver);
+
+            WorkstationWorldUI worldUI = workstation.GetComponentInChildren<WorkstationWorldUI>(true);
+
+            if (worldUI != null)
+            {
+                worldUI.RefreshStressText();
+            }
+
+            Debug.Log("진화 후 Workstation 착석 이미지 갱신 요청: " + staff.staffName);
+            return;
+        }
+
+        Debug.LogWarning("진화한 인력이 앉아 있는 Workstation을 찾지 못했습니다: " + staff.staffName);
     }
 
     private Sprite GetLevelUpPanelSprite(StaffType staffType, int currentLevel)
@@ -206,6 +448,32 @@ public class StaffGrowthPanelUI : MonoBehaviour
         }
 
         Debug.LogWarning("레벨업 PNG 매핑이 없습니다: " + staffType + " Lv." + currentLevel);
+        return null;
+    }
+
+    private Sprite GetEvolutionPanelSprite(StaffType staffType, int currentLevel)
+    {
+        if (evolutionPanelSprites == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < evolutionPanelSprites.Length; i++)
+        {
+            StaffEvolutionPanelSpriteData data = evolutionPanelSprites[i];
+
+            if (data == null)
+            {
+                continue;
+            }
+
+            if (data.currentStaffType == staffType && data.currentLevel == currentLevel)
+            {
+                return data.panelSprite;
+            }
+        }
+
+        Debug.LogWarning("진화 PNG 매핑이 없습니다: " + staffType + " Lv." + currentLevel);
         return null;
     }
 

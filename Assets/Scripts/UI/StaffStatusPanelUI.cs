@@ -273,7 +273,6 @@ public class StaffStatusPanelUI : MonoBehaviour
 
         StaffGrowthPanelUI.Instance.OpenLevelUpPanel(selectedStaff);
     }
-
     private void OnClickEvolveButton()
     {
         if (selectedStaff == null)
@@ -288,8 +287,12 @@ public class StaffStatusPanelUI : MonoBehaviour
             return;
         }
 
-        Debug.Log("진화 버튼 클릭: " + selectedStaff.staffName);
+        if (StaffGrowthPanelUI.Instance == null)
+        {
+            Debug.LogWarning("StaffGrowthPanelUI.Instance가 없습니다. Canvas에 StaffGrowthPanelUI를 추가하세요.");
+            return;
+        }
 
-        // 진화 패널은 다음 단계에서 StaffGrowthPanelUI에 연결한다.
+        StaffGrowthPanelUI.Instance.OpenEvolutionPanel(selectedStaff);
     }
 }
