@@ -774,7 +774,7 @@ MonoBehaviour:
     doorWallRightSprite: {fileID: 21300000, guid: 95e69eec9b63b4131a3ebaec3f943723, type: 3}
   startLabLevelForTheme: 1
   doorWallRightSprite: {fileID: 21300000, guid: 4eed25363fbb74e8d958d9271c868356, type: 3}
-  doorWallRightIndex: 2
+  doorWallRightIndex: 0
   wallLeftSprite: {fileID: 21300000, guid: 4cb7bfc34e6eb4247a9a58a2f4a1ff79, type: 3}
   wallRightSprite: {fileID: 21300000, guid: b9f41419650a143c8ac961b96d3f896c, type: 3}
   wallScale: 1
@@ -2410,17 +2410,11 @@ MonoBehaviour:
   - staffType: 2
     currentLevel: 4
     panelSprite: {fileID: 21300000, guid: 69422ec332d2b42849b960bd7acc0f06, type: 3}
-  evolutionPanelRoot: {fileID: 1964826843}
-  evolutionBackgroundImage: {fileID: 1499556795}
-  evolutionConfirmButton: {fileID: 249531942}
-  evolutionCloseButton: {fileID: 475508557}
-  evolutionPanelSprites:
-  - currentStaffType: 0
-    currentLevel: 3
-    panelSprite: {fileID: 21300000, guid: 69422ec332d2b42849b960bd7acc0f06, type: 3}
-  - currentStaffType: 1
-    currentLevel: 3
-    panelSprite: {fileID: 21300000, guid: 69422ec332d2b42849b960bd7acc0f06, type: 3}
+  evolutionPanelRoot: {fileID: 0}
+  evolutionBackgroundImage: {fileID: 0}
+  evolutionConfirmButton: {fileID: 0}
+  evolutionCloseButton: {fileID: 0}
+  evolutionPanelSprites: []
 --- !u!1 &307077158
 GameObject:
   m_ObjectHideFlags: 0
@@ -4209,7 +4203,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   startingMoney: 99999999999999
   startingResearchResult: 0
-  startingLabLevel: 100
+  startingLabLevel: 9
   money: 0
   researchResult: 0
   labLevel: 0
