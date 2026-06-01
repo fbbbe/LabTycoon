@@ -90,7 +90,7 @@ public class LabInfoPanelUI : MonoBehaviour
 
         if (labAreaText != null)
         {
-            labAreaText.text = currentArea + "평";
+            labAreaText.text = currentArea + "m²";
         }
 
         if (requiredLevelText != null)

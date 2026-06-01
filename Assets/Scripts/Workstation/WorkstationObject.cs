@@ -1,3 +1,4 @@
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -286,39 +287,39 @@ public class WorkstationObject : MonoBehaviour
     /// 이걸 쓰면 RD/RU/LD/LU마다 책상과 의자 위치를 따로 저장할 수 있다.
     /// </summary>
     private void ApplyLocalPositions(WorkstationDirectionSetting setting)
-{
-    Vector3 visualOffset = new Vector3(0f, 0.2f, 0f);
-
-    if (deskRenderer != null)
     {
-        deskRenderer.transform.localPosition =
-            setting.deskLocalPosition + visualOffset;
-    }
+        Vector3 visualOffset = new Vector3(0f, 0.2f, 0f);
 
-    if (chairRenderer != null)
-    {
-        chairRenderer.transform.localPosition =
-            setting.chairLocalPosition + visualOffset;
-    }
+        if (deskRenderer != null)
+        {
+            deskRenderer.transform.localPosition =
+                setting.deskLocalPosition + visualOffset;
+        }
 
-    if (equipmentSlot != null)
-    {
-        equipmentSlot.localPosition =
-            setting.equipmentSlotLocalPosition + visualOffset;
-    }
+        if (chairRenderer != null)
+        {
+            chairRenderer.transform.localPosition =
+                setting.chairLocalPosition + visualOffset;
+        }
 
-    if (seatPoint != null)
-    {
-        seatPoint.localPosition =
-            setting.seatPointLocalPosition + visualOffset;
-    }
+        if (equipmentSlot != null)
+        {
+            equipmentSlot.localPosition =
+                setting.equipmentSlotLocalPosition + visualOffset;
+        }
 
-    if (deskEquipmentRenderer != null)
-    {
-        deskEquipmentRenderer.transform.localPosition =
-            setting.equipmentSlotLocalPosition + visualOffset;
+        if (seatPoint != null)
+        {
+            seatPoint.localPosition =
+                setting.seatPointLocalPosition + visualOffset;
+        }
+
+        if (deskEquipmentRenderer != null)
+        {
+            deskEquipmentRenderer.transform.localPosition =
+                setting.equipmentSlotLocalPosition + visualOffset;
+        }
     }
-}
 
     /// <summary>
     /// 방향별 앞뒤 순서를 적용한다.
@@ -780,9 +781,14 @@ public class WorkstationObject : MonoBehaviour
         }
 
         if (DeskEquipmentPlacementManager.Instance != null &&
-            DeskEquipmentPlacementManager.Instance.isSelectingWorkstation)
+    DeskEquipmentPlacementManager.Instance.isSelectingWorkstation)
         {
             DeskEquipmentPlacementManager.Instance.TryInstallToWorkstation(this);
+            return;
+        }
+
+        if (IsPlacementModeActive())
+        {
             return;
         }
 
@@ -816,10 +822,170 @@ public class WorkstationObject : MonoBehaviour
             return;
         }
 
+        if (IsPlacementModeActive())
+        {
+            return;
+        }
+
         if (pressedTime <= staffClickMaxHoldTime)
         {
             TryOpenStaffStatusPanel();
         }
+    }
+
+    private bool IsPlacementModeActive()
+    {
+        if (DeskEquipmentPlacementManager.Instance != null &&
+            DeskEquipmentPlacementManager.Instance.isSelectingWorkstation)
+        {
+            return true;
+        }
+
+        if (BuildingEditManager.Instance != null &&
+            BuildingEditManager.Instance.IsEditMode)
+        {
+            return true;
+        }
+
+        if (EquipmentMoveManager.Instance != null &&
+            EquipmentMoveManager.Instance.IsMoving)
+        {
+            return true;
+        }
+
+        if (IsPlacementObjectActive(StaffPlacementManager.Instance))
+        {
+            return true;
+        }
+
+        MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+
+        for (int i = 0; i < behaviours.Length; i++)
+        {
+            MonoBehaviour behaviour = behaviours[i];
+
+            if (behaviour == null)
+            {
+                continue;
+            }
+
+            System.Type type = behaviour.GetType();
+            string typeName = type.Name;
+
+            if (typeName.Contains("Placement") == false &&
+                typeName.Contains("Place") == false &&
+                typeName.Contains("Build") == false &&
+                typeName.Contains("Edit") == false &&
+                typeName.Contains("Move") == false)
+            {
+                continue;
+            }
+
+            if (IsPlacementObjectActive(behaviour))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool IsPlacementObjectActive(object manager)
+    {
+        if (manager == null)
+        {
+            return false;
+        }
+
+        System.Type managerType = manager.GetType();
+
+        string[] boolMemberNames =
+        {
+            "isPlacementMode",
+            "isPlacementModeActive",
+            "isPlacementActive",
+            "isPlacing",
+            "isPlacingObject",
+            "isPlacingEquipment",
+            "isPlacingStaff",
+            "isSelectingWorkstation",
+            "isBuildMode",
+            "isBuilding",
+            "isInstallMode",
+            "isInstalling",
+            "isDraggingPlacement",
+            "isSwapPlacementMode",
+            "isSwapMode",
+            "isStaffPlacementMode",
+            "placementModeActive",
+            "staffPlacementModeActive",
+            "equipmentPlacementModeActive"
+        };
+
+        for (int i = 0; i < boolMemberNames.Length; i++)
+        {
+            FieldInfo field = managerType.GetField(
+                boolMemberNames[i],
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+            );
+
+            if (field != null && field.FieldType == typeof(bool))
+            {
+                if ((bool)field.GetValue(manager))
+                {
+                    return true;
+                }
+            }
+
+            PropertyInfo property = managerType.GetProperty(
+                boolMemberNames[i],
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+            );
+
+            if (property != null && property.PropertyType == typeof(bool) && property.CanRead)
+            {
+                if ((bool)property.GetValue(manager))
+                {
+                    return true;
+                }
+            }
+        }
+
+        string[] boolMethodNames =
+        {
+            "IsPlacementMode",
+            "IsPlacementModeActive",
+            "IsPlacementActive",
+            "IsPlacing",
+            "IsPlacingObject",
+            "IsPlacingEquipment",
+            "IsPlacingStaff",
+            "IsBuildMode",
+            "IsBuilding",
+            "IsInstallMode",
+            "IsInstalling",
+            "IsSwapPlacementMode",
+            "IsSwapMode",
+            "IsStaffPlacementMode"
+        };
+
+        for (int i = 0; i < boolMethodNames.Length; i++)
+        {
+            MethodInfo method = managerType.GetMethod(
+                boolMethodNames[i],
+                BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance
+            );
+
+            if (method != null && method.ReturnType == typeof(bool) && method.GetParameters().Length == 0)
+            {
+                if ((bool)method.Invoke(manager, null))
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -834,6 +1000,11 @@ public class WorkstationObject : MonoBehaviour
         if (seatedStaff == null)
         {
             Debug.LogWarning("인력 스탯창 열기 실패: seatedStaff가 없습니다.");
+            return;
+        }
+
+        if (IsPlacementModeActive())
+        {
             return;
         }
 
