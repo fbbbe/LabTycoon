@@ -139,6 +139,12 @@ public class EquipmentMoveManager : MonoBehaviour
         $"Occupied = {currentTile.isOccupied}"
     );
 
+    Debug.Log(
+        $"Tile = {currentTile.name}, " +
+        $"Role = {currentTile.tileRole}, " +
+        $"Occupied = {currentTile.isOccupied}"
+    );
+
     currentTile.SetOccupied(true);
 
     movingObject.placedTile = currentTile;
