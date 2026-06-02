@@ -41,6 +41,7 @@ public class EquipmentMoveManager : MonoBehaviour
         return;
     }
 
+
     currentTile =
         LabGridManager.Instance.GetNearestTileFromMousePosition();
 
@@ -131,6 +132,12 @@ public class EquipmentMoveManager : MonoBehaviour
         Debug.Log("설치 불가능한 타일");
         return;
     }
+
+    Debug.Log(
+        $"Tile = {currentTile.name}, " +
+        $"Role = {currentTile.tileRole}, " +
+        $"Occupied = {currentTile.isOccupied}"
+    );
 
     currentTile.SetOccupied(true);
 
