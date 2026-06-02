@@ -397,10 +397,17 @@ public class LabGridManager : MonoBehaviour
         int finalSpaceCost = Mathf.Max(1, spaceCost);
         Vector2Int step = GetPlacementDirectionStep(direction);
 
+
         for (int i = 0; i < finalSpaceCost; i++)
         {
             int targetX = originTile.gridX + step.x * i;
             int targetY = originTile.gridY + step.y * i;
+
+            Debug.Log(
+                $"origin={originTile.gridX},{originTile.gridY} " +
+                $"dir={direction} " +
+                $"tile={targetX},{targetY}"
+            );
 
             LabTile tile = GetTile(targetX, targetY);
 
@@ -418,7 +425,14 @@ public class LabGridManager : MonoBehaviour
 
     public bool CanPlaceEquipment(LabTile originTile, int spaceCost, PlacementDirection direction)
     {
+
+        Debug.Log(
+            $"origin={originTile.gridX},{originTile.gridY} " +
+            $"direction={direction}"
+        );
+
         List<LabTile> placementTiles = GetPlacementTiles(originTile, spaceCost, direction);
+
 
         if (placementTiles.Count == 0)
         {
@@ -436,9 +450,31 @@ public class LabGridManager : MonoBehaviour
         return true;
     }
 
+    public bool CanPlaceArea(
+        LabTile originTile,
+        int sizeX,
+        int sizeY,
+        PlacementDirection direction
+    )
+    {
+        return true;
+    }
+
     public void MarkEquipmentTilesOccupied(LabTile originTile, int spaceCost, PlacementDirection direction)
     {
         List<LabTile> placementTiles = GetPlacementTiles(originTile, spaceCost, direction);
+
+        Debug.Log("==== 점유 시작 ====");
+
+        for (int i = 0; i < placementTiles.Count; i++)
+        {
+            Debug.Log(
+                $"occupy : {placementTiles[i].gridX}," +
+                $"{placementTiles[i].gridY}"
+            );
+
+            placementTiles[i].SetOccupied(true);
+        }
 
         for (int i = 0; i < placementTiles.Count; i++)
         {
@@ -447,10 +483,12 @@ public class LabGridManager : MonoBehaviour
                 placementTiles[i].SetOccupied(true);
             }
         }
+
     }
 
     private Vector2Int GetPlacementDirectionStep(PlacementDirection direction)
     {
+        
         switch (direction)
         {
             case PlacementDirection.RD:

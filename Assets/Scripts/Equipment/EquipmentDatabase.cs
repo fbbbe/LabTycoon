@@ -552,7 +552,7 @@ public class EquipmentDatabase
             listIndex: 4,
             unlockLevel: 75,
             price: 30000000L,
-            spaceCost: 3,
+            spaceCost: 4,
             detailPath: "Shop/Details/LabCafeteria",
             spritePathPrefix: "TileEquipmentSprites/LabCafeteria",
             effects: new EquipmentEffectData[]

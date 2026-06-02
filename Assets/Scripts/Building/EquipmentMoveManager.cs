@@ -51,8 +51,7 @@ public class EquipmentMoveManager : MonoBehaviour
     }
 
     movingObject.transform.position =
-        currentTile.GetCenterPosition()
-        + new Vector3(0f, 0.2f, 0f);
+        currentTile.GetCenterPosition();
 
     if (Input.GetKeyDown(KeyCode.R))
     {
@@ -152,8 +151,7 @@ public class EquipmentMoveManager : MonoBehaviour
     if (movingTileEquipment != null)
     {
         movingObject.transform.position =
-            currentTile.GetCenterPosition()
-            + new Vector3(0f, 0.2f, 0f);
+            currentTile.GetCenterPosition();
     }
     else
     {
