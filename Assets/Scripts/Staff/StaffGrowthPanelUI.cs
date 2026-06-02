@@ -2,6 +2,7 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 [Serializable]
 public class StaffLevelUpPanelSpriteData
@@ -29,6 +30,9 @@ public class StaffGrowthPanelUI : MonoBehaviour
     public Button levelUpConfirmButton;
     public Button levelUpCloseButton;
 
+    [Header("레벨업 패널 텍스트")]
+    public TextMeshProUGUI levelUpCompletedTaskCountText;
+
     [Header("레벨업 PNG 매핑")]
     public StaffLevelUpPanelSpriteData[] levelUpPanelSprites;
 
@@ -37,6 +41,9 @@ public class StaffGrowthPanelUI : MonoBehaviour
     public Image evolutionBackgroundImage;
     public Button evolutionConfirmButton;
     public Button evolutionCloseButton;
+
+    [Header("진화 패널 텍스트")]
+    public TextMeshProUGUI evolutionCompletedTaskCountText;
 
     [Header("진화 PNG 매핑")]
     public StaffEvolutionPanelSpriteData[] evolutionPanelSprites;
@@ -130,6 +137,8 @@ public class StaffGrowthPanelUI : MonoBehaviour
             levelUpBackgroundImage.sprite = panelSprite;
         }
 
+        RefreshLevelUpCompletedTaskText(staff);
+
         if (levelUpPanelRoot != null)
         {
             levelUpPanelRoot.SetActive(true);
@@ -184,6 +193,8 @@ public class StaffGrowthPanelUI : MonoBehaviour
         {
             evolutionBackgroundImage.sprite = panelSprite;
         }
+
+        RefreshEvolutionCompletedTaskText(staff);
 
         if (evolutionPanelRoot != null)
         {
@@ -475,6 +486,28 @@ public class StaffGrowthPanelUI : MonoBehaviour
 
         Debug.LogWarning("진화 PNG 매핑이 없습니다: " + staffType + " Lv." + currentLevel);
         return null;
+    }
+
+    private void RefreshLevelUpCompletedTaskText(StaffWorker staff)
+    {
+        if (levelUpCompletedTaskCountText == null)
+        {
+            return;
+        }
+
+        int completedTaskCount = GetCompletedTaskCount(staff);
+        levelUpCompletedTaskCountText.text = completedTaskCount.ToString();
+    }
+
+    private void RefreshEvolutionCompletedTaskText(StaffWorker staff)
+    {
+        if (evolutionCompletedTaskCountText == null)
+        {
+            return;
+        }
+
+        int completedTaskCount = GetCompletedTaskCount(staff);
+        evolutionCompletedTaskCountText.text = completedTaskCount.ToString();
     }
 
     private StaffType GetStaffType(StaffWorker staff)
