@@ -156,7 +156,7 @@ public class PlacementManager : MonoBehaviour
             return;
         }
 
-        previewObject.transform.position = currentTargetTile.GetCenterPosition()+ new Vector3(0f, 0.2f, 0f);
+        previewObject.transform.position = currentTargetTile.GetCenterPosition();
 
         bool canPlace = LabGridManager.Instance.CanPlaceOnTile(currentTargetTile);
 

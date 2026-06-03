@@ -34,17 +34,15 @@ public class TilePlaceableEquipmentObject : MonoBehaviour
         placedTile = tile;
         currentDirection = direction;
 
-        if (tile != null)
-        {
-            transform.position = tile.transform.position
-                       + new Vector3(0f, 0.2f, 0f);
-        }
-
         ApplyDirection(direction);
     }
 
     public void ApplyDirection(PlacementDirection direction)
     {
+        Debug.Log(
+            "ApplyDirection : " +
+            direction
+        );
         currentDirection = direction;
 
         if (spriteRenderer == null)

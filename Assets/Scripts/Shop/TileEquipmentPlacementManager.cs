@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// 타일 위에 직접 설치하는 장비의 배치 모드를 관리한다.
@@ -425,9 +426,32 @@ public class TileEquipmentPlacementManager : MonoBehaviour
             return null;
         }
 
+        Vector3 spawnPosition = tile.GetCenterPosition();
+        // if (pendingTileEquipment.spaceCost > 1)
+        // {
+        //     List<LabTile> tiles =
+        //         LabGridManager.Instance.GetPlacementTiles(
+        //             tile,
+        //             pendingTileEquipment.spaceCost,
+        //             currentDirection
+        //         );
+
+        //     if (tiles.Count > 0)
+        //     {
+        //         Vector3 center = Vector3.zero;
+
+        //         for (int i = 0; i < tiles.Count; i++)
+        //         {
+        //             center += tiles[i].GetCenterPosition();
+        //         }
+
+        //         spawnPosition = center / tiles.Count;
+        //     }
+        // }
+
         GameObject obj = Instantiate(
             prefab,
-            tile.GetCenterPosition(),
+            spawnPosition,
             Quaternion.identity
         );
 

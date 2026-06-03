@@ -20,6 +20,8 @@ public class EquipmentData
     public int unlockLevel;
     public long price;
     public int spaceCost;
+    public int sizeX = 1;
+    public int sizeY = 1;
 
     // 오른쪽 상세 카드 PNG를 Resources에서 불러오기 위한 경로
     public string detailCardResourcePath;

@@ -288,7 +288,7 @@ public class WorkstationObject : MonoBehaviour
     /// </summary>
     private void ApplyLocalPositions(WorkstationDirectionSetting setting)
     {
-        Vector3 visualOffset = new Vector3(0f, 0.2f, 0f);
+        Vector3 visualOffset = new Vector3(0f, 0f, 0f);
 
         if (deskRenderer != null)
         {

@@ -41,6 +41,7 @@ public class EquipmentMoveManager : MonoBehaviour
         return;
     }
 
+
     currentTile =
         LabGridManager.Instance.GetNearestTileFromMousePosition();
 
@@ -50,8 +51,7 @@ public class EquipmentMoveManager : MonoBehaviour
     }
 
     movingObject.transform.position =
-        currentTile.GetCenterPosition()
-        + new Vector3(0f, 0.2f, 0f);
+        currentTile.GetCenterPosition();
 
     if (Input.GetKeyDown(KeyCode.R))
     {
@@ -132,6 +132,18 @@ public class EquipmentMoveManager : MonoBehaviour
         return;
     }
 
+    Debug.Log(
+        $"Tile = {currentTile.name}, " +
+        $"Role = {currentTile.tileRole}, " +
+        $"Occupied = {currentTile.isOccupied}"
+    );
+
+    Debug.Log(
+        $"Tile = {currentTile.name}, " +
+        $"Role = {currentTile.tileRole}, " +
+        $"Occupied = {currentTile.isOccupied}"
+    );
+
     currentTile.SetOccupied(true);
 
     movingObject.placedTile = currentTile;
@@ -139,8 +151,7 @@ public class EquipmentMoveManager : MonoBehaviour
     if (movingTileEquipment != null)
     {
         movingObject.transform.position =
-            currentTile.GetCenterPosition()
-            + new Vector3(0f, 0.2f, 0f);
+            currentTile.GetCenterPosition();
     }
     else
     {
