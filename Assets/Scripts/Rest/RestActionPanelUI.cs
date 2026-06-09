@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// 인력 스탯창의 '스트레스 감소시키기' 버튼을 눌렀을 때 열리는 휴식 행동 선택 창입니다.
@@ -19,6 +20,9 @@ public class RestActionPanelUI : MonoBehaviour
 
     [Header("패널")]
     public GameObject panelRoot;
+
+    [Header("현재 스트레스")]
+    public TextMeshProUGUI currentStressText;
 
     [Header("카드 투명 버튼 8개")]
     public Button waterButton;
@@ -94,6 +98,8 @@ public class RestActionPanelUI : MonoBehaviour
 
         selectedStaff = staff;
 
+        RefreshStressText();
+
         if (panelRoot != null)
         {
             panelRoot.SetActive(true);
@@ -145,6 +151,33 @@ public class RestActionPanelUI : MonoBehaviour
             default:
                 return null;
         }
+    }
+
+    private void RefreshStressText()
+    {
+        if (currentStressText == null || selectedStaff == null)
+        {
+            return;
+        }
+
+        int currentStress = GetCurrentStress(selectedStaff);
+
+        currentStressText.text = currentStress.ToString();
+    }
+
+    private int GetCurrentStress(StaffWorker staff)
+    {
+        if (staff == null)
+        {
+            return 0;
+        }
+
+        if (staff.runtimeData != null)
+        {
+            return staff.runtimeData.currentStress;
+        }
+
+        return staff.currentStress;
     }
 }
 
