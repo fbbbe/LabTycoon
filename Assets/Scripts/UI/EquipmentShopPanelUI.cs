@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 /// <summary>
 /// 상점 패널 전체를 관리하는 스크립트.
@@ -64,6 +65,9 @@ public class EquipmentShopPanelUI : MonoBehaviour
     [Tooltip("구매 버튼입니다.")]
     public Button buyButton;
 
+    [Header("보유 금액")]
+    public TextMeshProUGUI ownedMoneyText;
+
     [Header("현재 선택 상태")]
     [Tooltip("현재 선택된 장비 데이터입니다.")]
     public EquipmentData selectedEquipment;
@@ -80,10 +84,46 @@ public class EquipmentShopPanelUI : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.OnResourceChanged += RefreshMoney;
+        }
+
+        RefreshMoney();
+    }
+
+    private void OnDestroy()
+    {
+        if (ResourceManager.Instance != null)
+        {
+            ResourceManager.Instance.OnResourceChanged -= RefreshMoney;
+        }
+    }
+
     private void OnEnable()
     {
         // 상점창이 열리면 기본으로 컴퓨터 장비 탭을 보여준다.
         ShowComputerCategory();
+
+        RefreshMoney();
+    }
+
+    private void RefreshMoney()
+    {
+        if (ownedMoneyText == null)
+        {
+            return;
+        }
+
+        if (ResourceManager.Instance == null)
+        {
+            return;
+        }
+
+        ownedMoneyText.text =
+            ResourceManager.Instance.money.ToString("N0") + "$";
     }
 
     /// <summary>
