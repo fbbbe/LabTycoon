@@ -15,6 +15,9 @@ public class CameraController : MonoBehaviour
     public Vector2 minPosition = new Vector2(-10f, -10f);
     public Vector2 maxPosition = new Vector2(10f, 10f);
 
+    [Header("배경")]
+    public SpriteRenderer backgroundRenderer;
+
     private Camera targetCamera;
     private Vector3 lastMousePosition;
 
@@ -70,16 +73,37 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    private void ClampCameraPosition()
+   private void ClampCameraPosition()
     {
-        if (useCameraLimit == false)
+        if (!useCameraLimit)
         {
             return;
         }
 
-        float clampedX = Mathf.Clamp(transform.position.x, minPosition.x, maxPosition.x);
-        float clampedY = Mathf.Clamp(transform.position.y, minPosition.y, maxPosition.y);
+        if (backgroundRenderer == null)
+        {
+            return;
+        }
 
-        transform.position = new Vector3(clampedX, clampedY, transform.position.z);
+        Bounds bounds = backgroundRenderer.bounds;
+
+        float cameraHeight = targetCamera.orthographicSize;
+        float cameraWidth = cameraHeight * targetCamera.aspect;
+
+        float minX = bounds.min.x + cameraWidth;
+        float maxX = bounds.max.x - cameraWidth;
+
+        float minY = bounds.min.y + cameraHeight;
+        float maxY = bounds.max.y - cameraHeight;
+
+        float clampedX = Mathf.Clamp(transform.position.x, minX, maxX);
+        float clampedY = Mathf.Clamp(transform.position.y, minY, maxY);
+
+        transform.position =
+            new Vector3(
+                clampedX,
+                clampedY,
+                transform.position.z
+            );
     }
 }
