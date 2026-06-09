@@ -252,6 +252,16 @@ public class WorkstationTaskController : MonoBehaviour
         if (ResourceManager.Instance != null)
         {
             ResourceManager.Instance.AddMoney(finalMoneyReward);
+
+            if (PopupManager.Instance != null)
+            {
+                PopupManager.Instance.ShowMoneyPopup(
+                    workstation.seatPoint.position +
+                    Vector3.up * 1.5f +
+                    Vector3.right * 0.5f,
+                    finalMoneyReward
+                );
+            }
             ResourceManager.Instance.AddResearchResult(finalResearchResult);
         }
 
