@@ -170,34 +170,34 @@ public class LabInfoPanelUI : MonoBehaviour
     {
         if (labLevel >= 1 && labLevel <= 10)
         {
-            return "반지하 연구실";
+            return "Underground Lab";
         }
 
         if (labLevel >= 11 && labLevel <= 25)
         {
-            return "지상";
+            return "Ground";
         }
 
         if (labLevel >= 26 && labLevel <= 40)
         {
-            return "지상 연구실";
+            return "Ground Lab";
         }
 
         if (labLevel >= 41 && labLevel <= 60)
         {
-            return "일반 연구실";
+            return "Basic Lab";
         }
 
         if (labLevel >= 61 && labLevel <= 75)
         {
-            return "대형 연구실";
+            return "Big Lab";
         }
 
         if (labLevel >= 76 && labLevel <= 90)
         {
-            return "연구 센터";
+            return "Research Center";
         }
 
-        return "공중 연구실";
+        return "Sky Lab";
     }
 }
