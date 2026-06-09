@@ -147,6 +147,11 @@ public class WorkstationTaskController : MonoBehaviour
     {
         taskState = StaffTaskState.WaitingForInspection;
 
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayTaskCompleteSound();
+        }
+
         Debug.Log("과제 완료. 검사 대기 상태로 전환됨.");
 
         RefreshUI();
@@ -249,6 +254,8 @@ public class WorkstationTaskController : MonoBehaviour
             currentTask.baseTaskStress
         );
 
+        
+
         if (ResourceManager.Instance != null)
         {
             ResourceManager.Instance.AddMoney(finalMoneyReward);
@@ -264,6 +271,7 @@ public class WorkstationTaskController : MonoBehaviour
             }
             ResourceManager.Instance.AddResearchResult(finalResearchResult);
         }
+        
 
         staff.AddStress(finalStress);
 
@@ -284,6 +292,8 @@ public class WorkstationTaskController : MonoBehaviour
             ", 연구성과 +" + finalResearchResult +
             ", 스트레스 +" + finalStress
         );
+
+        
 
         taskState = StaffTaskState.NeedCleaning;
         RefreshUI();
@@ -328,6 +338,7 @@ public class WorkstationTaskController : MonoBehaviour
     /// </summary>
     public void StartCleaning()
     {
+        
         if (taskState != StaffTaskState.NeedCleaning)
         {
             Debug.Log("현재 청소할 수 없는 상태입니다: " + taskState);
@@ -346,6 +357,11 @@ public class WorkstationTaskController : MonoBehaviour
         {
             Debug.Log("스트레스가 너무 높아 청소할 수 없습니다.");
             return;
+        }
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayCleaningSound();
         }
 
         taskState = StaffTaskState.Cleaning;

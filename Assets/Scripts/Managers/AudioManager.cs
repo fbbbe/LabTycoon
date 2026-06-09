@@ -6,6 +6,11 @@ public class AudioManager : MonoBehaviour
 
     [Header("배경음")]
     public AudioClip mainBGM;
+    
+    [Header("효과음")]
+    public AudioClip taskCompleteSound;
+    public AudioClip cleaningSound;
+
 
     private AudioSource bgmSource;
 
@@ -37,5 +42,25 @@ public class AudioManager : MonoBehaviour
         bgmSource.clip = mainBGM;
         bgmSource.loop = true;
         bgmSource.Play();
+    }
+
+   public void PlayTaskCompleteSound()
+    {
+        Debug.Log("효과음 재생");
+
+        AudioSource.PlayClipAtPoint(
+            taskCompleteSound,
+            Camera.main.transform.position
+        );
+    }
+
+    public void PlayCleaningSound()
+    {
+        if (cleaningSound == null)
+        {
+            return;
+        }
+
+        bgmSource.PlayOneShot(cleaningSound);
     }
 }
