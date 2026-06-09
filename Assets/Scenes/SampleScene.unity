@@ -4460,6 +4460,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moneyPopupPrefab: {fileID: 76711540790850654, guid: d77f95b9748030f47a5ac138d9f55e79, type: 3}
+  coinSound: {fileID: 8300000, guid: 121abcbea39a83e4786457edffe6b3c3, type: 3}
 --- !u!114 &501852219
 MonoBehaviour:
   m_ObjectHideFlags: 0
